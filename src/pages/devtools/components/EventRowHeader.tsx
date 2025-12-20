@@ -68,7 +68,7 @@ export function EventRowHeader({
       className={cn(
         'w-full flex items-center gap-3 transition-colors',
         isSticky 
-          ? 'backdrop-blur-sm border-b border-border shadow-md px-3 py-2 cursor-pointer hover:bg-accent/30' 
+          ? 'bg-background/50 backdrop-blur-sm border-b border-border shadow-md px-3 py-2 cursor-pointer hover:bg-accent/30' 
           : 'px-3 py-2 hover:bg-accent/50',
            'border-l-6',
           bucketColor || 'border-l-gray-500'
