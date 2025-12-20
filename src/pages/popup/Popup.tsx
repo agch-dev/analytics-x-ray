@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/
 import { Button } from '@src/components/ui/button';
 import { Badge } from '@src/components/ui/badge';
 import { getFormattedVersion } from '@src/lib/version';
+import { Logo } from '@src/components/Logo';
 
 export default function Popup() {
   const handleOpenOptions = () => {
@@ -14,11 +15,7 @@ export default function Popup() {
       <Card className="border-0 shadow-none bg-card">
           <CardHeader className="text-center pb-4">
             <div className="flex flex-col items-center gap-3 mb-2">
-              <img 
-                src="icons/icon32.png" 
-                className="h-16 w-16 pointer-events-none" 
-                alt="Analytics X-Ray Logo" 
-              />
+              <Logo className="h-16 w-16 pointer-events-none" size={64} />
               <div>
                 <CardTitle className="text-2xl font-bold">Analytics X-Ray</CardTitle>
                 <CardDescription className="text-sm mt-1">

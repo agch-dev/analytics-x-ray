@@ -39,4 +39,7 @@ export default defineConfig({
     crxI18n({ localize, src: './src/locales' }),
   ],
   publicDir: resolve(__dirname, 'public'),
+  define: {
+    __DEV_MODE__: JSON.stringify(isDev),
+  },
 });

@@ -9,3 +9,6 @@ declare module '*.json' {
   const content: string;
   export default content;
 }
+
+// Injected at build time by Vite
+declare const __DEV_MODE__: boolean;

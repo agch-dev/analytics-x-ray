@@ -8,13 +8,13 @@ import {
 } from '@src/components/ui/dropdown-menu';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { 
-  Analytics01Icon, 
   ArrowDown01Icon, 
   Delete02Icon,
   MoreVerticalIcon,
   Settings02Icon
 } from '@hugeicons/core-free-icons';
 import Browser from 'webextension-polyfill';
+import { Logo } from '@src/components/Logo';
 
 interface HeaderProps {
   eventCount: number;
@@ -31,7 +31,7 @@ export function Header({ eventCount, onScrollToBottom, onClear }: HeaderProps) {
     <header className="shrink-0 px-4 py-3 border-b border-border bg-card flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={Analytics01Icon} size={18} className="text-blue-400" />
+          <Logo className="pointer-events-none" size={18} />
           <h1 className="text-sm font-semibold text-foreground">
             Analytics X-Ray
           </h1>
