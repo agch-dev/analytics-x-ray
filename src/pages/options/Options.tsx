@@ -1,6 +1,211 @@
-import React from 'react';
-import '@pages/options/Options.css';
+import { useState } from 'react';
+import { useConfigStore, selectAutoCapture, selectMaxEvents, selectTheme, selectThrottleMs } from '@src/stores/configStore';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
+import { Button } from '@src/components/ui/button';
+import { Input } from '@src/components/ui/input';
+import { Label } from '@src/components/ui/label';
+import { Switch } from '@src/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@src/components/ui/select';
 
 export default function Options() {
-  return <div className="container">Options</div>;
+  // Store selectors
+  const autoCapture = useConfigStore(selectAutoCapture);
+  const maxEvents = useConfigStore(selectMaxEvents);
+  const theme = useConfigStore(selectTheme);
+  const throttleMs = useConfigStore(selectThrottleMs);
+  
+  // Store actions
+  const setAutoCapture = useConfigStore((state) => state.setAutoCapture);
+  const setMaxEvents = useConfigStore((state) => state.setMaxEvents);
+  const setTheme = useConfigStore((state) => state.setTheme);
+  const setThrottleMs = useConfigStore((state) => state.setThrottleMs);
+  const reset = useConfigStore((state) => state.reset);
+
+  // Local state for input values and validation
+  const [maxEventsInput, setMaxEventsInput] = useState(maxEvents.toString());
+  const [throttleMsInput, setThrottleMsInput] = useState(throttleMs.toString());
+  const [maxEventsError, setMaxEventsError] = useState('');
+  const [throttleMsError, setThrottleMsError] = useState('');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // Validation and update handlers
+  const handleMaxEventsBlur = () => {
+    const value = parseInt(maxEventsInput, 10);
+    if (isNaN(value)) {
+      setMaxEventsError('Please enter a valid number');
+      setMaxEventsInput(maxEvents.toString());
+    } else if (value < 1 || value > 10000) {
+      setMaxEventsError('Value must be between 1 and 10,000');
+      setMaxEventsInput(maxEvents.toString());
+    } else {
+      setMaxEventsError('');
+      setMaxEvents(value);
+    }
+  };
+
+  const handleThrottleMsBlur = () => {
+    const value = parseInt(throttleMsInput, 10);
+    if (isNaN(value)) {
+      setThrottleMsError('Please enter a valid number');
+      setThrottleMsInput(throttleMs.toString());
+    } else if (value < 0 || value > 5000) {
+      setThrottleMsError('Value must be between 0 and 5,000');
+      setThrottleMsInput(throttleMs.toString());
+    } else {
+      setThrottleMsError('');
+      setThrottleMs(value);
+    }
+  };
+
+  const handleReset = () => {
+    if (showResetConfirm) {
+      reset();
+      setMaxEventsInput('500');
+      setThrottleMsInput('100');
+      setMaxEventsError('');
+      setThrottleMsError('');
+      setShowResetConfirm(false);
+    } else {
+      setShowResetConfirm(true);
+      setTimeout(() => setShowResetConfirm(false), 3000);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background p-8">
+      <div className="mx-auto max-w-2xl space-y-8">
+        {/* Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Analytics X-Ray Settings</h1>
+          <p className="text-muted-foreground">
+            Configure how the extension captures and displays Segment analytics events.
+          </p>
+        </div>
+
+        {/* Event Capture Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Event Capture</CardTitle>
+            <CardDescription>
+              Control how events are captured and stored
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Auto-capture toggle */}
+            <div className="flex items-center justify-between space-x-4">
+              <div className="flex-1 space-y-1">
+                <Label htmlFor="auto-capture">Auto-capture events</Label>
+                <p className="text-sm text-muted-foreground">
+                  Automatically capture Segment events as they occur
+                </p>
+              </div>
+              <Switch
+                id="auto-capture"
+                checked={autoCapture}
+                onCheckedChange={setAutoCapture}
+              />
+            </div>
+
+            {/* Max events input */}
+            <div className="space-y-2">
+              <Label htmlFor="max-events">Maximum events to store</Label>
+              <Input
+                id="max-events"
+                type="number"
+                min="1"
+                max="10000"
+                value={maxEventsInput}
+                onChange={(e) => {
+                  setMaxEventsInput(e.target.value);
+                  setMaxEventsError('');
+                }}
+                onBlur={handleMaxEventsBlur}
+                className={maxEventsError ? 'border-red-500' : ''}
+              />
+              {maxEventsError ? (
+                <p className="text-sm text-red-500">{maxEventsError}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Limit the number of events stored in memory (1-10,000)
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Appearance Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Appearance</CardTitle>
+            <CardDescription>
+              Customize the extension's visual appearance
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="theme">Theme</Label>
+              <Select value={theme} onValueChange={setTheme}>
+                <SelectTrigger id="theme">
+                  <SelectValue placeholder="Select theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto (System)</SelectItem>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                Choose the color theme for the extension interface
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Advanced Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Advanced</CardTitle>
+            <CardDescription>
+              Fine-tune performance and behavior settings
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="throttle-ms">Throttle interval (ms)</Label>
+              <Input
+                id="throttle-ms"
+                type="number"
+                min="0"
+                max="5000"
+                value={throttleMsInput}
+                onChange={(e) => {
+                  setThrottleMsInput(e.target.value);
+                  setThrottleMsError('');
+                }}
+                onBlur={handleThrottleMsBlur}
+                className={throttleMsError ? 'border-red-500' : ''}
+              />
+              {throttleMsError ? (
+                <p className="text-sm text-red-500">{throttleMsError}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Delay between processing high-frequency events (0-5,000ms). Lower values provide faster updates but may impact performance.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Reset Button */}
+        <div className="flex justify-end">
+          <Button
+            variant={showResetConfirm ? "destructive" : "outline"}
+            onClick={handleReset}
+          >
+            {showResetConfirm ? 'Click again to confirm reset' : 'Reset to Defaults'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
