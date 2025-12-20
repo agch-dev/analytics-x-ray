@@ -12,30 +12,20 @@
 // ============================================================================
 
 /*
-import { useConfigStore, selectAutoCapture } from '@src/stores';
+import { useConfigStore } from '@src/stores';
 
 function SettingsPanel() {
   // ✅ Good: Use selector to avoid unnecessary re-renders
-  const autoCapture = useConfigStore(selectAutoCapture);
   const maxEvents = useConfigStore((state) => state.maxEvents);
   const theme = useConfigStore((state) => state.theme);
   const throttleMs = useConfigStore((state) => state.throttleMs);
   
-  const setAutoCapture = useConfigStore((state) => state.setAutoCapture);
   const setMaxEvents = useConfigStore((state) => state.setMaxEvents);
   const setTheme = useConfigStore((state) => state.setTheme);
   const setThrottleMs = useConfigStore((state) => state.setThrottleMs);
 
   return (
     <div>
-      <label>
-        <input
-          type="checkbox"
-          checked={autoCapture}
-          onChange={(e) => setAutoCapture(e.target.checked)}
-        />
-        Auto Capture Events
-      </label>
       <label>
         Max Events:
         <input
@@ -82,15 +72,10 @@ useConfigStore.getState().setMaxEvents(1000);
 
 // Subscribe to changes
 useConfigStore.subscribe(
-  (state) => state.autoCapture,
-  (autoCapture) => {
-    console.log('Auto capture changed to:', autoCapture);
+  (state) => state.maxEvents,
+  (maxEvents) => {
+    console.log('Max events changed to:', maxEvents);
     // Update background script behavior
-    if (autoCapture) {
-      startEventCapture();
-    } else {
-      stopEventCapture();
-    }
   }
 );
 */

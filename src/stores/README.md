@@ -8,27 +8,23 @@ This directory contains Zustand stores for managing extension state with Chrome 
 Stores global extension settings that persist across all tabs and sessions.
 
 **Available Properties:**
-- `autoCapture` (boolean) - Enable/disable automatic event capture
 - `maxEvents` (number) - Maximum number of events to store (1-10000)
 - `theme` ('light' | 'dark' | 'auto') - UI theme preference
 - `throttleMs` (number) - Throttle interval for high-frequency events (0-5000ms)
 
+**Note:** Event capture is always enabled automatically.
+
 **Usage:**
 ```typescript
-import { useConfigStore, selectAutoCapture, selectTheme } from '@src/stores';
+import { useConfigStore, selectTheme } from '@src/stores';
 
 // In a component
 function MyComponent() {
-  const autoCapture = useConfigStore(selectAutoCapture);
   const theme = useConfigStore(selectTheme);
-  const setAutoCapture = useConfigStore((state) => state.setAutoCapture);
   const setTheme = useConfigStore((state) => state.setTheme);
   
   return (
     <div>
-      <button onClick={() => setAutoCapture(!autoCapture)}>
-        {autoCapture ? 'Disable' : 'Enable'} Auto Capture
-      </button>
       <select value={theme} onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'auto')}>
         <option value="auto">Auto</option>
         <option value="light">Light</option>
@@ -154,9 +150,9 @@ The `src/lib/storage.ts` module provides:
 4. **Subscribe to Changes**: Use `subscribe()` for side effects
    ```typescript
    useConfigStore.subscribe(
-     (state) => state.autoCapture,
-     (autoCapture) => {
-       console.log('Auto capture changed:', autoCapture);
+     (state) => state.maxEvents,
+     (maxEvents) => {
+       console.log('Max events changed:', maxEvents);
      }
    );
    ```

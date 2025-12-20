@@ -11,7 +11,6 @@ import { createChromeStorage } from '@src/lib/storage';
 
 export interface ExtensionConfig {
   // Event capture settings
-  autoCapture: boolean;
   maxEvents: number;
   
   // Display settings
@@ -23,7 +22,6 @@ export interface ExtensionConfig {
 
 interface ConfigStore extends ExtensionConfig {
   // Actions
-  setAutoCapture: (enabled: boolean) => void;
   setMaxEvents: (max: number) => void;
   setTheme: (theme: ExtensionConfig['theme']) => void;
   setThrottleMs: (ms: number) => void;
@@ -31,7 +29,6 @@ interface ConfigStore extends ExtensionConfig {
 }
 
 const defaultConfig: ExtensionConfig = {
-  autoCapture: true,
   maxEvents: 500,
   theme: 'auto',
   throttleMs: 100,
@@ -42,7 +39,6 @@ export const useConfigStore = create<ConfigStore>()(
     (set) => ({
       ...defaultConfig,
 
-      setAutoCapture: (enabled) => set({ autoCapture: enabled }),
       setMaxEvents: (max) => set({ maxEvents: Math.max(1, Math.min(10000, max)) }),
       setTheme: (theme) => set({ theme }),
       setThrottleMs: (ms) => set({ throttleMs: Math.max(0, Math.min(5000, ms)) }),
@@ -57,7 +53,6 @@ export const useConfigStore = create<ConfigStore>()(
 );
 
 // Selectors for optimized re-renders
-export const selectAutoCapture = (state: ConfigStore) => state.autoCapture;
 export const selectMaxEvents = (state: ConfigStore) => state.maxEvents;
 export const selectTheme = (state: ConfigStore) => state.theme;
 export const selectThrottleMs = (state: ConfigStore) => state.throttleMs;

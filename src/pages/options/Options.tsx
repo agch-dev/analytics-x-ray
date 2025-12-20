@@ -1,21 +1,18 @@
 import { useState } from 'react';
-import { useConfigStore, selectAutoCapture, selectMaxEvents, selectTheme, selectThrottleMs } from '@src/stores/configStore';
+import { useConfigStore, selectMaxEvents, selectTheme, selectThrottleMs } from '@src/stores/configStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { Button } from '@src/components/ui/button';
 import { Input } from '@src/components/ui/input';
 import { Label } from '@src/components/ui/label';
-import { Switch } from '@src/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@src/components/ui/select';
 
 export default function Options() {
   // Store selectors
-  const autoCapture = useConfigStore(selectAutoCapture);
   const maxEvents = useConfigStore(selectMaxEvents);
   const theme = useConfigStore(selectTheme);
   const throttleMs = useConfigStore(selectThrottleMs);
   
   // Store actions
-  const setAutoCapture = useConfigStore((state) => state.setAutoCapture);
   const setMaxEvents = useConfigStore((state) => state.setMaxEvents);
   const setTheme = useConfigStore((state) => state.setTheme);
   const setThrottleMs = useConfigStore((state) => state.setThrottleMs);
@@ -91,21 +88,6 @@ export default function Options() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Auto-capture toggle */}
-            <div className="flex items-center justify-between space-x-4">
-              <div className="flex-1 space-y-1">
-                <Label htmlFor="auto-capture">Auto-capture events</Label>
-                <p className="text-sm text-muted-foreground">
-                  Automatically capture Segment events as they occur
-                </p>
-              </div>
-              <Switch
-                id="auto-capture"
-                checked={autoCapture}
-                onCheckedChange={setAutoCapture}
-              />
-            </div>
-
             {/* Max events input */}
             <div className="space-y-2">
               <Label htmlFor="max-events">Maximum events to store</Label>
