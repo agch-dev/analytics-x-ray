@@ -28,7 +28,7 @@ If you tend to have tons of tabs open, or are a OneTab user, make sure to check 
 ## Intro <a name="intro"></a>
 This boilerplate is meant to be a minimal quick start for creating chrome/firefox extensions using React, Typescript and Tailwind CSS.
 
-It includes all possible pages such as **new tab**, **dev panel**, **pop up**, etc., as well as corresponding manifest settings by default.
+It includes all possible pages such as **dev panel**, **pop up**, etc., as well as corresponding manifest settings by default.
 You will likely have to customize/delete some of the pages (see docs below).
 
 You can build dist files for both Chrome and Firefox with manifest v3.
@@ -84,12 +84,8 @@ For Firefox
 ### Customization <a name="customization"></a>
 
 #### Adding / removing pages
-The template includes source code for **all** of the extension pages (i.e. New Tab, Dev Tools, Popup, Side Panel
+The template includes source code for **all** of the extension pages (i.e. Dev Tools, Popup, Side Panel
 etc.). You will likely have to customize it to fit your needs.
-
-E.g. you don't want the newtab page to activate whenever you open a new tab:
-1. remove the directory `newtab` and its contents in `src/pages`
-2. remove `chrome_url_overrides: { newtab: 'src/pages/newtab/index.html' },` in `manifest.json`
 
 Some pages like the "Side Panel" don't work the exact same in Chrome and Firefox. While this template includes
 the source code for the side panel, it won't automatically be included in the dist file to prevent cross browser
