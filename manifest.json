@@ -21,11 +21,12 @@
     "webRequest"
   ],
   "host_permissions": [
-    "*://api.segment.io/*",
-    "*://api.segment.com/*",
-    "*://*.rudderstack.com/*",
-    "*://tracking.dreamdata.cloud/*"
+    "<all_urls>"
   ],
+  "background": {
+    "service_worker": "src/pages/background/index.ts",
+    "type": "module"
+  },
   "content_scripts": [
     {
       "matches": [
