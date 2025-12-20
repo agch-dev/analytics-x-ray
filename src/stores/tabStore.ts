@@ -13,6 +13,9 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { createTabStorage } from '@src/lib/storage';
 import type { SegmentEvent } from '@src/types/segment';
+import { createContextLogger } from '@src/lib/logger';
+
+const log = createContextLogger('storage');
 
 export interface TabState {
   // Events captured for this tab
@@ -59,8 +62,10 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         ...defaultTabState,
 
         addEvent: (event) => {
+          log.debug(`➕ Adding event to store (tabId: ${tabId}):`, event.name, event.type);
           set((state) => {
             const events = [event, ...state.events].slice(0, maxEvents);
+            log.debug(`  Total events in store: ${events.length}`);
             return {
               events,
               lastUpdated: Date.now(),
@@ -69,6 +74,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         },
 
         clearEvents: () => {
+          log.info(`🗑️ Clearing all events for tab ${tabId}`);
           set({
             events: [],
             selectedEventId: null,
@@ -135,7 +141,10 @@ const tabStoreRegistry = new Map<number, ReturnType<typeof createTabStore>>();
  */
 export const getTabStore = (tabId: number, maxEvents: number = 500) => {
   if (!tabStoreRegistry.has(tabId)) {
+    log.info(`🏗️ Creating new tab store for tab ${tabId} (maxEvents: ${maxEvents})`);
     tabStoreRegistry.set(tabId, createTabStore(tabId, maxEvents));
+  } else {
+    log.debug(`♻️ Reusing existing tab store for tab ${tabId}`);
   }
   return tabStoreRegistry.get(tabId)!;
 };
