@@ -1,7 +1,8 @@
-import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle, useState, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { SegmentEvent } from '@src/types/segment';
 import { EventRow } from './EventRow';
+import { EventRowHeader } from './EventRowHeader';
 import { EmptyState } from './EmptyState';
 
 export interface EventListHandle {
@@ -16,6 +17,9 @@ interface EventListProps {
   onToggleExpand: (id: string) => void;
 }
 
+// Height of the row header (used for sticky header calculations)
+const ROW_HEADER_HEIGHT = 39;
+
 export const EventList = forwardRef<EventListHandle, EventListProps>(
   function EventList({ 
     events, 
@@ -27,6 +31,10 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const shouldAutoScrollRef = useRef(true);
     const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+    
+    // Track the expanded event whose header has scrolled out of view
+    const [stickyEvent, setStickyEvent] = useState<SegmentEvent | null>(null);
+    const [stickyEventIndex, setStickyEventIndex] = useState<number | null>(null);
     
     // Reverse events so newest is at bottom
     const displayEvents = useMemo(() => [...events].reverse(), [events]);
@@ -67,15 +75,39 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       },
     }));
     
-    // Handle scroll to detect if user has scrolled up
-    const handleScroll = () => {
+    // Handle scroll to detect if user has scrolled up and manage sticky header
+    const handleScroll = useCallback(() => {
       const container = scrollContainerRef.current;
       if (!container) return;
       
       const { scrollTop, scrollHeight, clientHeight } = container;
       const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
       shouldAutoScrollRef.current = isAtBottom;
-    };
+      
+      // Check for expanded events whose headers have scrolled out of view
+      const virtualItems = virtualizer.getVirtualItems();
+      let foundStickyEvent: SegmentEvent | null = null;
+      let foundStickyIndex: number | null = null;
+      
+      for (const virtualItem of virtualItems) {
+        const event = displayEvents[virtualItem.index];
+        if (!event || !expandedEventIds.has(event.id)) continue;
+        
+        // Check if the header is above the viewport but the item is still visible
+        const itemTop = virtualItem.start;
+        const itemBottom = virtualItem.start + virtualItem.size;
+        
+        // Header is scrolled out (item starts above viewport) but item still visible
+        if (itemTop < scrollTop && itemBottom > scrollTop + ROW_HEADER_HEIGHT) {
+          foundStickyEvent = event;
+          foundStickyIndex = virtualItem.index;
+          break; // Only show one sticky header at a time
+        }
+      }
+      
+      setStickyEvent(foundStickyEvent);
+      setStickyEventIndex(foundStickyIndex);
+    }, [displayEvents, expandedEventIds, virtualizer]);
     
     // Wrapper for toggle expand that also triggers remeasurement
     const handleToggleExpand = (id: string) => {
@@ -129,13 +161,46 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     }, [expandedEventIds.size, displayEvents.length, virtualizer]); // Use size for Set comparison
 
     const virtualItems = virtualizer.getVirtualItems();
+    
+    // Scroll to the top of the sticky event
+    const handleScrollToStickyEventTop = useCallback(() => {
+      if (stickyEventIndex !== null) {
+        virtualizer.scrollToIndex(stickyEventIndex, {
+          align: 'start',
+          behavior: 'smooth',
+        });
+      }
+    }, [stickyEventIndex, virtualizer]);
+    
+    // Handle toggle from sticky header (also clears sticky state)
+    const handleStickyToggle = useCallback((id: string) => {
+      setStickyEvent(null);
+      setStickyEventIndex(null);
+      handleToggleExpand(id);
+    }, [handleToggleExpand]);
 
     return (
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto relative"
       >
+        {/* Sticky header overlay */}
+        {stickyEvent && (
+          <div 
+            className="sticky top-0 left-0 right-0 z-10"
+            style={{ position: 'sticky' }}
+          >
+            <EventRowHeader
+              event={stickyEvent}
+              isExpanded={true}
+              isSticky={true}
+              onToggleExpand={handleStickyToggle}
+              onScrollToTop={handleScrollToStickyEventTop}
+            />
+          </div>
+        )}
+        
         {displayEvents.length === 0 ? (
           <EmptyState />
         ) : (
