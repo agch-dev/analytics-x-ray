@@ -43,7 +43,7 @@ export function Header({
     <header className="shrink-0 px-4 py-3 border-b border-border bg-card flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <Logo className="pointer-events-none" size={18} />
+          <Logo className="pointer-events-none" size={30} />
           <h1 className="text-sm font-semibold text-foreground">
             Analytics X-Ray
           </h1>
