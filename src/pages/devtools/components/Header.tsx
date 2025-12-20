@@ -44,22 +44,21 @@ export function Header({
   };
 
   return (
-    <header className="shrink-0 px-2 sm:px-4 py-2 sm:py-3 border-b border-border bg-card flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-2">
+    <header className="shrink-0 px-2 sm:px-4 py-2 sm:py-3 border-b border-border bg-card flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4">
+      <div className="flex items-center justify-between gap-2 lg:justify-start lg:shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <Logo className="pointer-events-none" size={30} />
-            <h1 className="hidden sm:inline text-sm font-semibold text-foreground whitespace-nowrap">
+            <h1 className="text-sm font-semibold text-foreground whitespace-nowrap">
               Analytics X-Ray
             </h1>
           </div>
           <Badge variant="secondary" className="text-xs font-mono shrink-0">
-            <span className="hidden sm:inline">{eventCount} events</span>
-            <span className="sm:hidden">{eventCount}</span>
+            <span >{eventCount} events</span>
           </Badge>
         </div>
         
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0 lg:hidden">
         <Button
           variant="ghost"
           size="sm"
@@ -112,7 +111,7 @@ export function Header({
       </div>
       
       {/* Search input */}
-      <div className="relative flex-1 max-w-md">
+      <div className="relative flex-1 lg:max-w-md lg:mx-auto">
         <HugeiconsIcon 
           icon={Search01Icon} 
           size={16} 
@@ -134,6 +133,58 @@ export function Header({
             <HugeiconsIcon icon={SearchRemoveIcon} size={14} />
           </button>
         )}
+      </div>
+
+      {/* Action buttons - visible on lg screens */}
+      <div className="hidden lg:flex items-center gap-2 shrink-0">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleFilterPanel}
+          className={cn(
+            "text-xs text-muted-foreground hover:text-foreground relative px-2",
+            isFilterPanelOpen && "bg-accent"
+          )}
+          title="Filter"
+        >
+          <HugeiconsIcon icon={FilterIcon} size={14} />
+          {filteredEventNamesCount > 0 && (
+            <Badge 
+              variant="destructive" 
+              className="ml-1 h-4 min-w-4 px-1 text-[10px] font-mono absolute -top-1 -right-1"
+            >
+              {filteredEventNamesCount}
+            </Badge>
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClear}
+          className="text-xs text-muted-foreground hover:text-destructive px-2"
+          title="Clear"
+        >
+          <HugeiconsIcon icon={Delete02Icon} size={14} />
+        </Button>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground hover:text-foreground px-2"
+              title="More options"
+            >
+              <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={handleOpenSettings}>
+              <HugeiconsIcon icon={Settings02Icon} size={14} className="mr-2" />
+              Settings
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
