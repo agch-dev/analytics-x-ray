@@ -1,7 +1,20 @@
 import { Badge } from '@src/components/ui/badge';
 import { Button } from '@src/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@src/components/ui/dropdown-menu';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Analytics01Icon, ArrowDown01Icon, Delete02Icon } from '@hugeicons/core-free-icons';
+import { 
+  Analytics01Icon, 
+  ArrowDown01Icon, 
+  Delete02Icon,
+  MoreVerticalIcon,
+  Settings02Icon
+} from '@hugeicons/core-free-icons';
+import Browser from 'webextension-polyfill';
 
 interface HeaderProps {
   eventCount: number;
@@ -10,6 +23,10 @@ interface HeaderProps {
 }
 
 export function Header({ eventCount, onScrollToBottom, onClear }: HeaderProps) {
+  const handleOpenSettings = () => {
+    Browser.runtime.openOptionsPage();
+  };
+
   return (
     <header className="shrink-0 px-4 py-3 border-b border-border bg-card flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -43,6 +60,24 @@ export function Header({ eventCount, onScrollToBottom, onClear }: HeaderProps) {
           <HugeiconsIcon icon={Delete02Icon} size={14} className="mr-1" />
           Clear
         </Button>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={handleOpenSettings}>
+              <HugeiconsIcon icon={Settings02Icon} size={14} className="mr-2" />
+              Settings
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
