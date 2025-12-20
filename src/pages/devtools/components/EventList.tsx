@@ -26,7 +26,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     const virtualizer = useVirtualizer({
       count: displayEvents.length,
       getScrollElement: () => scrollContainerRef.current,
-      estimateSize: () => 72, // Estimated height of each EventRow
+      estimateSize: () => 39, // Estimated height of each EventRow
       overscan: 5, // Render 5 extra items above and below viewport
     });
     

@@ -1,0 +1,352 @@
+---
+description: When adding new icons
+alwaysApply: false
+---
+# HugeIcons Usage Guide
+
+## Installation
+
+```bash
+yarn add @hugeicons/react
+yarn add @hugeicons/core-free-icons
+```
+
+Packages:
+- `@hugeicons/react` v1.1.3 - The main component
+- `@hugeicons/core-free-icons` v3.0.0 - Free icon objects
+
+> **Important**: This project uses the FREE version of HugeIcons. Always import icons from `@hugeicons/core-free-icons`, NOT from `@hugeicons/react`. The `@hugeicons/react` package only provides the `HugeiconsIcon` component, while the icon objects come from the free icons package.
+
+## Documentation
+
+- Official Docs: https://hugeicons.com/
+- NPM Package: https://www.npmjs.com/package/@hugeicons/react
+- Icon Library: Browse all icons at https://hugeicons.com/icons
+
+## Basic Usage (Free Version)
+
+### Import Pattern
+
+```typescript
+// 1. Import the HugeiconsIcon component
+import { HugeiconsIcon } from '@hugeicons/react';
+
+// 2. Import icon objects from the free icons package
+import { 
+  Analytics01Icon,
+  ArrowDown01Icon,
+  Delete02Icon,
+  Activity01Icon,
+  Layout01Icon,
+  UserIcon,
+  UserGroupIcon,
+} from '@hugeicons/core-free-icons';
+```
+
+### Icon Props
+
+The `HugeiconsIcon` component supports the following props:
+
+```typescript
+interface HugeIconProps {
+  icon: IconObject;        // REQUIRED: Icon object from @hugeicons/core-free-icons
+  size?: number;           // Size in pixels (default: 24)
+  color?: string;          // Icon color (default: currentColor)
+  strokeWidth?: number;    // Stroke width (default: 1.5)
+  className?: string;      // Additional CSS classes
+  onClick?: () => void;    // Click handler
+  style?: CSSProperties;   // Inline styles
+}
+```
+
+### Examples
+
+```tsx
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Search01Icon, 
+  Delete02Icon, 
+  Analytics01Icon,
+  Settings01Icon 
+} from '@hugeicons/core-free-icons';
+
+// ✅ Basic icon with size and color
+<HugeiconsIcon icon={Search01Icon} size={20} color="currentColor" />
+
+// ✅ Using Tailwind classes (recommended)
+<HugeiconsIcon 
+  icon={Delete02Icon}
+  className="text-red-400 hover:text-red-300 cursor-pointer"
+  size={18}
+/>
+
+// ✅ Custom stroke width
+<HugeiconsIcon 
+  icon={Analytics01Icon}
+  size={24}
+  strokeWidth={2}
+  className="text-blue-400"
+/>
+
+// ✅ With click handler
+<HugeiconsIcon
+  icon={Settings01Icon}
+  size={20}
+  className="text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
+  onClick={() => console.log('Settings clicked')}
+/>
+```
+
+## Common Icons for Analytics X-Ray
+
+### Event Type Icons
+
+```tsx
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Activity01Icon,        // Track events
+  Layout01Icon,          // Page events  
+  UserIcon,              // Identify events
+  UserGroupIcon,         // Group events
+  DeviceAccessIcon,      // Screen events
+  LinkSquare02Icon,      // Alias events
+} from '@hugeicons/core-free-icons';
+
+// Event type badge with icon
+<div className="flex items-center gap-1.5">
+  <HugeiconsIcon icon={Activity01Icon} size={14} className="text-blue-400" />
+  <span className="text-xs">Track</span>
+</div>
+```
+
+### UI Action Icons
+
+```tsx
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Delete02Icon,          // Clear/Delete (featured in free version)
+  Filter01Icon,          // Filter
+  Search01Icon,          // Search
+  Download01Icon,        // Export
+  Copy01Icon,            // Copy to clipboard
+  ArrowDown01Icon,       // Scroll down
+  ArrowUp01Icon,         // Scroll up
+  Settings01Icon,        // Settings
+} from '@hugeicons/core-free-icons';
+
+// Usage
+<HugeiconsIcon icon={Delete02Icon} size={16} className="text-red-400" />
+```
+
+### DevTools Panel Icons
+
+```tsx
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Analytics01Icon,       // Analytics/Stats
+  Activity01Icon,        // Activity/Events
+  Layout01Icon,          // Layout/Page
+  UserIcon,              // User
+} from '@hugeicons/core-free-icons';
+
+// Usage
+<HugeiconsIcon icon={Analytics01Icon} size={20} className="text-blue-400" />
+```
+
+## Integration with Components
+
+### In Buttons
+
+```tsx
+import { Button } from '@src/components/ui/button';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Delete02Icon } from '@hugeicons/core-free-icons';
+
+<Button 
+  variant="outline" 
+  size="sm"
+  className="text-red-400 hover:text-red-300"
+>
+  <HugeiconsIcon icon={Delete02Icon} size={16} className="mr-1.5" />
+  Clear Events
+</Button>
+```
+
+### In Cards/Headers
+
+```tsx
+import { Card, CardHeader } from '@src/components/ui/card';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Analytics01Icon, Settings01Icon } from '@hugeicons/core-free-icons';
+
+<CardHeader className="flex flex-row items-center justify-between">
+  <div className="flex items-center gap-2">
+    <HugeiconsIcon icon={Analytics01Icon} size={20} className="text-blue-400" />
+    <h2>Segment Events</h2>
+  </div>
+  <HugeiconsIcon 
+    icon={Settings01Icon}
+    size={18} 
+    className="cursor-pointer text-gray-400 hover:text-gray-200"
+  />
+</CardHeader>
+```
+
+### In Event Rows
+
+```tsx
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Activity01Icon, Copy01Icon } from '@hugeicons/core-free-icons';
+
+<div className="flex items-center justify-between p-3 hover:bg-gray-800">
+  <div className="flex items-center gap-2">
+    <HugeiconsIcon icon={Activity01Icon} size={16} className="text-blue-400" />
+    <span>{event.name}</span>
+  </div>
+  <HugeiconsIcon 
+    icon={Copy01Icon}
+    size={14} 
+    className="text-gray-400 hover:text-gray-200 cursor-pointer"
+    onClick={() => copyToClipboard(event)}
+  />
+</div>
+```
+
+## Styling Guidelines
+
+### Dark Theme (DevTools)
+
+```tsx
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Search01Icon, Delete02Icon, Analytics01Icon } from '@hugeicons/core-free-icons';
+
+// ✅ Match DevTools dark theme
+<HugeiconsIcon 
+  icon={Search01Icon}
+  className="text-gray-400"  // Default state
+/>
+
+<HugeiconsIcon
+  icon={Delete02Icon}
+  className="text-red-400 hover:text-red-300 transition-colors"
+/>
+
+<HugeiconsIcon
+  icon={Analytics01Icon}
+  className="text-blue-400"
+/>
+```
+
+### Consistent Sizing
+
+```typescript
+// Recommended sizes for different contexts
+const ICON_SIZES = {
+  xs: 12,      // Inline with small text
+  sm: 14,      // Inline with normal text  
+  md: 16,      // Buttons, badges
+  lg: 20,      // Headers, cards
+  xl: 24,      // Hero sections
+} as const;
+```
+
+### Responsive Icons
+
+```tsx
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Activity01Icon } from '@hugeicons/core-free-icons';
+
+// Scale icons with text
+<div className="flex items-center gap-1.5 text-sm">
+  <HugeiconsIcon icon={Activity01Icon} size={14} className="text-current" />
+  <span>Track Event</span>
+</div>
+
+<div className="flex items-center gap-2 text-lg">
+  <HugeiconsIcon icon={Activity01Icon} size={18} className="text-current" />
+  <span>Track Event</span>
+</div>
+```
+
+## Best Practices
+
+### ✅ Do
+
+- Use `currentColor` or Tailwind text classes for color
+- Match icon size to surrounding text
+- Use consistent stroke widths (1.5 or 2)
+- Add hover states for interactive icons
+- Include `cursor-pointer` for clickable icons
+- Use transitions for smooth color changes
+- Provide semantic meaning (not just decoration)
+
+### ❌ Don't
+
+- Don't use inline styles for colors (use Tailwind)
+- Don't make icons too large (overwhelms UI)
+- Don't use different stroke widths inconsistently
+- Don't forget to add hover states on interactive icons
+- Don't use too many different icons (visual clutter)
+- Don't sacrifice accessibility (add aria-labels if needed)
+
+## Example Component
+
+```tsx
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Activity01Icon, 
+  Copy01Icon, 
+  Delete02Icon 
+} from '@hugeicons/core-free-icons';
+import { Button } from '@src/components/ui/button';
+
+export function EventHeader({ eventCount, onClear, onCopy }) {
+  return (
+    <header className="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700">
+      <div className="flex items-center gap-2">
+        <HugeiconsIcon icon={Activity01Icon} size={20} className="text-blue-400" />
+        <h1 className="text-lg font-semibold text-white">
+          Events ({eventCount})
+        </h1>
+      </div>
+      
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onCopy}
+          className="text-gray-400 hover:text-gray-200"
+        >
+          <HugeiconsIcon icon={Copy01Icon} size={16} className="mr-1.5" />
+          Copy All
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClear}
+          className="text-red-400 hover:text-red-300"
+        >
+          <HugeiconsIcon icon={Delete02Icon} size={16} className="mr-1.5" />
+          Clear
+        </Button>
+      </div>
+    </header>
+  );
+}
+```
+
+## Icon Search
+
+Find icons by searching at: https://hugeicons.com/icons
+
+Common search terms for this project:
+- "analytics", "chart", "graph" - Data visualization
+- "event", "activity" - Event tracking
+- "user", "person" - User identification
+- "filter", "search" - Data filtering
+- "download", "export" - Data export
+- "settings", "gear" - Configuration
+- "delete", "trash" - Clear actions
+- "copy", "clipboard" - Copy actions
+- "expand", "collapse" - UI controls

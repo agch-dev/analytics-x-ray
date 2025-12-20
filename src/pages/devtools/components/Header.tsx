@@ -1,5 +1,7 @@
 import { Badge } from '@src/components/ui/badge';
 import { Button } from '@src/components/ui/button';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Analytics01Icon, ArrowDown01Icon, Delete02Icon } from '@hugeicons/core-free-icons';
 
 interface HeaderProps {
   eventCount: number;
@@ -11,9 +13,12 @@ export function Header({ eventCount, onScrollToBottom, onClear }: HeaderProps) {
   return (
     <header className="shrink-0 px-4 py-3 border-b border-border bg-card flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <h1 className="text-sm font-semibold text-foreground">
-          Analytics X-Ray
-        </h1>
+        <div className="flex items-center gap-2">
+          <HugeiconsIcon icon={Analytics01Icon} size={18} className="text-blue-400" />
+          <h1 className="text-sm font-semibold text-foreground">
+            Analytics X-Ray
+          </h1>
+        </div>
         <Badge variant="secondary" className="text-xs font-mono">
           {eventCount} events
         </Badge>
@@ -26,7 +31,8 @@ export function Header({ eventCount, onScrollToBottom, onClear }: HeaderProps) {
           onClick={onScrollToBottom}
           className="text-xs text-muted-foreground hover:text-foreground"
         >
-          ↓ Latest
+          <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="mr-1" />
+          Latest
         </Button>
         <Button
           variant="ghost"
@@ -34,6 +40,7 @@ export function Header({ eventCount, onScrollToBottom, onClear }: HeaderProps) {
           onClick={onClear}
           className="text-xs text-muted-foreground hover:text-destructive"
         >
+          <HugeiconsIcon icon={Delete02Icon} size={14} className="mr-1" />
           Clear
         </Button>
       </div>
