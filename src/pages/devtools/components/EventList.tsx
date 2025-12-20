@@ -19,6 +19,9 @@ interface EventListProps {
 
 // Height of the row header (used for sticky header calculations)
 const ROW_HEADER_HEIGHT = 39;
+// Hysteresis buffer to prevent flickering - once sticky, require more scroll to un-stick
+const STICKY_SHOW_THRESHOLD = 50;  // Need this much visible to SHOW sticky
+const STICKY_HIDE_THRESHOLD = 10;  // Need less than this to HIDE sticky
 
 export const EventList = forwardRef<EventListHandle, EventListProps>(
   function EventList({ 
@@ -78,6 +81,9 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       },
     }));
     
+    // Track current sticky event ID to avoid unnecessary state updates
+    const currentStickyIdRef = useRef<string | null>(null);
+    
     // Handle scroll to detect if user has scrolled up and manage sticky header
     const handleScroll = useCallback(() => {
       const container = scrollContainerRef.current;
@@ -101,15 +107,31 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         const itemBottom = virtualItem.start + virtualItem.size;
         
         // Header is scrolled out (item starts above viewport) but item still visible
-        if (itemTop < scrollTop && itemBottom > scrollTop + ROW_HEADER_HEIGHT) {
+        const visibleBelowHeader = itemBottom - (scrollTop + ROW_HEADER_HEIGHT);
+        // Header is fully scrolled out when its bottom edge is above the viewport
+        const headerFullyHidden = itemTop + ROW_HEADER_HEIGHT <= scrollTop;
+        
+        // Use hysteresis ONLY for the bottom boundary (prevents flicker when scrolling down)
+        // For the top boundary, immediately hide when the actual header becomes visible
+        const isCurrentlySticky = currentStickyIdRef.current === event.id;
+        const bottomThreshold = isCurrentlySticky ? STICKY_HIDE_THRESHOLD : STICKY_SHOW_THRESHOLD;
+        const enoughContentVisible = visibleBelowHeader > bottomThreshold;
+        const shouldBeSticky = headerFullyHidden && enoughContentVisible;
+        
+        if (shouldBeSticky) {
           foundStickyEvent = event;
           foundStickyIndex = virtualItem.index;
           break; // Only show one sticky header at a time
         }
       }
       
-      setStickyEvent(foundStickyEvent);
-      setStickyEventIndex(foundStickyIndex);
+      // Only update state if the sticky event actually changed (compare by ID)
+      const newStickyId = foundStickyEvent?.id ?? null;
+      if (newStickyId !== currentStickyIdRef.current) {
+        currentStickyIdRef.current = newStickyId;
+        setStickyEvent(foundStickyEvent);
+        setStickyEventIndex(foundStickyIndex);
+      }
     }, [displayEvents, expandedEventIds, virtualizer]);
     
     // Wrapper for toggle expand that also triggers remeasurement
@@ -182,7 +204,8 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         const eventId = stickyEvent.id;
         const indexToScrollTo = stickyEventIndex;
         
-        // Clear sticky state first
+        // Clear sticky state first (including ref to prevent race conditions)
+        currentStickyIdRef.current = null;
         setStickyEvent(null);
         setStickyEventIndex(null);
         

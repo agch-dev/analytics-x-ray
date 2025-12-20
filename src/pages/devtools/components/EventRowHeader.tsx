@@ -70,13 +70,6 @@ export function EventRowHeader({
           {event.provider}
         </span>
       )}
-
-      {/* Click hint for sticky header */}
-      {isSticky && (
-        <span className="text-xs text-muted-foreground shrink-0">
-          click to collapse
-        </span>
-      )}
     </div>
   );
 }
