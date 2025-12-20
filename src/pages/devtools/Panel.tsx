@@ -17,7 +17,9 @@ export default function Panel() {
   // Selectors - only subscribe to what we need
   const events = useTabStore((state) => state.events);
   const selectedEventId = useTabStore((state) => state.selectedEventId);
+  const expandedEventIds = useTabStore((state) => state.expandedEventIds);
   const setSelectedEvent = useTabStore((state) => state.setSelectedEvent);
+  const toggleEventExpanded = useTabStore((state) => state.toggleEventExpanded);
   const clearEvents = useTabStore((state) => state.clearEvents);
   const addEvent = useTabStore((state) => state.addEvent);
   
@@ -67,7 +69,9 @@ export default function Panel() {
         ref={eventListRef}
         events={events}
         selectedEventId={selectedEventId}
+        expandedEventIds={expandedEventIds}
         onSelectEvent={setSelectedEvent}
+        onToggleExpand={toggleEventExpanded}
       />
       
       <Footer tabId={tabId} />

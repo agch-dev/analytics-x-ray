@@ -1,3 +1,5 @@
+import JsonView from '@uiw/react-json-view';
+import { darkTheme } from '@uiw/react-json-view/dark';
 import { cn } from '@src/lib/utils';
 import type { SegmentEvent, SegmentEventType } from '@src/types/segment';
 import { EVENT_TYPE_LABELS } from '@src/types/segment';
@@ -30,41 +32,79 @@ const formatTime = (timestamp: string | number): string => {
 interface EventRowProps {
   event: SegmentEvent;
   isSelected: boolean;
+  isExpanded: boolean;
   onSelect: (id: string) => void;
+  onToggleExpand: (id: string) => void;
 }
 
-export function EventRow({ event, isSelected, onSelect }: EventRowProps) {
+export function EventRow({ 
+  event, 
+  isSelected, 
+  isExpanded,
+  onSelect, 
+  onToggleExpand 
+}: EventRowProps) {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleExpand(event.id);
+  };
+
   return (
-    <button
-      onClick={() => onSelect(event.id)}
+    <div
       className={cn(
-        'w-full text-left px-3 py-2 flex items-center gap-3 transition-colors',
-        'hover:bg-accent/50 border-b border-border',
+        'w-full border-b border-border transition-colors',
         isSelected && 'bg-blue-500/10 dark:bg-blue-500/10 border-l-2 border-l-blue-500'
       )}
     >
-      {/* Timestamp */}
-      <span className="text-xs text-muted-foreground font-mono shrink-0 w-24">
-        {formatTime(event.timestamp)}
-      </span>
-      
-      {/* Event type badge */}
-      <span className={getEventTypeClasses(event.type)}>
-        {EVENT_TYPE_LABELS[event.type]}
-      </span>
-      
-      {/* Event name */}
-      <span className="text-sm text-foreground truncate flex-1">
-        {event.name}
-      </span>
-      
-      {/* Provider indicator */}
-      {event.provider && event.provider !== 'segment' && (
-        <span className="text-xs text-muted-foreground uppercase tracking-wider">
-          {event.provider}
+      {/* Row header - clickable */}
+      <button
+        onClick={handleClick}
+        className={cn(
+          'w-full text-left px-3 py-2 flex items-center gap-3 transition-colors',
+          'hover:bg-accent/50'
+        )}
+      >
+        {/* Timestamp */}
+        <span className="text-xs text-muted-foreground font-mono shrink-0 w-24">
+          {formatTime(event.timestamp)}
         </span>
+        
+        {/* Event type badge */}
+        <span className={getEventTypeClasses(event.type)}>
+          {EVENT_TYPE_LABELS[event.type]}
+        </span>
+        
+        {/* Event name */}
+        <span className="text-sm text-foreground truncate flex-1">
+          {event.name}
+        </span>
+        
+        {/* Provider indicator */}
+        {event.provider && event.provider !== 'segment' && (
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">
+            {event.provider}
+          </span>
+        )}
+      </button>
+
+      {/* Expanded JSON view */}
+      {isExpanded && (
+        <div className="px-3 pb-3 border-t border-border bg-background/50">
+          <JsonView
+            value={event}
+            style={{
+              ...darkTheme,
+              backgroundColor: 'transparent',
+              fontSize: '12px',
+            }}
+            collapsed={false}
+            displayDataTypes={false}
+            displayObjectSize={false}
+            enableClipboard={true}
+          />
+        </div>
       )}
-    </button>
+    </div>
   );
 }
 
