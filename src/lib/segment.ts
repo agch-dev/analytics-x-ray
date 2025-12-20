@@ -216,11 +216,12 @@ export function normalizeEvent(
   sentAt: string,
   provider: SegmentProvider
 ): SegmentEvent {
-  // Generate messageId if not present
+  // Use messageId directly as the unique identifier
+  // Generate one if not present (though all Segment events should have messageId)
   const messageId = batchEvent.messageId || `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   return {
-    id: `${messageId}_${Date.now()}`,
+    id: messageId,
     type: batchEvent.type,
     name: getEventName(batchEvent),
     properties: batchEvent.properties || {},
