@@ -53,9 +53,9 @@ export interface SegmentBatchEvent {
   traits?: Record<string, unknown>; // For identify/group events
   anonymousId?: string;
   userId?: string;
-  messageId: string;
-  timestamp: string;
-  context: SegmentContext;
+  messageId?: string; // Optional - some implementations may not include it
+  timestamp?: string; // Optional - will be generated if missing
+  context?: SegmentContext; // Optional - will have defaults if missing
   integrations?: Record<string, boolean | Record<string, unknown>>;
 }
 

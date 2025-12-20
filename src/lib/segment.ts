@@ -26,6 +26,9 @@ import type {
   SegmentBatchPayload,
   SegmentEvent,
 } from '@src/types/segment';
+import { createContextLogger } from '@src/lib/logger';
+
+const log = createContextLogger('background');
 
 // Endpoint patterns for each provider
 export const SEGMENT_ENDPOINTS = [
@@ -66,8 +69,8 @@ export function decodeRequestBody(
       .filter((part) => part.bytes instanceof ArrayBuffer)
       .map((part) => decoder.decode(part.bytes as ArrayBuffer));
     return parts.join('');
-  } catch {
-    console.error('[analytics-x-ray] Failed to decode request body');
+  } catch (error) {
+    log.error('Failed to decode request body', error);
     return null;
   }
 }
@@ -81,36 +84,86 @@ export function parseSegmentPayload(
   try {
     const payload = JSON.parse(jsonString);
 
-    // Validate it looks like a Segment payload
-    if (!isSegmentPayload(payload)) {
-      return null;
+    // Handle both batch format and single event format
+    if (isSegmentPayload(payload)) {
+      return payload;
+    }
+    
+    // Check if it's a single event (not wrapped in batch)
+    if (isSingleSegmentEvent(payload)) {
+      log.debug('Converting single event to batch format');
+      return {
+        batch: [payload as SegmentBatchEvent],
+        sentAt: new Date().toISOString(),
+      };
     }
 
-    return payload;
-  } catch {
-    console.error('[analytics-x-ray] Failed to parse Segment payload');
+    log.error('Payload validation failed. Payload structure:', {
+      hasPayload: !!payload,
+      isObject: typeof payload === 'object' && payload !== null,
+      hasBatch: payload && 'batch' in payload,
+      batchIsArray: payload && Array.isArray(payload.batch),
+      batchLength: payload && Array.isArray(payload.batch) ? payload.batch.length : 0,
+      keys: payload ? Object.keys(payload) : [],
+      firstFewChars: jsonString.substring(0, 200)
+    });
+    return null;
+  } catch (error) {
+    log.error('Failed to parse Segment payload JSON:', error, 'String preview:', jsonString.substring(0, 200));
     return null;
   }
+}
+
+/**
+ * Type guard to check if payload is a single Segment event (not batched)
+ */
+function isSingleSegmentEvent(payload: unknown): boolean {
+  if (typeof payload !== 'object' || payload === null) return false;
+  
+  const p = payload as Record<string, unknown>;
+  
+  // Check if it has the structure of a single event
+  return (
+    typeof p.type === 'string' &&
+    ['track', 'page', 'screen', 'identify', 'group', 'alias'].includes(p.type as string)
+  );
 }
 
 /**
  * Type guard to validate a Segment payload structure
  */
 function isSegmentPayload(payload: unknown): payload is SegmentBatchPayload {
-  if (typeof payload !== 'object' || payload === null) return false;
+  if (typeof payload !== 'object' || payload === null) {
+    log.debug('Payload is not an object');
+    return false;
+  }
 
   const p = payload as Record<string, unknown>;
 
   // Check for batch array
-  if (!Array.isArray(p.batch)) return false;
+  if (!Array.isArray(p.batch)) {
+    log.debug('Payload does not have a batch array. Keys:', Object.keys(p));
+    return false;
+  }
 
   // Validate at least one event in batch
-  if (p.batch.length === 0) return false;
+  if (p.batch.length === 0) {
+    log.warn('Batch array is empty');
+    return false;
+  }
 
   // Validate first event has required fields
   const firstEvent = p.batch[0] as Record<string, unknown>;
-  if (typeof firstEvent.type !== 'string') return false;
-  if (typeof firstEvent.messageId !== 'string') return false;
+  if (typeof firstEvent.type !== 'string') {
+    log.error('First event missing type field. Event:', firstEvent);
+    return false;
+  }
+  
+  // messageId might be optional in some Segment implementations
+  // Let's be more lenient here
+  if (!firstEvent.messageId && !firstEvent.message_id) {
+    log.debug('First event missing messageId/message_id, but continuing anyway');
+  }
 
   return true;
 }
@@ -163,18 +216,21 @@ export function normalizeEvent(
   sentAt: string,
   provider: SegmentProvider
 ): SegmentEvent {
+  // Generate messageId if not present
+  const messageId = batchEvent.messageId || `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
   return {
-    id: `${batchEvent.messageId}_${Date.now()}`,
+    id: `${messageId}_${Date.now()}`,
     type: batchEvent.type,
     name: getEventName(batchEvent),
     properties: batchEvent.properties || {},
     traits: batchEvent.traits,
     anonymousId: batchEvent.anonymousId,
     userId: batchEvent.userId,
-    messageId: batchEvent.messageId,
-    timestamp: batchEvent.timestamp,
+    messageId,
+    timestamp: batchEvent.timestamp || new Date().toISOString(),
     sentAt,
-    context: batchEvent.context,
+    context: batchEvent.context || { library: { name: 'unknown', version: 'unknown' } },
     integrations: batchEvent.integrations,
     tabId,
     capturedAt: Date.now(),
