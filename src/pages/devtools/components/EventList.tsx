@@ -22,6 +22,8 @@ interface EventListProps {
 
 // Height of the row header (used for sticky header calculations)
 const ROW_HEADER_HEIGHT = 39;
+// Gap between event rows
+const ROW_GAP = 8; // 0.5rem / 8px
 // Hysteresis buffer to prevent flickering - once sticky, require more scroll to un-stick
 const STICKY_SHOW_THRESHOLD = 50;  // Need this much visible to SHOW sticky
 const STICKY_HIDE_THRESHOLD = 10;  // Need less than this to HIDE sticky
@@ -53,9 +55,10 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     // Dynamic size estimation based on expansion state
     const getEstimatedSize = (index: number) => {
       const event = displayEvents[index];
-      if (!event) return 39;
-      // Base height + expanded height (rough estimate for JSON viewer)
-      return expandedEventIds.has(event.id) ? 400 : 39;
+      if (!event) return ROW_HEADER_HEIGHT + ROW_GAP;
+      // Base height + expanded height (rough estimate for JSON viewer) + gap
+      const baseHeight = expandedEventIds.has(event.id) ? 400 : ROW_HEADER_HEIGHT;
+      return baseHeight + ROW_GAP;
     };
     
     // Set up virtualizer with dynamic measurement
@@ -66,7 +69,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       overscan: 5, // Render 5 extra items above and below viewport
       // Measure actual element height for accurate positioning
       measureElement: (element) => {
-        return element?.getBoundingClientRect().height ?? 39;
+        return element?.getBoundingClientRect().height ?? ROW_HEADER_HEIGHT + ROW_GAP;
       },
     });
     
@@ -232,7 +235,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto relative"
+        className="flex-1 overflow-y-auto relative px-4"
       >
         {/* Sticky header overlay - clickable to collapse and scroll to event */}
         {stickyEvent && (
@@ -295,6 +298,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
                     left: 0,
                     width: '100%',
                     transform: `translateY(${virtualItem.start}px)`,
+                    paddingBottom: `${ROW_GAP}px`,
                   }}
                 >
                   <EventRow

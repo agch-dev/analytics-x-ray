@@ -40,7 +40,7 @@ export function EventRow({
   return (
     <div
       className={cn(
-        'w-full border-b border-border transition-colors rounded-md',
+        'w-full border-b border-border transition-colors rounded-md bg-card/80',
         isSelected && 'bg-blue-500/10 dark:bg-blue-500/10 border-l-2 border-l-blue-500',
         isAnimatingCollapse && 'animate-ring-pulse'
       )}

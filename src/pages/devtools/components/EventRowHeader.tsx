@@ -4,6 +4,7 @@ import { EVENT_TYPE_LABELS } from '@src/types/segment';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ViewOffSlashIcon } from '@hugeicons/core-free-icons';
 import { Button } from '@src/components/ui/button';
+import { categorizeEvent, getBucketColor } from '@src/lib/eventBuckets';
 
 // Event type badge styling (theme-aware)
 export const getEventTypeClasses = (type: SegmentEventType): string => {
@@ -53,10 +54,15 @@ export function EventRowHeader({
     onToggleHide?.(normalizedName);
   };
 
+  // Categorize event and get bucket color
+  const bucketId = categorizeEvent(event);
+  const bucketColor = getBucketColor(bucketId);
+
   return (
     <div
       className={cn(
-        'w-full flex items-center gap-3 transition-colors',
+        'w-full flex items-center gap-3 transition-colors border-l-4',
+        bucketColor || 'border-l-transparent',
         isSticky 
           ? 'bg-background/95 backdrop-blur-sm border-b border-border shadow-md px-3 py-2 cursor-pointer hover:bg-accent/30' 
           : 'px-3 py-2 hover:bg-accent/50'
