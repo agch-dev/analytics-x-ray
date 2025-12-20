@@ -34,10 +34,13 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     useImperativeHandle(ref, () => ({
       scrollToBottom: () => {
         if (displayEvents.length > 0) {
-          virtualizer.scrollToIndex(displayEvents.length - 1, {
-            align: 'end',
-            behavior: 'smooth',
-          });
+          // Use setTimeout to ensure virtualizer is ready
+          setTimeout(() => {
+            virtualizer.scrollToIndex(displayEvents.length - 1, {
+              align: 'end',
+              behavior: 'auto',
+            });
+          }, 0);
           shouldAutoScrollRef.current = true;
         }
       },
@@ -57,11 +60,16 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     useEffect(() => {
       if (!shouldAutoScrollRef.current || displayEvents.length === 0) return;
       
-      virtualizer.scrollToIndex(displayEvents.length - 1, {
-        align: 'end',
-        behavior: 'smooth',
-      });
-    }, [displayEvents.length, virtualizer]);
+      // Use a small timeout to ensure virtualizer has measured items
+      const timeoutId = setTimeout(() => {
+        virtualizer.scrollToIndex(displayEvents.length - 1, {
+          align: 'end',
+          behavior: 'auto', // Use 'auto' instead of 'smooth' for more reliable scrolling
+        });
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
+    }, [displayEvents.length]); // Remove virtualizer from dependencies
 
     const virtualItems = virtualizer.getVirtualItems();
 
