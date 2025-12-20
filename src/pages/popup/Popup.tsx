@@ -1,5 +1,4 @@
 import Browser from 'webextension-polyfill';
-import logo from '@assets/img/logo.svg';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { Button } from '@src/components/ui/button';
 import { Badge } from '@src/components/ui/badge';
@@ -16,7 +15,7 @@ export default function Popup() {
           <CardHeader className="text-center pb-4">
             <div className="flex flex-col items-center gap-3 mb-2">
               <img 
-                src={logo} 
+                src="icons/icon32.png" 
                 className="h-16 w-16 pointer-events-none" 
                 alt="Analytics X-Ray Logo" 
               />

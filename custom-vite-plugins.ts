@@ -13,8 +13,8 @@ export function stripDevIcons (isDev: boolean) {
     },
     renderStart (outputOptions: any, inputOptions: any) {
       const outDir = outputOptions.dir
-      fs.rm(resolve(outDir, 'dev-icon-32.png'), () => console.log(`Deleted dev-icon-32.png from prod build`))
-      fs.rm(resolve(outDir, 'dev-icon-128.png'), () => console.log(`Deleted dev-icon-128.png from prod build`))
+      fs.rm(resolve(outDir, 'icons-dev/icon32.png'), () => console.log(`Deleted icon32.png from prod build`))
+      fs.rm(resolve(outDir, 'icons-dev/icon128.png'), () => console.log(`Deleted icon128.png from prod build`))
     }
   }
 }

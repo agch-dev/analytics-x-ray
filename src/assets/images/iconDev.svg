@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 243 243" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g id="Circulo" transform="matrix(1.330063,0,0,1.34734,-9.355655,-2.189571)">
+        <g>
+            <g transform="matrix(0.349245,-0.332845,0.323848,0.339804,-97.24153,107.851242)">
+                <path d="M175.602,161.587C164.145,159.434 160.388,164.274 162.806,174.722L220.347,230.483C230.838,232.571 235.509,228.654 233.071,217.404L175.602,161.587Z" style="fill:rgb(164,224,201);"/>
+            </g>
+            <g transform="matrix(0.34621,-0.329953,0.322838,0.338744,29.444534,75.142814)">
+                <path d="M175.602,161.587C164.145,159.434 160.388,164.274 162.806,174.722L220.347,230.483C230.838,232.571 235.509,228.654 233.071,217.404L175.602,161.587Z" style="fill:rgb(164,224,201);"/>
+            </g>
+            <g transform="matrix(1.041931,0,0,1.041931,-6.16265,-1.733754)">
+                <circle cx="45.211" cy="147.689" r="7.676" style="fill:rgb(164,224,201);"/>
+            </g>
+            <g transform="matrix(1.041931,0,0,1.041931,104.610938,-119.303867)">
+                <circle cx="45.211" cy="147.689" r="7.676" style="fill:rgb(164,224,201);"/>
+            </g>
+            <g transform="matrix(6.501371,0,0,6.762723,-679.630772,-501.359139)">
+                <g transform="matrix(21.265964,0,0,21.265964,126.143468,95.321817)">
+                </g>
+                <text x="113.299px" y="95.322px" style="font-family:'ArialRoundedMTBold', 'Arial Rounded MT Bold', sans-serif;font-size:21.266px;fill:rgb(164,224,201);">X</text>
+            </g>
+            <g id="Circulo-cortado" serif:id="Circulo cortado">
+                <g transform="matrix(1.041931,0,0,1.041931,-10.656131,2.198965)">
+                    <path d="M19.741,60.375C36.874,11.856 83.349,-7.682 124.204,5.777C133.59,10.007 130.875,20.73 121.009,20.09C85.112,9.188 50.385,22.509 33.748,64.802C29.273,76.177 16.208,70.378 19.741,60.375Z" style="fill:rgb(215,222,171);stroke:rgb(215,222,171);stroke-width:0.72px;"/>
+                </g>
+                <g transform="matrix(-1.041931,-0,0,-1.041931,207.281106,182.588116)">
+                    <path d="M19.741,60.375C36.874,11.856 83.349,-7.682 124.204,5.777C133.59,10.007 130.875,20.73 121.009,20.09C85.112,9.188 50.385,22.509 33.748,64.802C29.273,76.177 16.208,70.378 19.741,60.375Z" style="fill:rgb(215,222,171);stroke:rgb(215,222,171);stroke-width:0.72px;"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

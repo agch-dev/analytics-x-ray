@@ -197,10 +197,11 @@ export default function Options() {
         </Card>
 
         {/* Reset Button */}
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-4 border-t">
           <Button
-            variant={showResetConfirm ? "destructive" : "outline"}
+            variant={showResetConfirm ? "destructive" : "secondary"}
             onClick={handleReset}
+            aria-label={showResetConfirm ? "Confirm reset to default settings" : "Reset all settings to default values"}
           >
             {showResetConfirm ? 'Click again to confirm reset' : 'Reset to Defaults'}
           </Button>

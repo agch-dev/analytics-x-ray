@@ -1,17 +1,17 @@
 {
   "action": {
-    "default_icon": "public/dev-icon-32.png",
+    "default_icon": "public/icons-dev/icon32.png",
     "default_popup": "src/pages/popup/index.html"
   },
   "icons": {
-    "128": "public/dev-icon-128.png"
+    "128": "public/icons-dev/icon128.png"
   },
   "web_accessible_resources": [
     {
       "resources": [
         "contentStyle.css",
-        "dev-icon-128.png",
-        "dev-icon-32.png"
+        "icons-dev/icon128.png",
+        "icons-dev/icon32.png"
       ],
       "matches": []
     }

@@ -11,7 +11,7 @@ log.info(`Inspected tab ID: ${Browser.devtools.inspectedWindow.tabId}`);
 
 // Create the devtools panel
 Browser.devtools.panels
-  .create('Analytics X-Ray', 'icon-32.png', 'src/pages/devtools/index.html')
+  .create('Analytics X-Ray', 'icons/icon32.png', 'src/pages/devtools/index.html')
   .then(() => {
     log.info('✅ DevTools panel created successfully');
     // Initialize React app when panel is created

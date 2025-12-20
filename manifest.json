@@ -1,19 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "name in manifest.json",
-  "description": "description in manifest.json",
+  "name": "Analytics X-Ray",
+  "description": "Analytics X-Ray is a tool that helps you analyze your analytics data.",
   "options_ui": {
     "page": "src/pages/options/index.html"
   },
   "action": {
     "default_popup": "src/pages/popup/index.html",
     "default_icon": {
-      "32": "icon-32.png"
+      "32": "icons/icon32.png"
     }
   },
   "icons": {
-    "128": "icon-128.png"
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
+  
   "permissions": [
     "activeTab",
     "tabs",
@@ -47,8 +51,8 @@
     {
       "resources": [
         "contentStyle.css",
-        "icon-128.png",
-        "icon-32.png"
+        "icon128.png",
+        "icon32.png"
       ],
       "matches": []
     }
