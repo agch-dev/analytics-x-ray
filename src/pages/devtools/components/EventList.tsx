@@ -186,6 +186,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       const checkScrollState = () => {
         const { scrollTop, scrollHeight, clientHeight } = container;
         const atBottom = scrollHeight - scrollTop - clientHeight < 50;
+        shouldAutoScrollRef.current = atBottom;
         setIsAtBottom(atBottom);
         onScrollStateChange?.(atBottom);
       };
