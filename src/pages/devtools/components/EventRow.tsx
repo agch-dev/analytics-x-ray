@@ -8,6 +8,7 @@ interface EventRowProps {
   event: SegmentEvent;
   isSelected: boolean;
   isExpanded: boolean;
+  isAnimatingCollapse?: boolean;
   onSelect: (id: string) => void;
   onToggleExpand: (id: string) => void;
 }
@@ -16,14 +17,16 @@ export function EventRow({
   event, 
   isSelected, 
   isExpanded,
+  isAnimatingCollapse = false,
   onSelect, 
   onToggleExpand 
 }: EventRowProps) {
   return (
     <div
       className={cn(
-        'w-full border-b border-border transition-colors',
-        isSelected && 'bg-blue-500/10 dark:bg-blue-500/10 border-l-2 border-l-blue-500'
+        'w-full border-b border-border transition-colors rounded-md',
+        isSelected && 'bg-blue-500/10 dark:bg-blue-500/10 border-l-2 border-l-blue-500',
+        isAnimatingCollapse && 'animate-ring-pulse'
       )}
     >
       {/* Row header - clickable */}

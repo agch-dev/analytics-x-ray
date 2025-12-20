@@ -36,6 +36,9 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     const [stickyEvent, setStickyEvent] = useState<SegmentEvent | null>(null);
     const [stickyEventIndex, setStickyEventIndex] = useState<number | null>(null);
     
+    // Track which event just collapsed to trigger ring animation
+    const [collapsedEventId, setCollapsedEventId] = useState<string | null>(null);
+    
     // Reverse events so newest is at bottom
     const displayEvents = useMemo(() => [...events].reverse(), [events]);
     
@@ -111,7 +114,18 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     
     // Wrapper for toggle expand that also triggers remeasurement
     const handleToggleExpand = (id: string) => {
+      const wasExpanded = expandedEventIds.has(id);
+      
       onToggleExpand(id);
+      
+      // If collapsing (was expanded, now collapsing), trigger ring animation
+      if (wasExpanded) {
+        setCollapsedEventId(id);
+        setTimeout(() => {
+          setCollapsedEventId(null);
+        }, 600); // Match animation duration
+      }
+      
       // Trigger remeasurement after state update
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -162,22 +176,29 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
 
     const virtualItems = virtualizer.getVirtualItems();
     
-    // Scroll to the top of the sticky event
-    const handleScrollToStickyEventTop = useCallback(() => {
-      if (stickyEventIndex !== null) {
-        virtualizer.scrollToIndex(stickyEventIndex, {
-          align: 'start',
-          behavior: 'smooth',
+    // Handle click on sticky header: collapse and scroll to the event
+    const handleStickyHeaderClick = useCallback(() => {
+      if (stickyEvent && stickyEventIndex !== null) {
+        const eventId = stickyEvent.id;
+        const indexToScrollTo = stickyEventIndex;
+        
+        // Clear sticky state first
+        setStickyEvent(null);
+        setStickyEventIndex(null);
+        
+        // Collapse the event (handleToggleExpand will handle the animation)
+        handleToggleExpand(eventId);
+        
+        // Scroll to make the collapsed event visible (after collapse animation)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            virtualizer.scrollToIndex(indexToScrollTo, {
+              align: 'start',
+            });
+          });
         });
       }
-    }, [stickyEventIndex, virtualizer]);
-    
-    // Handle toggle from sticky header (also clears sticky state)
-    const handleStickyToggle = useCallback((id: string) => {
-      setStickyEvent(null);
-      setStickyEventIndex(null);
-      handleToggleExpand(id);
-    }, [handleToggleExpand]);
+    }, [stickyEvent, stickyEventIndex, handleToggleExpand, virtualizer]);
 
     return (
       <div
@@ -185,18 +206,26 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto relative"
       >
-        {/* Sticky header overlay */}
+        {/* Sticky header overlay - clickable to collapse and scroll to event */}
         {stickyEvent && (
           <div 
             className="sticky top-0 left-0 right-0 z-10"
             style={{ position: 'sticky' }}
+            onClick={handleStickyHeaderClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleStickyHeaderClick();
+              }
+            }}
           >
             <EventRowHeader
               event={stickyEvent}
               isExpanded={true}
               isSticky={true}
-              onToggleExpand={handleStickyToggle}
-              onScrollToTop={handleScrollToStickyEventTop}
+              onToggleExpand={() => {}} // Not used, parent handles click
             />
           </div>
         )}
@@ -242,6 +271,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
                     event={event}
                     isSelected={selectedEventId === event.id}
                     isExpanded={isExpanded}
+                    isAnimatingCollapse={collapsedEventId === event.id}
                     onSelect={onSelectEvent}
                     onToggleExpand={handleToggleExpand}
                   />

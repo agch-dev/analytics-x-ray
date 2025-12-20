@@ -1,5 +1,3 @@
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowUp01Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@src/lib/utils';
 import type { SegmentEvent, SegmentEventType } from '@src/types/segment';
 import { EVENT_TYPE_LABELS } from '@src/types/segment';
@@ -34,7 +32,6 @@ interface EventRowHeaderProps {
   isExpanded?: boolean;
   isSticky?: boolean;
   onToggleExpand: (id: string) => void;
-  onScrollToTop?: () => void;
 }
 
 export function EventRowHeader({ 
@@ -42,24 +39,13 @@ export function EventRowHeader({
   isExpanded = false,
   isSticky = false,
   onToggleExpand,
-  onScrollToTop,
 }: EventRowHeaderProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggleExpand(event.id);
-  };
-
-  const handleScrollToTop = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onScrollToTop?.();
-  };
-
   return (
     <div
       className={cn(
         'w-full flex items-center gap-3 transition-colors',
         isSticky 
-          ? 'bg-background/95 backdrop-blur-sm border-b border-border shadow-md px-3 py-2' 
+          ? 'bg-background/95 backdrop-blur-sm border-b border-border shadow-md px-3 py-2 cursor-pointer hover:bg-accent/30' 
           : 'px-3 py-2 hover:bg-accent/50'
       )}
     >
@@ -85,26 +71,11 @@ export function EventRowHeader({
         </span>
       )}
 
-      {/* Actions for sticky header */}
+      {/* Click hint for sticky header */}
       {isSticky && (
-        <div className="flex items-center gap-1 shrink-0">
-          {onScrollToTop && (
-            <button
-              onClick={handleScrollToTop}
-              className="p-1 rounded hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors"
-              title="Scroll to top of event"
-            >
-              <HugeiconsIcon icon={ArrowUp01Icon} size={16} />
-            </button>
-          )}
-          <button
-            onClick={handleClick}
-            className="p-1 rounded hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors"
-            title="Collapse event"
-          >
-            <HugeiconsIcon icon={Cancel01Icon} size={16} />
-          </button>
-        </div>
+        <span className="text-xs text-muted-foreground shrink-0">
+          click to collapse
+        </span>
       )}
     </div>
   );

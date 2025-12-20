@@ -161,10 +161,23 @@
     --shadow-2xl: var(--shadow-2xl);
 
     --animate-spin-slow: spin 20s linear infinite;
+    --animate-ring-pulse: ring-pulse 0.6s ease-out;
 
     @keyframes spin {
         to {
             transform: rotate(360deg);
+        }
+    }
+
+    @keyframes ring-pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.3);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
         }
     }
 }
