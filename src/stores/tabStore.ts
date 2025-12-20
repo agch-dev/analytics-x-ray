@@ -62,10 +62,19 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         ...defaultTabState,
 
         addEvent: (event) => {
-          log.debug(`➕ Adding event to store (tabId: ${tabId}):`, event.name, event.type);
+          log.debug(`➕ Adding event to store (tabId: ${tabId}):`, event.name, event.type, event.id);
           set((state) => {
+            // Check if event already exists (deduplication by id AND messageId)
+            const isDuplicate = state.events.some(
+              (e) => e.id === event.id || e.messageId === event.messageId
+            );
+            if (isDuplicate) {
+              log.debug(`  ⚠️ Event ${event.id} (messageId: ${event.messageId}) already exists, skipping`);
+              return state;
+            }
+            
             const events = [event, ...state.events].slice(0, maxEvents);
-            log.debug(`  Total events in store: ${events.length}`);
+            log.debug(`  ✅ Added event. Total events in store: ${events.length}`);
             return {
               events,
               lastUpdated: Date.now(),
@@ -78,9 +87,10 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
           set({
             events: [],
             selectedEventId: null,
-            expandedEventIds: new Set(),
+            expandedEventIds: new Set<string>(),
             lastUpdated: Date.now(),
           });
+          log.debug(`  ✅ Store cleared, events count: 0`);
         },
 
         setSelectedEvent: (id) => {

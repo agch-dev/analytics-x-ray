@@ -1,4 +1,5 @@
 import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { SegmentEvent } from '@src/types/segment';
 import { EventRow } from './EventRow';
 import { EmptyState } from './EmptyState';
@@ -21,17 +22,24 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     // Reverse events so newest is at bottom
     const displayEvents = useMemo(() => [...events].reverse(), [events]);
     
+    // Set up virtualizer
+    const virtualizer = useVirtualizer({
+      count: displayEvents.length,
+      getScrollElement: () => scrollContainerRef.current,
+      estimateSize: () => 72, // Estimated height of each EventRow
+      overscan: 5, // Render 5 extra items above and below viewport
+    });
+    
     // Expose scrollToBottom method via ref
     useImperativeHandle(ref, () => ({
       scrollToBottom: () => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
-        
-        container.scrollTo({
-          top: container.scrollHeight,
-          behavior: 'smooth',
-        });
-        shouldAutoScrollRef.current = true;
+        if (displayEvents.length > 0) {
+          virtualizer.scrollToIndex(displayEvents.length - 1, {
+            align: 'end',
+            behavior: 'smooth',
+          });
+          shouldAutoScrollRef.current = true;
+        }
       },
     }));
     
@@ -47,14 +55,15 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     
     // Auto-scroll to bottom when new events arrive
     useEffect(() => {
-      const container = scrollContainerRef.current;
-      if (!container || !shouldAutoScrollRef.current) return;
+      if (!shouldAutoScrollRef.current || displayEvents.length === 0) return;
       
-      container.scrollTo({
-        top: container.scrollHeight,
+      virtualizer.scrollToIndex(displayEvents.length - 1, {
+        align: 'end',
         behavior: 'smooth',
       });
-    }, [events.length]);
+    }, [displayEvents.length, virtualizer]);
+
+    const virtualItems = virtualizer.getVirtualItems();
 
     return (
       <div
@@ -65,15 +74,36 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         {displayEvents.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="divide-y divide-white/5">
-            {displayEvents.map((event) => (
-              <EventRow
-                key={event.id}
-                event={event}
-                isSelected={selectedEventId === event.id}
-                onSelect={onSelectEvent}
-              />
-            ))}
+          <div
+            style={{
+              height: `${virtualizer.getTotalSize()}px`,
+              width: '100%',
+              position: 'relative',
+            }}
+          >
+            {virtualItems.map((virtualItem) => {
+              const event = displayEvents[virtualItem.index];
+              return (
+                <div
+                  key={virtualItem.key}
+                  data-index={virtualItem.index}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualItem.size}px`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                >
+                  <EventRow
+                    event={event}
+                    isSelected={selectedEventId === event.id}
+                    onSelect={onSelectEvent}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

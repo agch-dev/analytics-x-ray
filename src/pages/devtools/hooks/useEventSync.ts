@@ -32,6 +32,7 @@ export function useEventSync({ tabId, addEvent }: EventSyncOptions) {
     log.info(`🔄 Setting up event sync for tab ${tabId}`);
 
     // 1. Fetch initial events from background script
+    // Note: Deduplication in store prevents duplicates from persistence
     const fetchInitialEvents = async () => {
       try {
         log.debug(`📥 Fetching initial events for tab ${tabId}...`);
