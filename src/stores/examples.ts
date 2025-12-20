@@ -104,7 +104,7 @@ import { getTabStore, getCurrentTabId } from '@src/stores';
 import { useConfigStore } from '@src/stores';
 import { useEffect, useState } from 'react';
 
-function TabEventsPanel() {
+function SegmentEventsPanel() {
   const [tabId, setTabId] = useState<number | null>(null);
   const maxEvents = useConfigStore((state) => state.maxEvents);
 

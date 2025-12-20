@@ -50,7 +50,7 @@ useConfigStore.getState().setThrottleMs(200);
 Stores tab-specific analytics events and UI state. Each tab has its own isolated store.
 
 **Available Properties:**
-- `events` (TabEvent[]) - Array of captured events for this tab
+- `events` (SegmentEvent[]) - Array of captured Segment events for this tab
 - `selectedEventId` (string | null) - ID of the currently selected event (for detail panel)
 - `expandedEventIds` (Set<string>) - Set of expanded event IDs (for list view)
 - `tabUrl` (string | null) - Current tab URL
@@ -78,7 +78,7 @@ const maxEvents = useConfigStore.getState().maxEvents;
 const tabStore = getTabStore(tabId, maxEvents);
 
 // In a React component
-function TabEvents() {
+function SegmentEvents() {
   const tabId = useTabId(); // You'll need to implement this hook
   const store = getTabStore(tabId);
   

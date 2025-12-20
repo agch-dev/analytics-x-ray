@@ -17,7 +17,14 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "storage"
+    "storage",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "*://api.segment.io/*",
+    "*://api.segment.com/*",
+    "*://*.rudderstack.com/*",
+    "*://tracking.dreamdata.cloud/*"
   ],
   "content_scripts": [
     {

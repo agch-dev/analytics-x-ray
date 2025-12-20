@@ -12,20 +12,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { createTabStorage } from '@src/lib/storage';
-
-export interface TabEvent {
-  id: string;
-  type: 'track' | 'page' | 'identify' | 'group' | 'alias';
-  name: string;
-  properties: Record<string, unknown>;
-  context?: Record<string, unknown>;
-  timestamp: number;
-  url?: string;
-}
+import type { SegmentEvent } from '@src/types/segment';
 
 export interface TabState {
   // Events captured for this tab
-  events: TabEvent[];
+  events: SegmentEvent[];
   
   // UI state
   selectedEventId: string | null; // Single selected event (for detail panel)
@@ -38,7 +29,7 @@ export interface TabState {
 
 interface TabStore extends TabState {
   // Actions
-  addEvent: (event: TabEvent) => void;
+  addEvent: (event: SegmentEvent) => void;
   clearEvents: () => void;
   setSelectedEvent: (id: string | null) => void; // Select one event (for detail view)
   toggleEventExpanded: (id: string) => void; // Expand/collapse events in list (can have multiple)
