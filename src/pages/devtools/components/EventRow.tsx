@@ -67,6 +67,13 @@ export function EventRow({
             displayDataTypes={false}
             displayObjectSize={false}
             enableClipboard={true}
+            shouldExpandNodeInitially={(isExpanded, { keyName }) => {
+              // Collapse "rawPayload" by default since it's redundant
+              if (keyName === 'rawPayload') {
+                return false;
+              }
+              return isExpanded;
+            }}
           >
             <JsonView.Copied
               render={(props, { value, keyName }) => {
