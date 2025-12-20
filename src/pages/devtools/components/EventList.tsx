@@ -271,7 +271,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto relative px-4 mt-2 mb-2"
+        className="flex-1 overflow-y-auto relative px-4 mt-2 pb-2"
       >
         {/* Sticky header overlay - clickable to collapse and scroll to event */}
         {stickyEvent && (
@@ -294,8 +294,9 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
               isSticky={true}
               isHidden={hiddenEventNames.has(normalizeEventNameForFilter(stickyEvent.name, stickyEvent.type))}
               searchMatch={searchMatch}
-              onToggleExpand={() => {}} // Not used, parent handles click
+              viewMode={viewMode}
               onToggleHide={onToggleHide}
+              onViewModeChange={onViewModeChange}
             />
           </div>
         )}

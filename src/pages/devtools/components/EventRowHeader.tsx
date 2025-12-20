@@ -27,7 +27,6 @@ interface EventRowHeaderProps {
   isHidden?: boolean;
   searchMatch?: SearchMatch | null;
   viewMode?: ViewMode;
-  onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
   onViewModeChange?: (mode: ViewMode) => void;
 }
@@ -39,7 +38,6 @@ export function EventRowHeader({
   isHidden = false,
   searchMatch,
   viewMode,
-  onToggleExpand,
   onToggleHide,
   onViewModeChange,
 }: EventRowHeaderProps) {
