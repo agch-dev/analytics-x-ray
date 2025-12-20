@@ -1,10 +1,28 @@
 ---
-description: Chrome extension architecture, message passing, and manifest V3 patterns
+description: Cross-browser extension architecture for Chrome and Firefox with manifest V3 patterns
 globs: src/pages/background/**/*,src/pages/content/**/*,manifest.json,manifest.dev.json
 alwaysApply: false
 ---
 
-# Chrome Extension Architecture
+# Browser Extension Architecture (Chrome & Firefox)
+
+This extension targets **both Chrome and Firefox** using Manifest V3. Always use browser-agnostic APIs and patterns.
+
+## ⚠️ Critical: Use Browser-Agnostic APIs
+
+```typescript
+// ❌ NEVER use chrome.* APIs directly
+chrome.runtime.sendMessage(msg);  // Wrong!
+chrome.storage.local.get(key);    // Wrong!
+
+// ✅ ALWAYS use webextension-polyfill
+import Browser from 'webextension-polyfill';
+
+Browser.runtime.sendMessage(msg);  // Correct!
+Browser.storage.local.get(key);    // Correct!
+```
+
+The `webextension-polyfill` library provides a Promise-based API that works identically in Chrome and Firefox. This is **mandatory** for all extension API calls.
 
 ## Extension Contexts
 
@@ -18,8 +36,8 @@ alwaysApply: false
 ### 2. Content Script (`src/pages/content/index.tsx`)
 - Injected into web pages based on `matches` patterns
 - Has access to page DOM but runs in isolated world
-- Limited Chrome API access
-- Communicates with background via `chrome.runtime.sendMessage`
+- Limited extension API access
+- Communicates with background via `Browser.runtime.sendMessage`
 
 ### 3. Popup (`src/pages/popup/`)
 - Shown when clicking extension icon
@@ -38,23 +56,27 @@ alwaysApply: false
 
 ## Message Passing Patterns
 
+Always use `Browser` from `webextension-polyfill` for message passing:
+
 ```typescript
+import Browser from 'webextension-polyfill';
+
 // ✅ Content Script → Background
-chrome.runtime.sendMessage({ 
+Browser.runtime.sendMessage({ 
   type: 'SEGMENT_EVENT', 
   payload: eventData 
 });
 
 // ✅ Background → Content Script (specific tab)
-chrome.tabs.sendMessage(tabId, { 
+Browser.tabs.sendMessage(tabId, { 
   type: 'GET_EVENTS' 
 });
 
-// ✅ Use webextension-polyfill for cross-browser compatibility
-import Browser from 'webextension-polyfill';
-
-Browser.runtime.sendMessage({ type: 'EVENT', data });
-Browser.tabs.sendMessage(tabId, { type: 'REQUEST' });
+// ✅ Listen for messages (works in all contexts)
+Browser.runtime.onMessage.addListener((message, sender) => {
+  console.log('Message from:', sender.tab?.url);
+  return Promise.resolve({ received: true });
+});
 ```
 
 ### Message Type Convention
@@ -101,15 +123,65 @@ interface ExtensionMessage {
 
 ## Cross-Browser Compatibility
 
+### Build Targets
+
+The project builds separate distributions for each browser:
+
+```bash
+# Development
+yarn dev:chrome    # Builds to dist_chrome/
+yarn dev:firefox   # Builds to dist_firefox/
+
+# Production
+yarn build:chrome  # Optimized Chrome build
+yarn build:firefox # Optimized Firefox build
+```
+
+### webextension-polyfill Usage
+
 ```typescript
-// ✅ Always use webextension-polyfill
+// ✅ Always import and use Browser (capital B)
 import Browser from 'webextension-polyfill';
 
-// Instead of chrome.* use Browser.*
+// All extension APIs are available on Browser.*
 await Browser.runtime.sendMessage(msg);
 await Browser.storage.local.get(key);
-await Browser.tabs.query({ active: true });
+await Browser.tabs.query({ active: true, currentWindow: true });
+await Browser.scripting.executeScript({ target: { tabId } });
 ```
+
+### Browser-Specific Differences to Handle
+
+| Feature | Chrome | Firefox | Solution |
+|---------|--------|---------|----------|
+| Side Panel | `chrome.sidePanel` | Not supported | Feature detect or exclude |
+| Promise returns | Callback-based | Promise-based | Use polyfill (handles both) |
+| Manifest icons | `action.default_icon` | Same | Works identically |
+| Service worker | Full support | Full support (MV3) | Works identically |
+
+### Feature Detection Pattern
+
+```typescript
+// ✅ Check for browser-specific features before using
+async function openSidePanel() {
+  // Side panel is Chrome-only
+  if ('sidePanel' in Browser) {
+    await (Browser as any).sidePanel.open({ windowId });
+  } else {
+    // Fallback for Firefox - open in popup or new tab
+    await Browser.windows.create({ 
+      url: 'panel.html', 
+      type: 'popup' 
+    });
+  }
+}
+```
+
+### Testing Both Browsers
+
+Always test changes in both browsers:
+1. Load `dist_chrome` in Chrome (`chrome://extensions`)
+2. Load `dist_firefox` in Firefox (`about:debugging`)
 
 ## Error Handling
 
@@ -140,12 +212,12 @@ async function sendToBackground(message: ExtensionMessage) {
 
 ```typescript
 // ✅ Background scripts can be terminated - don't rely on in-memory state
-// Use chrome.storage for persistence
+// Use Browser.storage for persistence
 
-// Bad - will be lost when service worker terminates
+// ❌ Bad - will be lost when service worker terminates
 let events: SegmentEvent[] = [];
 
-// Good - persist to storage
+// ✅ Good - persist to storage
 async function addEvent(event: SegmentEvent) {
   const { events = [] } = await Browser.storage.local.get('events');
   events.unshift(event);
