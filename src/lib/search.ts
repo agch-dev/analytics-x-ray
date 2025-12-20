@@ -38,7 +38,7 @@ export function parseSearchQuery(query: string): SearchMatch | null {
 }
 
 /**
- * Recursively search through an object for a value
+ * Recursively search through an object for a value or key
  */
 function searchInObject(obj: unknown, searchValue: string): boolean {
   if (obj === null || obj === undefined) {
@@ -60,7 +60,15 @@ function searchInObject(obj: unknown, searchValue: string): boolean {
   }
 
   if (typeof obj === 'object') {
-    return Object.values(obj).some((value) => searchInObject(value, searchValue));
+    // Check both keys and values
+    return Object.entries(obj).some(([key, value]) => {
+      // Check if the key matches
+      if (key.toLowerCase().includes(searchLower)) {
+        return true;
+      }
+      // Recursively check the value
+      return searchInObject(value, searchValue);
+    });
   }
 
   return false;

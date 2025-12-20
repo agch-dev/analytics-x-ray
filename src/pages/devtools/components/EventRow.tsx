@@ -98,8 +98,8 @@ export function EventRow({
             {/* Custom renderer for string values to highlight search matches */}
             {searchQuery && (
               <JsonView.String
-                render={({ children, ...reset }, { type, value, keyName }) => {
-                  // Only highlight values, not type indicators
+                render={({ children, ...reset }, { type, value }) => {
+                  // Highlight string values
                   if (type === 'value' && typeof value === 'string') {
                     const parts = highlightText(value, searchQuery);
                     
@@ -121,28 +121,48 @@ export function EventRow({
                     );
                   }
                   
-                  // For key-value searches, also highlight matching keys
-                  if (searchMatch?.type === 'keyValue' && type === 'type' && keyName) {
-                    const keyNameStr = String(keyName);
-                    const keyParts = highlightText(keyNameStr, searchMatch.key || '');
-                    if (keyParts.some(p => p.highlight)) {
-                      return (
-                        <span {...reset}>
-                          {keyParts.map((part, index) => 
-                            part.highlight ? (
-                              <mark 
-                                key={index} 
-                                className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
-                              >
-                                {part.text}
-                              </mark>
-                            ) : (
-                              <span key={index}>{part.text}</span>
-                            )
-                          )}
-                        </span>
-                      );
-                    }
+                  // Default rendering
+                  return <span {...reset}>{children}</span>;
+                }}
+              />
+            )}
+            
+            {/* Custom renderer for keys to highlight search matches */}
+            {searchQuery && (
+              <JsonView.KeyName
+                render={({ children, ...reset }, { keyName }) => {
+                  if (!keyName) {
+                    return <span {...reset}>{children}</span>;
+                  }
+                  
+                  const keyNameStr = String(keyName);
+                  let keyParts: Array<{ text: string; highlight: boolean }>;
+                  
+                  if (searchMatch?.type === 'keyValue') {
+                    // For key-value searches, highlight if the key matches
+                    keyParts = highlightText(keyNameStr, searchMatch.key || '');
+                  } else {
+                    // For regular searches, highlight if the key matches the query
+                    keyParts = highlightText(keyNameStr, searchQuery);
+                  }
+                  
+                  if (keyParts.some(p => p.highlight)) {
+                    return (
+                      <span {...reset}>
+                        {keyParts.map((part, index) => 
+                          part.highlight ? (
+                            <mark 
+                              key={index} 
+                              className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                            >
+                              {part.text}
+                            </mark>
+                          ) : (
+                            <span key={index}>{part.text}</span>
+                          )
+                        )}
+                      </span>
+                    );
                   }
                   
                   // Default rendering
