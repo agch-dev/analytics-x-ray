@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
+import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon, PinIcon } from '@hugeicons/core-free-icons';
 import { cn, copyToClipboard } from '@src/lib/utils';
 import { highlightText } from '@src/lib/search';
 
@@ -10,6 +10,12 @@ interface PropertyRowProps {
   searchQuery?: string;
   depth?: number;
   isNested?: boolean;
+  /** Whether this property is pinned */
+  isPinned?: boolean;
+  /** Callback to toggle pin state (only provided for pinnable properties) */
+  onTogglePin?: () => void;
+  /** Whether to show the pin button (only for first-level properties) */
+  showPinButton?: boolean;
 }
 
 /**
@@ -80,6 +86,9 @@ export function PropertyRow({
   searchQuery = '',
   depth = 0,
   isNested = false,
+  isPinned = false,
+  onTogglePin,
+  showPinButton = false,
 }: PropertyRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -87,6 +96,7 @@ export function PropertyRow({
   const expandable = isExpandable(value);
   const displayValue = formatValue(value);
   const valueColor = getValueColor(value);
+  const canPin = showPinButton && depth === 0 && onTogglePin;
 
   const handleCopy = useCallback(() => {
     const textToCopy = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
@@ -131,9 +141,38 @@ export function PropertyRow({
         className={cn(
           'flex items-start gap-2 py-1.5 px-2 rounded-md transition-colors',
           'hover:bg-muted/50',
-          matchesSearch && 'bg-yellow-500/10'
+          matchesSearch && 'bg-yellow-500/10',
+          isPinned && 'bg-amber-500/5 border-l-2 border-l-amber-500/50'
         )}
       >
+        {/* Pin button - only show for first-level properties (left side) */}
+        {canPin ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onTogglePin();
+            }}
+            className={cn(
+              'shrink-0 p-0.5 hover:bg-muted rounded transition-all',
+              isPinned 
+                ? 'opacity-100 text-amber-500' 
+                : 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-amber-500'
+            )}
+            title={isPinned ? 'Unpin property' : 'Pin property'}
+          >
+            <HugeiconsIcon
+              icon={PinIcon}
+              size={12}
+              className={cn(
+                'transition-transform',
+                isPinned && 'rotate-45'
+              )}
+            />
+          </button>
+        ) : (
+          <span className="shrink-0 w-5" />
+        )}
+
         {/* Expand/collapse button for nested objects */}
         {expandable ? (
           <button
@@ -155,27 +194,30 @@ export function PropertyRow({
           <HighlightedText text={label} searchQuery={searchQuery} />
         </span>
 
-        {/* Value */}
-        <span className={cn('flex-1 text-xs font-mono break-all', valueColor)}>
-          {typeof value === 'string' || typeof value === 'number' ? (
-            <HighlightedText text={displayValue} searchQuery={searchQuery} />
-          ) : (
-            displayValue
-          )}
-        </span>
+        {/* Value and Copy button container */}
+        <div className="flex-1 flex items-start gap-1.5 min-w-0">
+          {/* Value */}
+          <span className={cn('text-xs font-mono break-all', valueColor)}>
+            {typeof value === 'string' || typeof value === 'number' ? (
+              <HighlightedText text={displayValue} searchQuery={searchQuery} />
+            ) : (
+              displayValue
+            )}
+          </span>
 
-        {/* Copy button */}
-        <button
-          onClick={handleCopy}
-          className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
-          title="Copy value"
-        >
-          <HugeiconsIcon
-            icon={copied ? Tick01Icon : Copy01Icon}
-            size={12}
-            className={copied ? 'text-green-500' : 'text-muted-foreground'}
-          />
-        </button>
+          {/* Copy button */}
+          <button
+            onClick={handleCopy}
+            className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-muted rounded"
+            title="Copy value"
+          >
+            <HugeiconsIcon
+              icon={copied ? Tick01Icon : Copy01Icon}
+              size={12}
+              className={copied ? 'text-green-500' : 'text-muted-foreground'}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Nested properties */}
