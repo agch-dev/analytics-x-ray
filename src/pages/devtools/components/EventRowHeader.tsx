@@ -1,6 +1,9 @@
-import { cn } from '@src/lib/utils';
+import { cn, normalizeEventNameForFilter } from '@src/lib/utils';
 import type { SegmentEvent, SegmentEventType } from '@src/types/segment';
 import { EVENT_TYPE_LABELS } from '@src/types/segment';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ViewOffSlashIcon } from '@hugeicons/core-free-icons';
+import { Button } from '@src/components/ui/button';
 
 // Event type badge styling (theme-aware)
 export const getEventTypeClasses = (type: SegmentEventType): string => {
@@ -31,15 +34,25 @@ interface EventRowHeaderProps {
   event: SegmentEvent;
   isExpanded?: boolean;
   isSticky?: boolean;
+  isHidden?: boolean;
   onToggleExpand: (id: string) => void;
+  onToggleHide?: (eventName: string) => void;
 }
 
 export function EventRowHeader({ 
   event, 
   isExpanded = false,
   isSticky = false,
+  isHidden = false,
   onToggleExpand,
+  onToggleHide,
 }: EventRowHeaderProps) {
+  const handleMuteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const normalizedName = normalizeEventNameForFilter(event.name, event.type);
+    onToggleHide?.(normalizedName);
+  };
+
   return (
     <div
       className={cn(
@@ -69,6 +82,26 @@ export function EventRowHeader({
         <span className="text-xs text-muted-foreground uppercase tracking-wider">
           {event.provider}
         </span>
+      )}
+
+      {/* Mute/Hide button */}
+      {onToggleHide && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleMuteClick}
+          className={cn(
+            "h-6 w-6 p-0 shrink-0",
+            isHidden && "opacity-50"
+          )}
+          title={isHidden ? "Show this event name" : "Hide this event name"}
+        >
+          <HugeiconsIcon 
+            icon={ViewOffSlashIcon} 
+            size={14} 
+            className="text-muted-foreground"
+          />
+        </Button>
       )}
     </div>
   );

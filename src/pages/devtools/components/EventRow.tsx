@@ -12,7 +12,9 @@ interface EventRowProps {
   isSelected: boolean;
   isExpanded: boolean;
   isAnimatingCollapse?: boolean;
+  isHidden?: boolean;
   onToggleExpand: (id: string) => void;
+  onToggleHide?: (eventName: string) => void;
 }
 
 export function EventRow({ 
@@ -20,7 +22,9 @@ export function EventRow({
   isSelected, 
   isExpanded,
   isAnimatingCollapse = false,
-  onToggleExpand 
+  isHidden = false,
+  onToggleExpand,
+  onToggleHide,
 }: EventRowProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -49,7 +53,9 @@ export function EventRow({
         <EventRowHeader
           event={event}
           isExpanded={isExpanded}
+          isHidden={isHidden}
           onToggleExpand={onToggleExpand}
+          onToggleHide={onToggleHide}
         />
       </button>
 

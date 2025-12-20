@@ -24,6 +24,7 @@ export interface TabState {
   // UI state
   selectedEventId: string | null; // Single selected event (for detail panel)
   expandedEventIds: Set<string>; // Multiple expanded events (for list view)
+  hiddenEventNames: Set<string>; // Event names that are hidden/filtered
   
   // Tab metadata
   tabUrl: string | null;
@@ -36,6 +37,9 @@ interface TabStore extends TabState {
   clearEvents: () => void;
   setSelectedEvent: (id: string | null) => void; // Select one event (for detail view)
   toggleEventExpanded: (id: string) => void; // Expand/collapse events in list (can have multiple)
+  toggleEventNameVisibility: (eventName: string) => void; // Hide/show events by name
+  showAllEventNames: () => void; // Show all hidden event names
+  hideAllEventNames: (eventNames: string[]) => void; // Hide all provided event names
   setTabUrl: (url: string) => void;
   reset: () => void;
 }
@@ -44,6 +48,7 @@ const defaultTabState: TabState = {
   events: [],
   selectedEventId: null,
   expandedEventIds: new Set(),
+  hiddenEventNames: new Set(),
   tabUrl: null,
   lastUpdated: Date.now(),
 };
@@ -88,6 +93,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             events: [],
             selectedEventId: null,
             expandedEventIds: new Set<string>(),
+            hiddenEventNames: new Set<string>(),
             lastUpdated: Date.now(),
           });
           log.debug(`  ✅ Store cleared, events count: 0`);
@@ -109,6 +115,26 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
           });
         },
 
+        toggleEventNameVisibility: (eventName) => {
+          set((state) => {
+            const hidden = new Set(state.hiddenEventNames);
+            if (hidden.has(eventName)) {
+              hidden.delete(eventName);
+            } else {
+              hidden.add(eventName);
+            }
+            return { hiddenEventNames: hidden };
+          });
+        },
+
+        showAllEventNames: () => {
+          set({ hiddenEventNames: new Set() });
+        },
+
+        hideAllEventNames: (eventNames) => {
+          set({ hiddenEventNames: new Set(eventNames) });
+        },
+
         setTabUrl: (url) => {
           set({ tabUrl: url });
         },
@@ -125,11 +151,13 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         partialize: (state) => ({
           ...state,
           expandedEventIds: Array.from(state.expandedEventIds),
+          hiddenEventNames: Array.from(state.hiddenEventNames),
         }),
         // Custom deserialization for Set
         onRehydrateStorage: () => (state) => {
           if (state) {
             state.expandedEventIds = new Set(state.expandedEventIds as unknown as string[]);
+            state.hiddenEventNames = new Set(state.hiddenEventNames as unknown as string[]);
           }
         },
       }

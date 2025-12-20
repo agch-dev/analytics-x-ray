@@ -10,4 +10,5 @@ export { EventRowHeader } from './EventRowHeader';
 export { EventList, type EventListHandle } from './EventList';
 export { EmptyState } from './EmptyState';
 export { Footer } from './Footer';
+export { FilterPanel } from './FilterPanel';
 

@@ -53,3 +53,23 @@ export function copyToClipboard(text: string): boolean {
   return success;
 }
 
+/**
+ * Normalize event name for filtering purposes
+ * Page events with format "Page: {name}" are normalized to "Page"
+ * Other event names remain unchanged
+ * @param eventName - The event name to normalize
+ * @param eventType - The event type (optional, used for page events)
+ * @returns The normalized event name for filtering
+ */
+export function normalizeEventNameForFilter(
+  eventName: string,
+  eventType?: string
+): string {
+  // Normalize page events: "Page: {name}" -> "Page"
+  // But keep "Page View" and "Page Viewed" as-is
+  if (eventType === 'page' && eventName.startsWith('Page: ')) {
+    return 'Page';
+  }
+  return eventName;
+}
+

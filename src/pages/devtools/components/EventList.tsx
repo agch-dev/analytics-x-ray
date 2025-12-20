@@ -1,6 +1,7 @@
 import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle, useState, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { SegmentEvent } from '@src/types/segment';
+import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { EventRow } from './EventRow';
 import { EventRowHeader } from './EventRowHeader';
 import { EmptyState } from './EmptyState';
@@ -13,8 +14,10 @@ interface EventListProps {
   events: SegmentEvent[];
   selectedEventId: string | null;
   expandedEventIds: Set<string>;
+  hiddenEventNames: Set<string>;
   onSelectEvent: (id: string) => void;
   onToggleExpand: (id: string) => void;
+  onToggleHide?: (eventName: string) => void;
 }
 
 // Height of the row header (used for sticky header calculations)
@@ -28,8 +31,10 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     events, 
     selectedEventId, 
     expandedEventIds,
+    hiddenEventNames,
     onSelectEvent,
-    onToggleExpand 
+    onToggleExpand,
+    onToggleHide,
   }, ref) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const shouldAutoScrollRef = useRef(true);
@@ -248,7 +253,9 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
               event={stickyEvent}
               isExpanded={true}
               isSticky={true}
+              isHidden={hiddenEventNames.has(normalizeEventNameForFilter(stickyEvent.name, stickyEvent.type))}
               onToggleExpand={() => {}} // Not used, parent handles click
+              onToggleHide={onToggleHide}
             />
           </div>
         )}
@@ -295,8 +302,9 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
                     isSelected={selectedEventId === event.id}
                     isExpanded={isExpanded}
                     isAnimatingCollapse={collapsedEventId === event.id}
-                    onSelect={onSelectEvent}
+                    isHidden={hiddenEventNames.has(normalizeEventNameForFilter(event.name, event.type))}
                     onToggleExpand={handleToggleExpand}
+                    onToggleHide={onToggleHide}
                   />
                 </div>
               );
