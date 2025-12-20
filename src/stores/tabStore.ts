@@ -25,6 +25,8 @@ export interface TabState {
   selectedEventId: string | null; // Single selected event (for detail panel)
   expandedEventIds: Set<string>; // Multiple expanded events (for list view)
   hiddenEventNames: Set<string>; // Event names that are hidden/filtered
+  searchQuery: string; // Search query for filtering events
+  detailViewMode: 'json' | 'structured'; // View mode for event details
   
   // Tab metadata
   tabUrl: string | null;
@@ -40,6 +42,8 @@ interface TabStore extends TabState {
   toggleEventNameVisibility: (eventName: string) => void; // Hide/show events by name
   showAllEventNames: () => void; // Show all hidden event names
   hideAllEventNames: (eventNames: string[]) => void; // Hide all provided event names
+  setSearchQuery: (query: string) => void; // Set search query
+  setDetailViewMode: (mode: TabState['detailViewMode']) => void; // Set detail view mode
   setTabUrl: (url: string) => void;
   reset: () => void;
 }
@@ -49,6 +53,8 @@ const defaultTabState: TabState = {
   selectedEventId: null,
   expandedEventIds: new Set(),
   hiddenEventNames: new Set(),
+  searchQuery: '',
+  detailViewMode: 'structured',
   tabUrl: null,
   lastUpdated: Date.now(),
 };
@@ -94,6 +100,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             selectedEventId: null,
             expandedEventIds: new Set<string>(),
             hiddenEventNames: new Set<string>(),
+            searchQuery: '',
             lastUpdated: Date.now(),
           });
           log.debug(`  ✅ Store cleared, events count: 0`);
@@ -133,6 +140,14 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
 
         hideAllEventNames: (eventNames) => {
           set({ hiddenEventNames: new Set(eventNames) });
+        },
+
+        setSearchQuery: (query) => {
+          set({ searchQuery: query });
+        },
+
+        setDetailViewMode: (mode) => {
+          set({ detailViewMode: mode });
         },
 
         setTabUrl: (url) => {

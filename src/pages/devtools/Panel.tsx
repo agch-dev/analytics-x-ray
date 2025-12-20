@@ -1,6 +1,6 @@
-import { useRef, useEffect, useState, useMemo } from 'react';
+import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
-import { getTabStore } from '@src/stores/tabStore';
+import { getTabStore, type TabState } from '@src/stores/tabStore';
 import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
@@ -17,20 +17,31 @@ export default function Panel() {
   const eventListRef = useRef<EventListHandle>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   
   // Selectors - only subscribe to what we need
   const events = useTabStore((state) => state.events);
   const selectedEventId = useTabStore((state) => state.selectedEventId);
   const expandedEventIds = useTabStore((state) => state.expandedEventIds);
   const hiddenEventNames = useTabStore((state) => state.hiddenEventNames);
+  const searchQuery = useTabStore((state) => state.searchQuery);
+  const detailViewMode = useTabStore((state) => state.detailViewMode);
   const setSelectedEvent = useTabStore((state) => state.setSelectedEvent);
   const toggleEventExpanded = useTabStore((state) => state.toggleEventExpanded);
   const toggleEventNameVisibility = useTabStore((state) => state.toggleEventNameVisibility);
   const showAllEventNames = useTabStore((state) => state.showAllEventNames);
   const hideAllEventNames = useTabStore((state) => state.hideAllEventNames);
+  const setSearchQuery = useTabStore((state) => state.setSearchQuery);
+  const setDetailViewMode = useTabStore((state) => state.setDetailViewMode);
   const clearEvents = useTabStore((state) => state.clearEvents);
   const addEvent = useTabStore((state) => state.addEvent);
+  
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, [setSearchQuery]);
+  
+  const handleViewModeChange = useCallback((mode: TabState['detailViewMode']) => {
+    setDetailViewMode(mode);
+  }, [setDetailViewMode]);
   
   // Sync events with background script
   useEventSync({ tabId, addEvent });
@@ -127,7 +138,7 @@ export default function Panel() {
         filteredEventNamesCount={filteredEventNamesCount}
         isFilterPanelOpen={isFilterPanelOpen}
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={handleSearchChange}
         onClear={handleClearEvents}
         onToggleFilterPanel={handleToggleFilterPanel}
       />
@@ -149,10 +160,12 @@ export default function Panel() {
         expandedEventIds={expandedEventIds}
         hiddenEventNames={hiddenEventNames}
         searchMatch={searchMatch}
+        viewMode={detailViewMode}
         onSelectEvent={setSelectedEvent}
         onToggleExpand={toggleEventExpanded}
         onToggleHide={toggleEventNameVisibility}
         onScrollStateChange={setIsAtBottom}
+        onViewModeChange={handleViewModeChange}
       />
       
       <ScrollToBottomButton

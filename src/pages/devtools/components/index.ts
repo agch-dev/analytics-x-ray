@@ -13,3 +13,13 @@ export { Footer } from './Footer';
 export { FilterPanel } from './FilterPanel';
 export { ScrollToBottomButton } from './ScrollToBottomButton';
 
+// Detail view components
+export {
+  EventDetailView,
+  EventDetailSection,
+  PropertyRow,
+  PropertiesSection,
+  ContextSection,
+  MiscSection,
+} from './detail';
+

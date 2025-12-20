@@ -35,6 +35,11 @@ export interface SegmentContext {
     url: string;
   };
   userAgent?: string;
+  userAgentData?: {
+    brands?: Array<{ brand: string; version: string }>;
+    mobile?: boolean;
+    platform?: string;
+  };
   locale?: string;
   timezone?: string;
   ip?: string;
@@ -42,6 +47,8 @@ export interface SegmentContext {
   device?: Record<string, unknown>;
   os?: Record<string, unknown>;
   app?: Record<string, unknown>;
+  // Allow additional vendor-specific context properties
+  [key: string]: unknown;
 }
 
 // Individual event as it appears in a Segment batch (network payload)

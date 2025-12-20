@@ -12,16 +12,20 @@ export interface EventListHandle {
   isAtBottom: boolean;
 }
 
+type ViewMode = 'json' | 'structured';
+
 interface EventListProps {
   events: SegmentEvent[];
   selectedEventId: string | null;
   expandedEventIds: Set<string>;
   hiddenEventNames: Set<string>;
   searchMatch?: SearchMatch | null;
+  viewMode: ViewMode;
   onSelectEvent: (id: string) => void;
   onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
   onScrollStateChange?: (isAtBottom: boolean) => void;
+  onViewModeChange: (mode: ViewMode) => void;
 }
 
 // Height of the row header (used for sticky header calculations)
@@ -39,10 +43,12 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     expandedEventIds,
     hiddenEventNames,
     searchMatch,
+    viewMode,
     onSelectEvent,
     onToggleExpand,
     onToggleHide,
     onScrollStateChange,
+    onViewModeChange,
   }, ref) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const shouldAutoScrollRef = useRef(true);
@@ -339,8 +345,10 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
                     isAnimatingCollapse={collapsedEventId === event.id}
                     isHidden={hiddenEventNames.has(normalizeEventNameForFilter(event.name, event.type))}
                     searchMatch={searchMatch}
+                    viewMode={viewMode}
                     onToggleExpand={handleToggleExpand}
                     onToggleHide={onToggleHide}
+                    onViewModeChange={onViewModeChange}
                   />
                 </div>
               );
