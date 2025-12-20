@@ -10,6 +10,7 @@ import { cn, copyToClipboard } from '@src/lib/utils';
 import { highlightText } from '@src/lib/search';
 import type { SegmentEvent } from '@src/types/segment';
 import { PropertiesSection } from './PropertiesSection';
+import { TraitsSection } from './TraitsSection';
 import { ContextSection } from './ContextSection';
 import { MiscSection } from './MiscSection';
 
@@ -49,7 +50,14 @@ export function EventDetailView({
       <div className="px-3 pb-3">
         {viewMode === 'structured' ? (
           <div className="space-y-3 pt-3">
-            <PropertiesSection event={event} searchQuery={searchQuery} />
+            {/* Show Traits section for identify events */}
+            {event.type === 'identify' && (
+              <TraitsSection event={event} searchQuery={searchQuery} />
+            )}
+            {/* Show Properties section only if there are properties */}
+            {Object.keys(event.properties).length > 0 && (
+              <PropertiesSection event={event} searchQuery={searchQuery} />
+            )}
             <ContextSection event={event} searchQuery={searchQuery} />
             <MiscSection event={event} searchQuery={searchQuery} />
           </div>

@@ -16,6 +16,8 @@ import { createChromeStorage } from '@src/lib/storage';
 export interface PinnedPropertiesProfile {
   // Top-level properties section pins
   properties: string[];
+  // Top-level traits section pins (for identify events)
+  traits: string[];
   // Context section pins organized by subsection
   context: {
     page: string[];
@@ -37,6 +39,7 @@ export interface PinnedPropertiesConfig {
 
 const defaultPinnedProfile: PinnedPropertiesProfile = {
   properties: [],
+  traits: [],
   context: {
     page: [],
     library: [],
@@ -97,6 +100,9 @@ function getPinnedPath(
   if (section === 'properties') {
     return profile.properties;
   }
+  if (section === 'traits') {
+    return profile.traits;
+  }
   if (section === 'context' && subsection) {
     const contextKey = subsection as keyof typeof profile.context;
     return profile.context[contextKey] ?? null;
@@ -136,6 +142,13 @@ export const useConfigStore = create<ConfigStore>()(
               newProfile.properties.push(property);
             } else {
               newProfile.properties.splice(idx, 1);
+            }
+          } else if (section === 'traits') {
+            const idx = newProfile.traits.indexOf(property);
+            if (idx === -1) {
+              newProfile.traits.push(property);
+            } else {
+              newProfile.traits.splice(idx, 1);
             }
           } else if (section === 'context' && subsection) {
             const contextKey = subsection as keyof typeof newProfile.context;
@@ -191,7 +204,7 @@ export const useConfigStore = create<ConfigStore>()(
     {
       name: 'analytics-xray-config',
       storage: createJSONStorage(() => createChromeStorage()),
-      version: 2,
+      version: 3,
       migrate: (persistedState, version) => {
         const state = persistedState as ExtensionConfig;
         if (version < 2) {
@@ -201,6 +214,20 @@ export const useConfigStore = create<ConfigStore>()(
             pinnedProperties: {
               default: defaultPinnedProfile,
             },
+          };
+        }
+        if (version < 3) {
+          // Migration from v2 to v3: add traits to pinnedProperties profiles
+          const updatedPinnedProperties: PinnedPropertiesConfig = {};
+          for (const [profileKey, profile] of Object.entries(state.pinnedProperties)) {
+            updatedPinnedProperties[profileKey] = {
+              ...profile,
+              traits: [],
+            };
+          }
+          return {
+            ...state,
+            pinnedProperties: updatedPinnedProperties,
           };
         }
         return state;

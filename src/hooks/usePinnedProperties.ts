@@ -8,7 +8,7 @@
 import { useCallback } from 'react';
 import { useConfigStore } from '@src/stores/configStore';
 
-export type PinSection = 'properties' | 'context' | 'metadata';
+export type PinSection = 'properties' | 'traits' | 'context' | 'metadata';
 export type ContextSubsection = 'page' | 'library' | 'other' | 'browser';
 export type MetadataSubsection = 'identifiers' | 'captureInfo' | 'integrations';
 export type PinSubsection = ContextSubsection | MetadataSubsection | null;
@@ -40,6 +40,9 @@ function getPinnedArray(
 ): string[] {
   if (section === 'properties') {
     return profile.properties;
+  }
+  if (section === 'traits') {
+    return profile.traits;
   }
   if (section === 'context' && subsection) {
     const contextKey = subsection as ContextSubsection;
