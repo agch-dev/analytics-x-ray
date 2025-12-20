@@ -33,7 +33,7 @@ function getValueColor(value: unknown): string {
   if (value === null || value === undefined) return 'text-muted-foreground italic';
   if (typeof value === 'boolean') return value ? 'text-green-400' : 'text-red-400';
   if (typeof value === 'number') return 'text-amber-400';
-  if (typeof value === 'string') return 'text-accent-foreground';
+  if (typeof value === 'string') return 'text-blue-400 dark:text-blue-300';
   return 'text-muted-foreground';
 }
 
@@ -126,13 +126,12 @@ export function PropertyRow({
   }, [value, expandable, isExpanded]);
 
   return (
-    <div className={cn('group', depth > 0 && 'ml-4')}>
+    <div className="group">
       <div
         className={cn(
           'flex items-start gap-2 py-1.5 px-2 rounded-md transition-colors',
           'hover:bg-muted/50',
-          matchesSearch && 'bg-yellow-500/10',
-          isNested && 'border-l-2 border-border'
+          matchesSearch && 'bg-yellow-500/10'
         )}
       >
         {/* Expand/collapse button for nested objects */}
@@ -181,7 +180,7 @@ export function PropertyRow({
 
       {/* Nested properties */}
       {isExpanded && nestedEntries.length > 0 && (
-        <div className="border-l border-border ml-3">
+        <div className="ml-4 pl-3 border-l border-border/50">
           {nestedEntries.map(({ key, value: nestedValue }) => (
             <PropertyRow
               key={key}
