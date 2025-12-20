@@ -5,6 +5,7 @@ import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, type Even
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
+import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
 
 const log = createContextLogger('panel');
 
@@ -16,6 +17,7 @@ export default function Panel() {
   const eventListRef = useRef<EventListHandle>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Selectors - only subscribe to what we need
   const events = useTabStore((state) => state.events);
@@ -33,16 +35,28 @@ export default function Panel() {
   // Sync events with background script
   useEventSync({ tabId, addEvent });
 
-  // Filter events based on hidden event names (using normalized names)
+  // Parse search query
+  const searchMatch = useMemo(() => parseSearchQuery(searchQuery), [searchQuery]);
+
+  // Filter events based on hidden event names and search query
   const filteredEvents = useMemo(() => {
-    if (hiddenEventNames.size === 0) {
-      return events;
+    let filtered = events;
+
+    // Filter by hidden event names (using normalized names)
+    if (hiddenEventNames.size > 0) {
+      filtered = filtered.filter((event) => {
+        const normalizedName = normalizeEventNameForFilter(event.name, event.type);
+        return !hiddenEventNames.has(normalizedName);
+      });
     }
-    return events.filter((event) => {
-      const normalizedName = normalizeEventNameForFilter(event.name, event.type);
-      return !hiddenEventNames.has(normalizedName);
-    });
-  }, [events, hiddenEventNames]);
+
+    // Filter by search query
+    if (searchMatch) {
+      filtered = filtered.filter((event) => eventMatchesSearch(event, searchMatch));
+    }
+
+    return filtered;
+  }, [events, hiddenEventNames, searchMatch]);
 
   // Get unique event names from current events for filter panel (normalized)
   const uniqueEventNames = useMemo(() => {
@@ -112,6 +126,8 @@ export default function Panel() {
         eventCount={filteredEvents.length}
         filteredEventNamesCount={filteredEventNamesCount}
         isFilterPanelOpen={isFilterPanelOpen}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
         onClear={handleClearEvents}
         onToggleFilterPanel={handleToggleFilterPanel}
       />
@@ -132,6 +148,7 @@ export default function Panel() {
         selectedEventId={selectedEventId}
         expandedEventIds={expandedEventIds}
         hiddenEventNames={hiddenEventNames}
+        searchMatch={searchMatch}
         onSelectEvent={setSelectedEvent}
         onToggleExpand={toggleEventExpanded}
         onToggleHide={toggleEventNameVisibility}

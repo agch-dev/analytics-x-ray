@@ -1,5 +1,7 @@
 import { cn, normalizeEventNameForFilter } from '@src/lib/utils';
 import type { SegmentEvent } from '@src/types/segment';
+import type { SearchMatch } from '@src/lib/search';
+import { highlightText } from '@src/lib/search';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ViewOffSlashIcon } from '@hugeicons/core-free-icons';
 import { Button } from '@src/components/ui/button';
@@ -21,6 +23,7 @@ interface EventRowHeaderProps {
   isExpanded?: boolean;
   isSticky?: boolean;
   isHidden?: boolean;
+  searchMatch?: SearchMatch | null;
   onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
 }
@@ -30,6 +33,7 @@ export function EventRowHeader({
   isExpanded = false,
   isSticky = false,
   isHidden = false,
+  searchMatch,
   onToggleExpand,
   onToggleHide,
 }: EventRowHeaderProps) {
@@ -42,6 +46,11 @@ export function EventRowHeader({
   // Categorize event and get bucket color
   const bucketId = categorizeEvent(event);
   const bucketColor = getBucketColor(bucketId);
+
+  // Highlight event name if there's a search match
+  const eventNameParts = searchMatch?.query 
+    ? highlightText(event.name, searchMatch.type === 'keyValue' ? searchMatch.value || '' : searchMatch.query)
+    : [{ text: event.name, highlight: false }];
 
   return (
     <div
@@ -59,9 +68,17 @@ export function EventRowHeader({
         {formatTime(event.timestamp)}
       </span>
       
-      {/* Event name */}
+      {/* Event name with highlighting */}
       <span className="text-sm text-foreground truncate flex-1">
-        {event.name}
+        {eventNameParts.map((part, index) => (
+          part.highlight ? (
+            <mark key={index} className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5">
+              {part.text}
+            </mark>
+          ) : (
+            <span key={index}>{part.text}</span>
+          )
+        ))}
       </span>
       
       {/* Provider indicator */}

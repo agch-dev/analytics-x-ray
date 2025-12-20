@@ -1,10 +1,12 @@
 import JsonView from '@uiw/react-json-view';
 import { darkTheme } from '@uiw/react-json-view/dark';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Copy01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 import { cn, copyToClipboard } from '@src/lib/utils';
 import type { SegmentEvent } from '@src/types/segment';
+import type { SearchMatch } from '@src/lib/search';
+import { highlightText } from '@src/lib/search';
 import { EventRowHeader } from './EventRowHeader';
 
 interface EventRowProps {
@@ -13,6 +15,7 @@ interface EventRowProps {
   isExpanded: boolean;
   isAnimatingCollapse?: boolean;
   isHidden?: boolean;
+  searchMatch?: SearchMatch | null;
   onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
 }
@@ -23,6 +26,7 @@ export function EventRow({
   isExpanded,
   isAnimatingCollapse = false,
   isHidden = false,
+  searchMatch,
   onToggleExpand,
   onToggleHide,
 }: EventRowProps) {
@@ -36,6 +40,15 @@ export function EventRow({
       setTimeout(() => setCopiedKey(null), 1500);
     }
   }, []);
+
+  // Get search query for highlighting
+  const searchQuery = useMemo(() => {
+    if (!searchMatch) return '';
+    if (searchMatch.type === 'keyValue') {
+      return searchMatch.value || '';
+    }
+    return searchMatch.query;
+  }, [searchMatch]);
 
   return (
     <div
@@ -54,6 +67,7 @@ export function EventRow({
           event={event}
           isExpanded={isExpanded}
           isHidden={isHidden}
+          searchMatch={searchMatch}
           onToggleExpand={onToggleExpand}
           onToggleHide={onToggleHide}
         />
@@ -81,6 +95,61 @@ export function EventRow({
               return isExpanded;
             }}
           >
+            {/* Custom renderer for string values to highlight search matches */}
+            {searchQuery && (
+              <JsonView.String
+                render={({ children, ...reset }, { type, value, keyName }) => {
+                  // Only highlight values, not type indicators
+                  if (type === 'value' && typeof value === 'string') {
+                    const parts = highlightText(value, searchQuery);
+                    
+                    return (
+                      <span {...reset}>
+                        {parts.map((part, index) => 
+                          part.highlight ? (
+                            <mark 
+                              key={index} 
+                              className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                            >
+                              {part.text}
+                            </mark>
+                          ) : (
+                            <span key={index}>{part.text}</span>
+                          )
+                        )}
+                      </span>
+                    );
+                  }
+                  
+                  // For key-value searches, also highlight matching keys
+                  if (searchMatch?.type === 'keyValue' && type === 'type' && keyName) {
+                    const keyNameStr = String(keyName);
+                    const keyParts = highlightText(keyNameStr, searchMatch.key || '');
+                    if (keyParts.some(p => p.highlight)) {
+                      return (
+                        <span {...reset}>
+                          {keyParts.map((part, index) => 
+                            part.highlight ? (
+                              <mark 
+                                key={index} 
+                                className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                              >
+                                {part.text}
+                              </mark>
+                            ) : (
+                              <span key={index}>{part.text}</span>
+                            )
+                          )}
+                        </span>
+                      );
+                    }
+                  }
+                  
+                  // Default rendering
+                  return <span {...reset}>{children}</span>;
+                }}
+              />
+            )}
             <JsonView.Copied
               render={(props, { value, keyName }) => {
                 const key = String(keyName ?? 'root');

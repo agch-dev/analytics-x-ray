@@ -2,6 +2,7 @@ import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle, useState, 
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { SegmentEvent } from '@src/types/segment';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
+import type { SearchMatch } from '@src/lib/search';
 import { EventRow } from './EventRow';
 import { EventRowHeader } from './EventRowHeader';
 import { EmptyState } from './EmptyState';
@@ -16,6 +17,7 @@ interface EventListProps {
   selectedEventId: string | null;
   expandedEventIds: Set<string>;
   hiddenEventNames: Set<string>;
+  searchMatch?: SearchMatch | null;
   onSelectEvent: (id: string) => void;
   onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
@@ -36,6 +38,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     selectedEventId, 
     expandedEventIds,
     hiddenEventNames,
+    searchMatch,
     onSelectEvent,
     onToggleExpand,
     onToggleHide,
@@ -284,6 +287,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
               isExpanded={true}
               isSticky={true}
               isHidden={hiddenEventNames.has(normalizeEventNameForFilter(stickyEvent.name, stickyEvent.type))}
+              searchMatch={searchMatch}
               onToggleExpand={() => {}} // Not used, parent handles click
               onToggleHide={onToggleHide}
             />
@@ -291,7 +295,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         )}
         
         {displayEvents.length === 0 ? (
-          <EmptyState />
+          <EmptyState searchQuery={searchMatch?.query} />
         ) : (
           <div
             style={{
@@ -334,6 +338,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
                     isExpanded={isExpanded}
                     isAnimatingCollapse={collapsedEventId === event.id}
                     isHidden={hiddenEventNames.has(normalizeEventNameForFilter(event.name, event.type))}
+                    searchMatch={searchMatch}
                     onToggleExpand={handleToggleExpand}
                     onToggleHide={onToggleHide}
                   />
