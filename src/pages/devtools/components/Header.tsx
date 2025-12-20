@@ -120,7 +120,7 @@ export function Header({
         />
         <Input
           type="text"
-          placeholder="Search events, attributes, or use key:value..."
+          placeholder="Search events, attributes, or values..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9 pr-9 h-8 text-xs"

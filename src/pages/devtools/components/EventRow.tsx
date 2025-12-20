@@ -43,11 +43,7 @@ export function EventRow({
 
   // Get search query for highlighting
   const searchQuery = useMemo(() => {
-    if (!searchMatch) return '';
-    if (searchMatch.type === 'keyValue') {
-      return searchMatch.value || '';
-    }
-    return searchMatch.query;
+    return searchMatch?.query || '';
   }, [searchMatch]);
 
   return (
@@ -103,22 +99,60 @@ export function EventRow({
                   if (type === 'value' && typeof value === 'string') {
                     const parts = highlightText(value, searchQuery);
                     
-                    return (
-                      <span {...reset}>
-                        {parts.map((part, index) => 
-                          part.highlight ? (
-                            <mark 
-                              key={index} 
-                              className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
-                            >
-                              {part.text}
-                            </mark>
-                          ) : (
-                            <span key={index}>{part.text}</span>
-                          )
-                        )}
-                      </span>
-                    );
+                    // Only highlight if there's a match
+                    if (parts.some(p => p.highlight)) {
+                      return (
+                        <span {...reset}>
+                          {parts.map((part, index) => 
+                            part.highlight ? (
+                              <mark 
+                                key={index} 
+                                className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                              >
+                                {part.text}
+                              </mark>
+                            ) : (
+                              <span key={index}>{part.text}</span>
+                            )
+                          )}
+                        </span>
+                      );
+                    }
+                  }
+                  
+                  // Default rendering
+                  return <span {...reset}>{children}</span>;
+                }}
+              />
+            )}
+            
+            {/* Custom renderer for number values to highlight search matches */}
+            {searchQuery && (
+              <JsonView.Int
+                render={({ children, ...reset }, { type, value }) => {
+                  // Highlight number values
+                  if (type === 'value' && typeof value === 'number') {
+                    const valueStr = String(value);
+                    const parts = highlightText(valueStr, searchQuery);
+                    
+                    if (parts.some(p => p.highlight)) {
+                      return (
+                        <span {...reset}>
+                          {parts.map((part, index) => 
+                            part.highlight ? (
+                              <mark 
+                                key={index} 
+                                className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                              >
+                                {part.text}
+                              </mark>
+                            ) : (
+                              <span key={index}>{part.text}</span>
+                            )
+                          )}
+                        </span>
+                      );
+                    }
                   }
                   
                   // Default rendering
@@ -136,15 +170,7 @@ export function EventRow({
                   }
                   
                   const keyNameStr = String(keyName);
-                  let keyParts: Array<{ text: string; highlight: boolean }>;
-                  
-                  if (searchMatch?.type === 'keyValue') {
-                    // For key-value searches, highlight if the key matches
-                    keyParts = highlightText(keyNameStr, searchMatch.key || '');
-                  } else {
-                    // For regular searches, highlight if the key matches the query
-                    keyParts = highlightText(keyNameStr, searchQuery);
-                  }
+                  const keyParts = highlightText(keyNameStr, searchQuery);
                   
                   if (keyParts.some(p => p.highlight)) {
                     return (

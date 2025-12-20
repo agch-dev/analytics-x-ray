@@ -1,14 +1,11 @@
 import type { SegmentEvent } from '@src/types/segment';
 
 export interface SearchMatch {
-  type: 'name' | 'value' | 'keyValue';
-  key?: string;
-  value?: string;
   query: string;
 }
 
 /**
- * Parse search query to detect key:value format
+ * Parse search query
  * Returns match information for highlighting
  */
 export function parseSearchQuery(query: string): SearchMatch | null {
@@ -16,24 +13,8 @@ export function parseSearchQuery(query: string): SearchMatch | null {
     return null;
   }
 
-  const trimmed = query.trim();
-  
-  // Check for key:value format (e.g., "userId: 123" or "properties.name: test")
-  const keyValueMatch = trimmed.match(/^([^:]+):\s*(.+)$/);
-  if (keyValueMatch) {
-    const [, key, value] = keyValueMatch;
-    return {
-      type: 'keyValue',
-      key: key.trim(),
-      value: value.trim(),
-      query: trimmed,
-    };
-  }
-
-  // Regular search - matches name or any value
   return {
-    type: 'value',
-    query: trimmed,
+    query: query.trim(),
   };
 }
 
@@ -75,33 +56,6 @@ function searchInObject(obj: unknown, searchValue: string): boolean {
 }
 
 /**
- * Get nested value from object using dot notation (e.g., "properties.name")
- */
-function getNestedValue(obj: unknown, path: string): unknown {
-  if (!path || typeof obj !== 'object' || obj === null) {
-    return undefined;
-  }
-
-  const keys = path.split('.');
-  let current: unknown = obj;
-
-  for (const key of keys) {
-    if (current === null || current === undefined || typeof current !== 'object') {
-      return undefined;
-    }
-    
-    if (Array.isArray(current)) {
-      // For arrays, check if any element matches
-      return current.some((item) => getNestedValue(item, key) !== undefined);
-    }
-
-    current = (current as Record<string, unknown>)[key];
-  }
-
-  return current;
-}
-
-/**
  * Check if an event matches the search query
  */
 export function eventMatchesSearch(event: SegmentEvent, match: SearchMatch | null): boolean {
@@ -109,41 +63,7 @@ export function eventMatchesSearch(event: SegmentEvent, match: SearchMatch | nul
     return true;
   }
 
-  const { type, key, value, query } = match;
-
-  if (type === 'keyValue' && key && value) {
-    // Search for specific key-value pair
-    const eventObj = event as Record<string, unknown>;
-    const nestedValue = getNestedValue(eventObj, key);
-    
-    if (nestedValue === undefined) {
-      return false;
-    }
-
-    // Check if the value matches
-    if (typeof nestedValue === 'string') {
-      return nestedValue.toLowerCase().includes(value.toLowerCase());
-    }
-    
-    if (typeof nestedValue === 'number' || typeof nestedValue === 'boolean') {
-      return String(nestedValue).toLowerCase().includes(value.toLowerCase());
-    }
-
-    if (Array.isArray(nestedValue)) {
-      return nestedValue.some((item) => {
-        const itemStr = String(item).toLowerCase();
-        return itemStr.includes(value.toLowerCase());
-      });
-    }
-
-    if (typeof nestedValue === 'object' && nestedValue !== null) {
-      return searchInObject(nestedValue, value);
-    }
-
-    return false;
-  }
-
-  // Regular search - check event name and all values
+  const { query } = match;
   const searchLower = query.toLowerCase();
   
   // Check event name
@@ -151,7 +71,7 @@ export function eventMatchesSearch(event: SegmentEvent, match: SearchMatch | nul
     return true;
   }
 
-  // Check all values in the event object
+  // Check all keys and values in the event object
   return searchInObject(event, query);
 }
 

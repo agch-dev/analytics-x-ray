@@ -49,7 +49,7 @@ export function EventRowHeader({
 
   // Highlight event name if there's a search match
   const eventNameParts = searchMatch?.query 
-    ? highlightText(event.name, searchMatch.type === 'keyValue' ? searchMatch.value || '' : searchMatch.query)
+    ? highlightText(event.name, searchMatch.query)
     : [{ text: event.name, highlight: false }];
 
   return (
