@@ -5,8 +5,6 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Copy01Icon,
   Tick01Icon,
-  CodeIcon,
-  TextIcon,
 } from '@hugeicons/core-free-icons';
 import { cn, copyToClipboard } from '@src/lib/utils';
 import { highlightText } from '@src/lib/search';
@@ -21,14 +19,12 @@ interface EventDetailViewProps {
   event: SegmentEvent;
   viewMode: ViewMode;
   searchQuery?: string;
-  onViewModeChange: (mode: ViewMode) => void;
 }
 
 export function EventDetailView({
   event,
   viewMode,
   searchQuery = '',
-  onViewModeChange,
 }: EventDetailViewProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -49,36 +45,6 @@ export function EventDetailView({
 
   return (
     <div className="border-t border-border bg-background/50">
-      {/* View mode toggle */}
-      <div className="flex items-center justify-end gap-1 px-3 py-2 border-b border-border bg-muted/30">
-        <div className="flex items-center rounded-md border border-border bg-background p-0.5">
-          <button
-            onClick={() => onViewModeChange('structured')}
-            className={cn(
-              'flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium transition-colors',
-              viewMode === 'structured'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-            )}
-          >
-            <HugeiconsIcon icon={TextIcon} size={12} />
-            Structured
-          </button>
-          <button
-            onClick={() => onViewModeChange('json')}
-            className={cn(
-              'flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium transition-colors',
-              viewMode === 'json'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-            )}
-          >
-            <HugeiconsIcon icon={CodeIcon} size={12} />
-            JSON
-          </button>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="px-3 pb-3">
         {viewMode === 'structured' ? (
@@ -88,13 +54,14 @@ export function EventDetailView({
             <MiscSection event={event} searchQuery={searchQuery} />
           </div>
         ) : (
-          <JsonView
-            value={displayEvent}
-            style={{
-              ...darkTheme,
-              backgroundColor: 'transparent',
-              fontSize: '12px',
-            }}
+          <div className="pt-3">
+            <JsonView
+              value={displayEvent}
+              style={{
+                ...darkTheme,
+                backgroundColor: 'transparent',
+                fontSize: '12px',
+              }}
             collapsed={false}
             displayDataTypes={false}
             displayObjectSize={false}
@@ -260,6 +227,7 @@ export function EventDetailView({
               }}
             />
           </JsonView>
+          </div>
         )}
       </div>
     </div>

@@ -3,9 +3,11 @@ import type { SegmentEvent } from '@src/types/segment';
 import type { SearchMatch } from '@src/lib/search';
 import { highlightText } from '@src/lib/search';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ViewOffSlashIcon } from '@hugeicons/core-free-icons';
+import { ViewOffSlashIcon, TextIcon, CodeIcon } from '@hugeicons/core-free-icons';
 import { Button } from '@src/components/ui/button';
 import { categorizeEvent, getBucketColor } from '@src/lib/eventBuckets';
+
+type ViewMode = 'json' | 'structured';
 
 // Format timestamp for display
 export const formatTime = (timestamp: string | number): string => {
@@ -24,8 +26,10 @@ interface EventRowHeaderProps {
   isSticky?: boolean;
   isHidden?: boolean;
   searchMatch?: SearchMatch | null;
+  viewMode?: ViewMode;
   onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
+  onViewModeChange?: (mode: ViewMode) => void;
 }
 
 export function EventRowHeader({ 
@@ -34,13 +38,20 @@ export function EventRowHeader({
   isSticky = false,
   isHidden = false,
   searchMatch,
+  viewMode,
   onToggleExpand,
   onToggleHide,
+  onViewModeChange,
 }: EventRowHeaderProps) {
   const handleMuteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     const normalizedName = normalizeEventNameForFilter(event.name, event.type);
     onToggleHide?.(normalizedName);
+  };
+
+  const handleViewModeClick = (e: React.MouseEvent, mode: ViewMode) => {
+    e.stopPropagation();
+    onViewModeChange?.(mode);
   };
 
   // Categorize event and get bucket color
@@ -86,6 +97,48 @@ export function EventRowHeader({
         <span className="text-xs text-muted-foreground uppercase tracking-wider">
           {event.provider}
         </span>
+      )}
+
+      {/* View mode toggle - only show when expanded */}
+      {isExpanded && onViewModeChange && viewMode && (
+        <div className="flex items-center gap-0.5 shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => handleViewModeClick(e, 'structured')}
+            className={cn(
+              "h-6 px-2 py-0 flex items-center gap-1",
+              viewMode === 'structured' 
+                ? "bg-primary text-primary-foreground" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            title="Structured view"
+          >
+            <HugeiconsIcon 
+              icon={TextIcon} 
+              size={12} 
+            />
+            <span className="text-xs font-medium">Structured</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => handleViewModeClick(e, 'json')}
+            className={cn(
+              "h-6 px-2 py-0 flex items-center gap-1",
+              viewMode === 'json' 
+                ? "bg-primary text-primary-foreground" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            title="JSON view"
+          >
+            <HugeiconsIcon 
+              icon={CodeIcon} 
+              size={12} 
+            />
+            <span className="text-xs font-medium">JSON</span>
+          </Button>
+        </div>
       )}
 
       {/* Mute/Hide button */}

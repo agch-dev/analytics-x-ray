@@ -52,8 +52,10 @@ export function EventRow({
           isExpanded={isExpanded}
           isHidden={isHidden}
           searchMatch={searchMatch}
+          viewMode={viewMode}
           onToggleExpand={onToggleExpand}
           onToggleHide={onToggleHide}
+          onViewModeChange={onViewModeChange}
         />
       </button>
 
@@ -63,7 +65,6 @@ export function EventRow({
           event={event}
           viewMode={viewMode}
           searchQuery={searchQuery}
-          onViewModeChange={onViewModeChange}
         />
       )}
     </div>
