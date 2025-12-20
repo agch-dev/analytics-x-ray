@@ -62,8 +62,7 @@ export function Header({
           )}
           title="Filter"
         >
-          <HugeiconsIcon icon={FilterIcon} size={14} className="sm:mr-1" />
-          <span className="hidden sm:inline">Filter</span>
+          <HugeiconsIcon icon={FilterIcon} size={14} />
           {filteredEventNamesCount > 0 && (
             <Badge 
               variant="destructive" 
@@ -80,8 +79,7 @@ export function Header({
           className="text-xs text-muted-foreground hover:text-destructive px-1.5 sm:px-2"
           title="Clear"
         >
-          <HugeiconsIcon icon={Delete02Icon} size={14} className="sm:mr-1" />
-          <span className="hidden sm:inline">Clear</span>
+          <HugeiconsIcon icon={Delete02Icon} size={14} />
         </Button>
         
         <DropdownMenu>
