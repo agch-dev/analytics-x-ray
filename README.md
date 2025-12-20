@@ -1,5 +1,5 @@
 <div align="center">
-<img src="public/icon-128.png" alt="logo"/>
+<img src="public/icon128.png" alt="logo"/>
 <h1> Minimalist Chrome/Firefox Extension Boilerplate with<br/>React + Vite + TypeScript + TailwindCSS</h1>
 
 <h5>
