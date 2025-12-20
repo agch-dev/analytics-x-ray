@@ -1,0 +1,325 @@
+---
+description: Segment analytics event interception and handling patterns
+globs: src/pages/content/**/*,src/pages/background/**/*
+alwaysApply: false
+---
+
+# Segment Event Interception
+
+## Event Types
+
+### Segment Method Types
+
+```typescript
+type SegmentMethod = 'track' | 'page' | 'identify' | 'group' | 'alias';
+
+interface SegmentEvent {
+  id: string;
+  method: SegmentMethod;
+  name: string;           // Event name for track, page name for page
+  properties: Record<string, unknown>;
+  traits?: Record<string, unknown>;  // For identify events
+  timestamp: number;
+  context: EventContext;
+}
+
+interface EventContext {
+  url: string;
+  title: string;
+  referrer: string;
+  userAgent: string;
+  anonymousId?: string;
+  userId?: string;
+}
+```
+
+### Event Examples
+
+```typescript
+// Track event
+{
+  id: 'evt_123',
+  method: 'track',
+  name: 'Button Clicked',
+  properties: {
+    button_id: 'cta-signup',
+    page: '/pricing',
+    variant: 'blue'
+  },
+  timestamp: 1703123456789,
+  context: { url: 'https://example.com/pricing', ... }
+}
+
+// Page event
+{
+  id: 'evt_124',
+  method: 'page',
+  name: 'Pricing',
+  properties: {
+    category: 'Marketing',
+    path: '/pricing'
+  },
+  timestamp: 1703123456790,
+  context: { ... }
+}
+
+// Identify event
+{
+  id: 'evt_125',
+  method: 'identify',
+  name: '',  // Identify doesn't have event name
+  traits: {
+    email: 'user@example.com',
+    plan: 'premium'
+  },
+  properties: {},
+  timestamp: 1703123456791,
+  context: { ... }
+}
+```
+
+## Interception Strategy
+
+### Injected Script Approach
+
+The content script cannot directly access the page's `window.analytics` object because it runs in an isolated world. We need to inject a script into the page context.
+
+```typescript
+// src/pages/content/index.tsx
+
+// 1. Inject script into page context
+function injectScript() {
+  const script = document.createElement('script');
+  script.src = chrome.runtime.getURL('injected.js');
+  script.onload = () => script.remove();
+  (document.head || document.documentElement).appendChild(script);
+}
+
+// 2. Listen for events from injected script via window.postMessage
+window.addEventListener('message', (event) => {
+  // Only accept messages from same window
+  if (event.source !== window) return;
+  
+  if (event.data?.type === 'ANALYTICS_XRAY_EVENT') {
+    // Forward to background script
+    chrome.runtime.sendMessage({
+      type: 'SEGMENT_EVENT',
+      payload: event.data.payload
+    });
+  }
+});
+
+injectScript();
+```
+
+### Injected Script (Page Context)
+
+```typescript
+// src/injected.ts - Runs in page context, has access to window.analytics
+
+(function() {
+  // Wait for analytics to be available
+  const waitForAnalytics = setInterval(() => {
+    if (window.analytics) {
+      clearInterval(waitForAnalytics);
+      interceptAnalytics();
+    }
+  }, 100);
+
+  function interceptAnalytics() {
+    const methods: SegmentMethod[] = ['track', 'page', 'identify', 'group', 'alias'];
+    
+    methods.forEach(method => {
+      const original = window.analytics[method];
+      
+      window.analytics[method] = function(...args: unknown[]) {
+        // Capture the event
+        const event = {
+          id: generateId(),
+          method,
+          name: typeof args[0] === 'string' ? args[0] : '',
+          properties: extractProperties(method, args),
+          traits: method === 'identify' ? args[1] : undefined,
+          timestamp: Date.now(),
+          context: {
+            url: window.location.href,
+            title: document.title,
+            referrer: document.referrer,
+            userAgent: navigator.userAgent,
+          }
+        };
+
+        // Send to content script
+        window.postMessage({
+          type: 'ANALYTICS_XRAY_EVENT',
+          payload: event
+        }, '*');
+
+        // Call original method
+        return original.apply(this, args);
+      };
+    });
+  }
+
+  function generateId(): string {
+    return `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  function extractProperties(method: string, args: unknown[]): Record<string, unknown> {
+    switch (method) {
+      case 'track':
+        return typeof args[1] === 'object' ? args[1] : {};
+      case 'page':
+        // page(category, name, properties) or page(name, properties) or page(properties)
+        if (typeof args[0] === 'object') return args[0];
+        if (typeof args[1] === 'object') return args[1];
+        if (typeof args[2] === 'object') return args[2];
+        return {};
+      case 'identify':
+        return {};  // traits are separate
+      default:
+        return typeof args[0] === 'object' ? args[0] : {};
+    }
+  }
+})();
+```
+
+## Background Script Handler
+
+```typescript
+// src/pages/background/index.ts
+import Browser from 'webextension-polyfill';
+
+interface StoredEvents {
+  [tabId: number]: SegmentEvent[];
+}
+
+const MAX_EVENTS_PER_TAB = 500;
+
+// Store events per tab
+Browser.runtime.onMessage.addListener((message, sender) => {
+  if (message.type === 'SEGMENT_EVENT' && sender.tab?.id) {
+    handleSegmentEvent(sender.tab.id, message.payload);
+  }
+  
+  if (message.type === 'GET_EVENTS') {
+    return getEventsForTab(sender.tab?.id);
+  }
+  
+  if (message.type === 'CLEAR_EVENTS' && sender.tab?.id) {
+    clearEventsForTab(sender.tab.id);
+  }
+});
+
+async function handleSegmentEvent(tabId: number, event: SegmentEvent) {
+  const { events = {} } = await Browser.storage.local.get('events');
+  const tabEvents = events[tabId] || [];
+  
+  events[tabId] = [event, ...tabEvents].slice(0, MAX_EVENTS_PER_TAB);
+  
+  await Browser.storage.local.set({ events });
+  
+  // Notify DevTools panel if open
+  Browser.runtime.sendMessage({
+    type: 'EVENT_ADDED',
+    payload: { tabId, event }
+  }).catch(() => {
+    // Panel might not be open - ignore error
+  });
+}
+
+// Clean up when tab closes
+Browser.tabs.onRemoved.addListener(async (tabId) => {
+  const { events = {} } = await Browser.storage.local.get('events');
+  delete events[tabId];
+  await Browser.storage.local.set({ events });
+});
+```
+
+## Event Display Formatting
+
+```typescript
+// Format event for display
+function formatEventName(event: SegmentEvent): string {
+  switch (event.method) {
+    case 'track':
+      return event.name || 'Unnamed Track';
+    case 'page':
+      return event.name ? `Page: ${event.name}` : 'Page View';
+    case 'identify':
+      return `Identify${event.context.userId ? `: ${event.context.userId}` : ''}`;
+    case 'group':
+      return 'Group';
+    case 'alias':
+      return 'Alias';
+    default:
+      return 'Unknown';
+  }
+}
+
+// Get badge color for event type
+function getEventColor(method: SegmentMethod): string {
+  const colors: Record<SegmentMethod, string> = {
+    track: 'bg-blue-500',
+    page: 'bg-green-500',
+    identify: 'bg-purple-500',
+    group: 'bg-amber-500',
+    alias: 'bg-gray-500',
+  };
+  return colors[method];
+}
+```
+
+## Security Considerations
+
+```typescript
+// ✅ Validate events before storing
+function isValidSegmentEvent(event: unknown): event is SegmentEvent {
+  if (typeof event !== 'object' || event === null) return false;
+  
+  const e = event as Record<string, unknown>;
+  return (
+    typeof e.id === 'string' &&
+    typeof e.method === 'string' &&
+    ['track', 'page', 'identify', 'group', 'alias'].includes(e.method) &&
+    typeof e.timestamp === 'number'
+  );
+}
+
+// ✅ Sanitize data before display (prevent XSS)
+function sanitizeForDisplay(value: unknown): string {
+  if (typeof value === 'string') {
+    return value.replace(/[<>]/g, '');
+  }
+  return JSON.stringify(value);
+}
+
+// ✅ Limit property depth and size
+function truncateProperties(
+  props: Record<string, unknown>, 
+  maxDepth = 5,
+  maxSize = 10000
+): Record<string, unknown> {
+  const json = JSON.stringify(props);
+  if (json.length > maxSize) {
+    return { _truncated: true, _size: json.length };
+  }
+  return props;
+}
+```
+
+## Manifest Configuration
+
+```json
+{
+  "web_accessible_resources": [{
+    "resources": ["injected.js"],
+    "matches": ["<all_urls>"]
+  }],
+  "content_scripts": [{
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["src/pages/content/index.tsx"],
+    "run_at": "document_start"
+  }]
+}
+```

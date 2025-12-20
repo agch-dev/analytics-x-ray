@@ -1,0 +1,253 @@
+---
+description: React 19 and TypeScript coding patterns and best practices
+globs: **/*.tsx,**/*.ts
+alwaysApply: false
+---
+
+# React & TypeScript Guidelines
+
+## TypeScript Standards
+
+### Strict Typing - Avoid `any`
+
+```typescript
+// ✅ Use strict typing
+interface SegmentEvent {
+  id: string;
+  type: 'track' | 'page' | 'identify' | 'group';
+  name: string;
+  properties: Record<string, unknown>;
+  timestamp: number;
+  context: EventContext;
+}
+
+// ✅ Use type guards for runtime checks
+function isTrackEvent(event: SegmentEvent): event is TrackEvent {
+  return event.type === 'track';
+}
+
+// ✅ Use generics for reusable utilities
+function parseEventPayload<T extends SegmentEvent>(raw: unknown): T | null {
+  // validation logic
+}
+
+// ❌ Avoid
+const event: any = rawData;
+```
+
+### Interface vs Type
+
+```typescript
+// ✅ Use interface for object shapes (extensible)
+interface EventCardProps {
+  event: SegmentEvent;
+  isExpanded?: boolean;
+  onSelect: (eventId: string) => void;
+}
+
+// ✅ Use type for unions, primitives, tuples
+type SegmentMethod = 'track' | 'page' | 'identify' | 'group' | 'alias';
+type EventTuple = [string, SegmentEvent];
+```
+
+### Null/Undefined Handling
+
+```typescript
+// ✅ Use optional chaining and nullish coalescing
+const eventName = event?.name ?? 'Unknown Event';
+
+// ✅ Narrow types before use
+function processEvent(event: SegmentEvent | null) {
+  if (!event) return;
+  // event is now SegmentEvent
+  console.log(event.name);
+}
+```
+
+## React Component Patterns
+
+### Functional Components with Props Typing
+
+```typescript
+// ✅ Explicit props interface
+interface EventCardProps {
+  event: SegmentEvent;
+  isExpanded?: boolean;
+  onSelect: (eventId: string) => void;
+}
+
+export function EventCard({ 
+  event, 
+  isExpanded = false, 
+  onSelect 
+}: EventCardProps) {
+  return (
+    <div onClick={() => onSelect(event.id)}>
+      {event.name}
+    </div>
+  );
+}
+```
+
+### Export Conventions
+
+```typescript
+// ✅ Default exports for page components
+export default function Panel() {
+  return <div>...</div>;
+}
+
+// ✅ Named exports for reusable components
+export function EventCard() {}
+export function EventList() {}
+export function EventDetails() {}
+```
+
+### Children and Render Props
+
+```typescript
+// ✅ Type children explicitly
+interface CardProps {
+  children: React.ReactNode;
+  title: string;
+}
+
+// ✅ Render props pattern
+interface EventListProps {
+  events: SegmentEvent[];
+  renderEvent: (event: SegmentEvent) => React.ReactNode;
+}
+```
+
+## Hooks Best Practices
+
+### useEffect Cleanup
+
+```typescript
+// ✅ Always clean up subscriptions and listeners
+useEffect(() => {
+  const handleMessage = (message: ExtensionMessage) => {
+    // handle message
+  };
+
+  Browser.runtime.onMessage.addListener(handleMessage);
+
+  return () => {
+    Browser.runtime.onMessage.removeListener(handleMessage);
+  };
+}, []);
+```
+
+### Custom Hooks
+
+```typescript
+// ✅ Prefix with 'use', return typed values
+function useSegmentEvents() {
+  const [events, setEvents] = useState<SegmentEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // fetch events
+  }, []);
+
+  return { events, isLoading } as const;
+}
+```
+
+### Memoization
+
+```typescript
+// ✅ Memoize expensive computations
+const filteredEvents = useMemo(
+  () => events.filter(e => e.type === filter),
+  [events, filter]
+);
+
+// ✅ Memoize callbacks passed to children
+const handleSelect = useCallback((id: string) => {
+  setSelectedId(id);
+}, []);
+```
+
+## Imports Organization
+
+```typescript
+// 1. React and external libraries
+import React, { useState, useEffect, useMemo } from 'react';
+import Browser from 'webextension-polyfill';
+
+// 2. Internal aliases
+import { useEventStore } from '@src/stores/eventStore';
+import { EventCard } from '@src/components/EventCard';
+import { Button } from '@src/components/ui/button';
+
+// 3. Relative imports
+import { formatTimestamp } from './utils';
+import type { EventCardProps } from './types';
+
+// 4. Styles (last)
+import './styles.css';
+```
+
+## Error Boundaries
+
+```typescript
+// ✅ Wrap UI sections that might fail
+import { ErrorBoundary } from '@src/components/ErrorBoundary';
+
+function App() {
+  return (
+    <ErrorBoundary fallback={<ExtensionError />}>
+      <EventPanel />
+    </ErrorBoundary>
+  );
+}
+```
+
+## Performance Optimization
+
+### Avoid Unnecessary Re-renders
+
+```typescript
+// ✅ Select only needed state from stores
+const addEvent = useEventStore((state) => state.addEvent);
+const eventCount = useEventStore((state) => state.events.length);
+
+// ❌ Avoid - causes re-render on any store change
+const store = useEventStore();
+```
+
+### Lazy Loading
+
+```typescript
+// ✅ Lazy load heavy components
+const JsonViewer = React.lazy(() => import('@src/components/JsonViewer'));
+
+function EventDetails({ event }: { event: SegmentEvent }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <JsonViewer data={event.properties} />
+    </Suspense>
+  );
+}
+```
+
+## Common Anti-patterns to Avoid
+
+```typescript
+// ❌ Don't use index as key for dynamic lists
+{events.map((event, index) => (
+  <EventCard key={index} event={event} />  // Bad
+))}
+
+// ✅ Use unique identifiers
+{events.map((event) => (
+  <EventCard key={event.id} event={event} />  // Good
+))}
+
+// ❌ Don't mutate state directly
+events.push(newEvent);  // Bad
+
+// ✅ Create new references
+setEvents([newEvent, ...events]);  // Good
+```

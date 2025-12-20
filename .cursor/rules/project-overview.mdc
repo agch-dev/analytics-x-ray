@@ -1,0 +1,112 @@
+---
+description: Core project information and structure for analytics-x-ray Chrome extension
+globs: 
+alwaysApply: true
+---
+
+# analytics-x-ray Project Overview
+
+## Purpose
+**analytics-x-ray** is a Chrome/Firefox browser extension for viewing, inspecting, and verifying Segment analytics events being fired on web pages. It provides developers and QA teams with real-time visibility into analytics tracking implementation.
+
+### Key Features
+- Intercept and display Segment analytics events in real-time
+- Inspect event payloads, properties, and metadata
+- Verify correct event implementation and data quality
+- Support debugging analytics tracking issues
+
+## Technical Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.x | UI Components |
+| TypeScript | 5.x | Type-safe development |
+| Vite | 6.x | Build tool |
+| Tailwind CSS | 4.x | Styling |
+| shadcn/ui | latest | UI component library |
+| Zustand | latest | State management |
+| webextension-polyfill | 0.12.x | Cross-browser compatibility |
+| Chrome Extension | MV3 | Extension manifest |
+
+## Project Structure
+
+```
+analytics-x-ray/
+├── public/                    # Static assets (icons, CSS)
+├── src/
+│   ├── assets/
+│   │   ├── img/              # Images and SVGs
+│   │   └── styles/           # Global styles, Tailwind config
+│   ├── locales/              # i18n translation files
+│   └── pages/                # Extension pages
+│       ├── background/       # Service worker (background script)
+│       ├── content/          # Content script (injected into pages)
+│       ├── devtools/         # DevTools panel registration
+│       ├── newtab/           # New tab override (optional)
+│       ├── options/          # Extension options page
+│       ├── panel/            # Side panel / DevTools panel UI
+│       └── popup/            # Extension popup UI
+├── manifest.json             # Production manifest
+├── manifest.dev.json         # Development manifest overrides
+├── vite.config.base.ts       # Shared Vite configuration
+├── vite.config.chrome.ts     # Chrome-specific build config
+└── vite.config.firefox.ts    # Firefox-specific build config
+```
+
+## File Naming Conventions
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Components | PascalCase | `EventList.tsx`, `EventCard.tsx` |
+| Hooks | camelCase with `use` prefix | `useSegmentEvents.ts` |
+| Utilities | camelCase | `parseEvent.ts`, `formatPayload.ts` |
+| Types | PascalCase with descriptive suffix | `SegmentEvent.types.ts` |
+| Stores | camelCase with `Store` suffix | `eventStore.ts` |
+| Constants | SCREAMING_SNAKE_CASE | `EVENT_TYPES.ts` |
+
+## Path Aliases
+
+Use these configured path aliases for clean imports:
+
+| Alias | Path |
+|-------|------|
+| `@src/*` | `src/*` |
+| `@assets/*` | `src/assets/*` |
+| `@locales/*` | `src/locales/*` |
+| `@pages/*` | `src/pages/*` |
+
+## Development Commands
+
+```bash
+# Development with hot reload
+yarn dev          # Chrome (default)
+yarn dev:chrome   # Chrome explicitly
+yarn dev:firefox  # Firefox
+
+# Production build
+yarn build        # Chrome (default)
+yarn build:chrome # Chrome explicitly
+yarn build:firefox # Firefox
+```
+
+## Do's and Don'ts
+
+### ✅ Do
+- Use TypeScript strict mode
+- Follow React hooks rules
+- Use webextension-polyfill for cross-browser support
+- Keep content scripts minimal
+- Handle extension context invalidation
+- Use dark theme for DevTools integration
+- Throttle high-frequency updates
+- Clean up listeners in useEffect
+
+### ❌ Don't
+- Use `any` type without justification
+- Store sensitive user data
+- Use synchronous storage APIs
+- Block main thread with heavy computation
+- Ignore manifest permission best practices
+- Use inline styles (prefer Tailwind)
+- Create memory leaks with unbound listeners
+- Trust page-injected data without validation

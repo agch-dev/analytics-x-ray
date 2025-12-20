@@ -1,0 +1,281 @@
+---
+description: Zustand state management patterns for the extension
+globs: src/stores/**/*,**/*Store.ts
+alwaysApply: false
+---
+
+# Zustand State Management
+
+## Store Pattern
+
+### Basic Store Structure
+
+```typescript
+// src/stores/eventStore.ts
+import { create } from 'zustand';
+
+interface SegmentEvent {
+  id: string;
+  type: 'track' | 'page' | 'identify' | 'group';
+  name: string;
+  properties: Record<string, unknown>;
+  timestamp: number;
+}
+
+interface EventStore {
+  // State
+  events: SegmentEvent[];
+  selectedEventId: string | null;
+  filter: string;
+  
+  // Actions
+  addEvent: (event: SegmentEvent) => void;
+  clearEvents: () => void;
+  setSelectedEvent: (id: string | null) => void;
+  setFilter: (filter: string) => void;
+}
+
+export const useEventStore = create<EventStore>((set) => ({
+  // Initial state
+  events: [],
+  selectedEventId: null,
+  filter: '',
+  
+  // Actions
+  addEvent: (event) => set((state) => ({
+    events: [event, ...state.events].slice(0, 500) // Limit to 500 events
+  })),
+  
+  clearEvents: () => set({ 
+    events: [], 
+    selectedEventId: null 
+  }),
+  
+  setSelectedEvent: (id) => set({ selectedEventId: id }),
+  
+  setFilter: (filter) => set({ filter }),
+}));
+```
+
+## Selectors - Avoid Re-renders
+
+### Select Only What You Need
+
+```typescript
+// ✅ Select specific values - component only re-renders when these change
+function EventCounter() {
+  const eventCount = useEventStore((state) => state.events.length);
+  return <span>{eventCount} events</span>;
+}
+
+// ✅ Select specific actions
+function ClearButton() {
+  const clearEvents = useEventStore((state) => state.clearEvents);
+  return <button onClick={clearEvents}>Clear</button>;
+}
+
+// ❌ Avoid - re-renders on ANY store change
+function BadComponent() {
+  const store = useEventStore();
+  return <span>{store.events.length}</span>;
+}
+```
+
+### Derived State with Selectors
+
+```typescript
+// ✅ Compute derived state in selector
+function FilteredEventList() {
+  const filteredEvents = useEventStore((state) => 
+    state.events.filter(e => 
+      e.name.toLowerCase().includes(state.filter.toLowerCase())
+    )
+  );
+  
+  return (
+    <ul>
+      {filteredEvents.map(event => (
+        <EventCard key={event.id} event={event} />
+      ))}
+    </ul>
+  );
+}
+
+// ✅ Use shallow comparison for object selections
+import { shallow } from 'zustand/shallow';
+
+function EventPanel() {
+  const { events, filter } = useEventStore(
+    (state) => ({ events: state.events, filter: state.filter }),
+    shallow
+  );
+}
+```
+
+### Memoized Selectors
+
+```typescript
+// ✅ Create reusable selectors outside component
+const selectFilteredEvents = (state: EventStore) =>
+  state.events.filter(e => 
+    e.name.toLowerCase().includes(state.filter.toLowerCase())
+  );
+
+const selectSelectedEvent = (state: EventStore) =>
+  state.events.find(e => e.id === state.selectedEventId) ?? null;
+
+// Usage
+function EventList() {
+  const filteredEvents = useEventStore(selectFilteredEvents);
+  // ...
+}
+```
+
+## Accessing State Outside React
+
+```typescript
+// ✅ Use getState() for non-React contexts (background script, utilities)
+function handleIncomingEvent(event: SegmentEvent) {
+  useEventStore.getState().addEvent(event);
+}
+
+// ✅ Subscribe to changes
+const unsubscribe = useEventStore.subscribe(
+  (state) => state.events,
+  (events) => {
+    console.log('Events updated:', events.length);
+  }
+);
+```
+
+## Persistence with Chrome Storage
+
+```typescript
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import Browser from 'webextension-polyfill';
+
+// Custom storage adapter for chrome.storage
+const chromeStorage = {
+  getItem: async (name: string) => {
+    const result = await Browser.storage.local.get(name);
+    return result[name] ?? null;
+  },
+  setItem: async (name: string, value: string) => {
+    await Browser.storage.local.set({ [name]: value });
+  },
+  removeItem: async (name: string) => {
+    await Browser.storage.local.remove(name);
+  },
+};
+
+interface SettingsStore {
+  maxEvents: number;
+  autoCapture: boolean;
+  setMaxEvents: (max: number) => void;
+  setAutoCapture: (enabled: boolean) => void;
+}
+
+export const useSettingsStore = create<SettingsStore>()(
+  persist(
+    (set) => ({
+      maxEvents: 500,
+      autoCapture: true,
+      setMaxEvents: (max) => set({ maxEvents: max }),
+      setAutoCapture: (enabled) => set({ autoCapture: enabled }),
+    }),
+    {
+      name: 'analytics-xray-settings',
+      storage: createJSONStorage(() => chromeStorage),
+    }
+  )
+);
+```
+
+## Memory Management
+
+### Limit Stored Events
+
+```typescript
+const MAX_EVENTS = 500;
+
+addEvent: (event) => set((state) => ({
+  // Always limit array size to prevent memory issues
+  events: [event, ...state.events].slice(0, MAX_EVENTS)
+})),
+```
+
+### Throttle High-Frequency Updates
+
+```typescript
+import { throttle } from '@src/utils/throttle';
+
+// Throttle store updates for high-frequency events
+const throttledAddEvent = throttle((event: SegmentEvent) => {
+  useEventStore.getState().addEvent(event);
+}, 100);
+
+// Use in message handler
+Browser.runtime.onMessage.addListener((message) => {
+  if (message.type === 'SEGMENT_EVENT') {
+    throttledAddEvent(message.payload);
+  }
+});
+```
+
+## Multiple Stores Pattern
+
+```typescript
+// ✅ Separate stores by domain
+// src/stores/eventStore.ts - Event data
+// src/stores/settingsStore.ts - User preferences  
+// src/stores/uiStore.ts - UI state (selected tab, expanded sections)
+
+// src/stores/uiStore.ts
+interface UIStore {
+  activeTab: 'events' | 'settings' | 'about';
+  expandedEventIds: Set<string>;
+  setActiveTab: (tab: UIStore['activeTab']) => void;
+  toggleEventExpanded: (id: string) => void;
+}
+
+export const useUIStore = create<UIStore>((set) => ({
+  activeTab: 'events',
+  expandedEventIds: new Set(),
+  
+  setActiveTab: (tab) => set({ activeTab: tab }),
+  
+  toggleEventExpanded: (id) => set((state) => {
+    const expanded = new Set(state.expandedEventIds);
+    if (expanded.has(id)) {
+      expanded.delete(id);
+    } else {
+      expanded.add(id);
+    }
+    return { expandedEventIds: expanded };
+  }),
+}));
+```
+
+## Testing Stores
+
+```typescript
+// Reset store between tests
+beforeEach(() => {
+  useEventStore.setState({
+    events: [],
+    selectedEventId: null,
+    filter: '',
+  });
+});
+
+// Test actions
+it('adds event to store', () => {
+  const event = { id: '1', type: 'track', name: 'Test', properties: {}, timestamp: Date.now() };
+  
+  useEventStore.getState().addEvent(event);
+  
+  expect(useEventStore.getState().events).toHaveLength(1);
+  expect(useEventStore.getState().events[0]).toEqual(event);
+});
+```

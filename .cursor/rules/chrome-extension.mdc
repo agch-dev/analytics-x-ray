@@ -1,0 +1,171 @@
+---
+description: Chrome extension architecture, message passing, and manifest V3 patterns
+globs: src/pages/background/**/*,src/pages/content/**/*,manifest.json,manifest.dev.json
+alwaysApply: false
+---
+
+# Chrome Extension Architecture
+
+## Extension Contexts
+
+### 1. Background Script (`src/pages/background/index.ts`)
+- Runs as a service worker (MV3)
+- Handles long-running operations
+- Manages message passing between contexts
+- **NO DOM access**
+- Must handle service worker lifecycle (can be terminated/restarted)
+
+### 2. Content Script (`src/pages/content/index.tsx`)
+- Injected into web pages based on `matches` patterns
+- Has access to page DOM but runs in isolated world
+- Limited Chrome API access
+- Communicates with background via `chrome.runtime.sendMessage`
+
+### 3. Popup (`src/pages/popup/`)
+- Shown when clicking extension icon
+- Short-lived context (closes when losing focus)
+- Full extension API access
+
+### 4. DevTools Panel (`src/pages/panel/`)
+- Shown in browser DevTools
+- Best for detailed event inspection
+- Long-lived while DevTools is open
+- Registered via `src/pages/devtools/index.ts`
+
+### 5. Options Page (`src/pages/options/`)
+- Extension settings and configuration
+- Full extension API access
+
+## Message Passing Patterns
+
+```typescript
+// ✅ Content Script → Background
+chrome.runtime.sendMessage({ 
+  type: 'SEGMENT_EVENT', 
+  payload: eventData 
+});
+
+// ✅ Background → Content Script (specific tab)
+chrome.tabs.sendMessage(tabId, { 
+  type: 'GET_EVENTS' 
+});
+
+// ✅ Use webextension-polyfill for cross-browser compatibility
+import Browser from 'webextension-polyfill';
+
+Browser.runtime.sendMessage({ type: 'EVENT', data });
+Browser.tabs.sendMessage(tabId, { type: 'REQUEST' });
+```
+
+### Message Type Convention
+
+```typescript
+// Define message types in a shared types file
+interface ExtensionMessage {
+  type: 
+    | 'SEGMENT_EVENT'      // New Segment event captured
+    | 'GET_EVENTS'         // Request stored events
+    | 'CLEAR_EVENTS'       // Clear event history
+    | 'SETTINGS_UPDATED';  // Settings changed
+  payload?: unknown;
+}
+```
+
+## Manifest V3 Best Practices
+
+### Permissions - Request Only What's Needed
+
+```json
+{
+  "permissions": [
+    "activeTab",     // Access current tab only when user interacts
+    "storage"        // Store settings and event cache
+  ],
+  "host_permissions": [
+    "<all_urls>"     // Required to inject content script everywhere
+  ]
+}
+```
+
+### Content Script Matching
+
+```json
+{
+  "content_scripts": [{
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["src/pages/content/index.tsx"],
+    "run_at": "document_start"  // Capture events early
+  }]
+}
+```
+
+## Cross-Browser Compatibility
+
+```typescript
+// ✅ Always use webextension-polyfill
+import Browser from 'webextension-polyfill';
+
+// Instead of chrome.* use Browser.*
+await Browser.runtime.sendMessage(msg);
+await Browser.storage.local.get(key);
+await Browser.tabs.query({ active: true });
+```
+
+## Error Handling
+
+```typescript
+// ✅ Handle extension context invalidation
+async function sendToBackground(message: ExtensionMessage) {
+  try {
+    return await Browser.runtime.sendMessage(message);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('Extension context invalidated')) {
+        // Extension was reloaded - inform user to refresh
+        console.warn('Extension reloaded, please refresh the page');
+        return null;
+      }
+      if (error.message.includes('Receiving end does not exist')) {
+        // Background script not ready or content script not injected
+        console.warn('Message receiver not available');
+        return null;
+      }
+    }
+    throw error;
+  }
+}
+```
+
+## Service Worker Lifecycle (Background Script)
+
+```typescript
+// ✅ Background scripts can be terminated - don't rely on in-memory state
+// Use chrome.storage for persistence
+
+// Bad - will be lost when service worker terminates
+let events: SegmentEvent[] = [];
+
+// Good - persist to storage
+async function addEvent(event: SegmentEvent) {
+  const { events = [] } = await Browser.storage.local.get('events');
+  events.unshift(event);
+  await Browser.storage.local.set({ 
+    events: events.slice(0, 500) // Limit storage
+  });
+}
+```
+
+## Adding New Extension Pages
+
+1. Create folder in `src/pages/[name]/`
+2. Add `index.html`, `index.tsx`, `index.css`
+3. Create main component as `[Name].tsx`
+4. Update `manifest.json` if exposing the page
+5. Update `vite.config.base.ts` if not auto-discovered
+
+## Security Considerations
+
+- Content scripts run in isolated world - use message passing
+- Never use `eval()` or `new Function()` (CSP violation)
+- Validate all data received from page context
+- Don't expose sensitive APIs to web pages
