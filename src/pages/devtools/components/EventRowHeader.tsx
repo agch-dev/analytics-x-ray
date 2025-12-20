@@ -71,7 +71,7 @@ export function EventRowHeader({
           ? 'backdrop-blur-sm border-b border-border shadow-md px-3 py-2 cursor-pointer hover:bg-accent/30' 
           : 'px-3 py-2 hover:bg-accent/50',
            'border-l-6',
-          bucketColor || 'border-l-transparent'
+          bucketColor || 'border-l-gray-500'
       )}
     >
       {/* Timestamp */}
