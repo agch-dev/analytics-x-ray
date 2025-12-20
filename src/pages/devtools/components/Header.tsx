@@ -8,7 +8,6 @@ import {
 } from '@src/components/ui/dropdown-menu';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { 
-  ArrowDown01Icon, 
   Delete02Icon,
   MoreVerticalIcon,
   Settings02Icon,
@@ -22,7 +21,6 @@ interface HeaderProps {
   eventCount: number;
   filteredEventNamesCount: number;
   isFilterPanelOpen: boolean;
-  onScrollToBottom: () => void;
   onClear: () => void;
   onToggleFilterPanel: () => void;
 }
@@ -31,7 +29,6 @@ export function Header({
   eventCount, 
   filteredEventNamesCount,
   isFilterPanelOpen,
-  onScrollToBottom, 
   onClear,
   onToggleFilterPanel,
 }: HeaderProps) {
@@ -75,16 +72,6 @@ export function Header({
               {filteredEventNamesCount}
             </Badge>
           )}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onScrollToBottom}
-          className="text-xs text-muted-foreground hover:text-foreground px-1.5 sm:px-2"
-          title="Latest"
-        >
-          <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="sm:mr-1" />
-          <span className="hidden sm:inline">Latest</span>
         </Button>
         <Button
           variant="ghost"

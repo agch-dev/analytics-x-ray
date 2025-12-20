@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
 import Browser from 'webextension-polyfill';
 import { getTabStore } from '@src/stores/tabStore';
-import { Header, EventList, Footer, FilterPanel, type EventListHandle } from './components';
+import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
@@ -15,6 +15,7 @@ const useTabStore = getTabStore(tabId);
 export default function Panel() {
   const eventListRef = useRef<EventListHandle>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true);
   
   // Selectors - only subscribe to what we need
   const events = useTabStore((state) => state.events);
@@ -111,7 +112,6 @@ export default function Panel() {
         eventCount={filteredEvents.length}
         filteredEventNamesCount={filteredEventNamesCount}
         isFilterPanelOpen={isFilterPanelOpen}
-        onScrollToBottom={handleScrollToBottom}
         onClear={handleClearEvents}
         onToggleFilterPanel={handleToggleFilterPanel}
       />
@@ -135,6 +135,12 @@ export default function Panel() {
         onSelectEvent={setSelectedEvent}
         onToggleExpand={toggleEventExpanded}
         onToggleHide={toggleEventNameVisibility}
+        onScrollStateChange={setIsAtBottom}
+      />
+      
+      <ScrollToBottomButton
+        isVisible={!isAtBottom}
+        onClick={handleScrollToBottom}
       />
       
       <Footer tabId={tabId} />

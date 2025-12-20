@@ -8,6 +8,7 @@ import { EmptyState } from './EmptyState';
 
 export interface EventListHandle {
   scrollToBottom: () => void;
+  isAtBottom: boolean;
 }
 
 interface EventListProps {
@@ -18,6 +19,7 @@ interface EventListProps {
   onSelectEvent: (id: string) => void;
   onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
+  onScrollStateChange?: (isAtBottom: boolean) => void;
 }
 
 // Height of the row header (used for sticky header calculations)
@@ -37,6 +39,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     onSelectEvent,
     onToggleExpand,
     onToggleHide,
+    onScrollStateChange,
   }, ref) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const shouldAutoScrollRef = useRef(true);
@@ -48,6 +51,9 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     
     // Track which event just collapsed to trigger ring animation
     const [collapsedEventId, setCollapsedEventId] = useState<string | null>(null);
+    
+    // Track if user is at bottom for floating button visibility
+    const [isAtBottom, setIsAtBottom] = useState(true);
     
     // Reverse events so newest is at bottom
     const displayEvents = useMemo(() => [...events].reverse(), [events]);
@@ -73,7 +79,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       },
     });
     
-    // Expose scrollToBottom method via ref
+    // Expose scrollToBottom method and isAtBottom state via ref
     useImperativeHandle(ref, () => ({
       scrollToBottom: () => {
         if (displayEvents.length > 0) {
@@ -87,7 +93,8 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
           shouldAutoScrollRef.current = true;
         }
       },
-    }));
+      isAtBottom,
+    }), [isAtBottom]);
     
     // Track current sticky event ID to avoid unnecessary state updates
     const currentStickyIdRef = useRef<string | null>(null);
@@ -98,8 +105,10 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       if (!container) return;
       
       const { scrollTop, scrollHeight, clientHeight } = container;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-      shouldAutoScrollRef.current = isAtBottom;
+      const atBottom = scrollHeight - scrollTop - clientHeight < 50;
+      shouldAutoScrollRef.current = atBottom;
+      setIsAtBottom(atBottom);
+      onScrollStateChange?.(atBottom);
       
       // Check for expanded events whose headers have scrolled out of view
       const virtualItems = virtualizer.getVirtualItems();
@@ -140,7 +149,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         setStickyEvent(foundStickyEvent);
         setStickyEventIndex(foundStickyIndex);
       }
-    }, [displayEvents, expandedEventIds, virtualizer]);
+    }, [displayEvents, expandedEventIds, virtualizer, onScrollStateChange]);
     
     // Wrapper for toggle expand that also triggers remeasurement
     const handleToggleExpand = (id: string) => {
@@ -168,6 +177,23 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         });
       });
     };
+    
+    // Check initial scroll state on mount
+    useEffect(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+      
+      const checkScrollState = () => {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        const atBottom = scrollHeight - scrollTop - clientHeight < 50;
+        setIsAtBottom(atBottom);
+        onScrollStateChange?.(atBottom);
+      };
+      
+      // Check after a short delay to ensure virtualizer has measured
+      const timeoutId = setTimeout(checkScrollState, 100);
+      return () => clearTimeout(timeoutId);
+    }, [onScrollStateChange]);
     
     // Auto-scroll to bottom when new events arrive
     useEffect(() => {
