@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useConfigStore, selectMaxEvents, selectTheme, selectThrottleMs } from '@src/stores/configStore';
+import { useConfigStore, selectMaxEvents, selectTheme, selectPreferredEventDetailView, selectThrottleMs } from '@src/stores/configStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { Button } from '@src/components/ui/button';
 import { Input } from '@src/components/ui/input';
@@ -10,11 +10,13 @@ export default function Options() {
   // Store selectors
   const maxEvents = useConfigStore(selectMaxEvents);
   const theme = useConfigStore(selectTheme);
+  const preferredEventDetailView = useConfigStore(selectPreferredEventDetailView);
   const throttleMs = useConfigStore(selectThrottleMs);
   
   // Store actions
   const setMaxEvents = useConfigStore((state) => state.setMaxEvents);
   const setTheme = useConfigStore((state) => state.setTheme);
+  const setPreferredEventDetailView = useConfigStore((state) => state.setPreferredEventDetailView);
   const setThrottleMs = useConfigStore((state) => state.setThrottleMs);
   const reset = useConfigStore((state) => state.reset);
 
@@ -138,6 +140,21 @@ export default function Options() {
               </Select>
               <p className="text-sm text-muted-foreground">
                 Choose the color theme for the extension interface
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="preferred-view">Preferred Event Details View</Label>
+              <Select value={preferredEventDetailView} onValueChange={setPreferredEventDetailView}>
+                <SelectTrigger id="preferred-view">
+                  <SelectValue placeholder="Select view mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="structured">Structured</SelectItem>
+                  <SelectItem value="json">JSON</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                Default view mode when expanding event details. You can still toggle between views for individual events.
               </p>
             </div>
           </CardContent>

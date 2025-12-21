@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
-import { getTabStore, type TabState } from '@src/stores/tabStore';
+import { getTabStore } from '@src/stores/tabStore';
+import { useConfigStore, selectPreferredEventDetailView } from '@src/stores/configStore';
 import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
@@ -11,12 +12,18 @@ const log = createContextLogger('panel');
 
 // Get the inspected tab ID from DevTools API
 const tabId = Browser.devtools.inspectedWindow.tabId;
-const useTabStore = getTabStore(tabId);
 
 export default function Panel() {
   const eventListRef = useRef<EventListHandle>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  
+  // Get preferred view mode from config store (used directly, not persisted per tab)
+  const preferredViewMode = useConfigStore(selectPreferredEventDetailView);
+  const setPreferredEventDetailView = useConfigStore((state) => state.setPreferredEventDetailView);
+  
+  // Initialize tab store
+  const useTabStore = useMemo(() => getTabStore(tabId, 500), []);
   
   // Selectors - only subscribe to what we need
   const events = useTabStore((state) => state.events);
@@ -24,14 +31,12 @@ export default function Panel() {
   const expandedEventIds = useTabStore((state) => state.expandedEventIds);
   const hiddenEventNames = useTabStore((state) => state.hiddenEventNames);
   const searchQuery = useTabStore((state) => state.searchQuery);
-  const detailViewMode = useTabStore((state) => state.detailViewMode);
   const setSelectedEvent = useTabStore((state) => state.setSelectedEvent);
   const toggleEventExpanded = useTabStore((state) => state.toggleEventExpanded);
   const toggleEventNameVisibility = useTabStore((state) => state.toggleEventNameVisibility);
   const showAllEventNames = useTabStore((state) => state.showAllEventNames);
   const hideAllEventNames = useTabStore((state) => state.hideAllEventNames);
   const setSearchQuery = useTabStore((state) => state.setSearchQuery);
-  const setDetailViewMode = useTabStore((state) => state.setDetailViewMode);
   const clearEvents = useTabStore((state) => state.clearEvents);
   const addEvent = useTabStore((state) => state.addEvent);
   
@@ -39,9 +44,10 @@ export default function Panel() {
     setSearchQuery(query);
   }, [setSearchQuery]);
   
-  const handleViewModeChange = useCallback((mode: TabState['detailViewMode']) => {
-    setDetailViewMode(mode);
-  }, [setDetailViewMode]);
+  const handleViewModeChange = useCallback((mode: 'json' | 'structured') => {
+    // Update the global preference when user toggles view mode
+    setPreferredEventDetailView(mode);
+  }, [setPreferredEventDetailView]);
   
   // Sync events with background script
   useEventSync({ tabId, addEvent });
@@ -160,7 +166,7 @@ export default function Panel() {
         expandedEventIds={expandedEventIds}
         hiddenEventNames={hiddenEventNames}
         searchMatch={searchMatch}
-        viewMode={detailViewMode}
+        viewMode={preferredViewMode}
         onSelectEvent={setSelectedEvent}
         onToggleExpand={toggleEventExpanded}
         onToggleHide={toggleEventNameVisibility}

@@ -59,6 +59,7 @@ export interface ExtensionConfig {
   
   // Display settings
   theme: 'light' | 'dark' | 'auto';
+  preferredEventDetailView: 'json' | 'structured'; // Preferred view mode for event details
   
   // Advanced settings
   throttleMs: number; // Throttle interval for high-frequency events
@@ -71,6 +72,7 @@ interface ConfigStore extends ExtensionConfig {
   // Actions
   setMaxEvents: (max: number) => void;
   setTheme: (theme: ExtensionConfig['theme']) => void;
+  setPreferredEventDetailView: (view: ExtensionConfig['preferredEventDetailView']) => void;
   setThrottleMs: (ms: number) => void;
   reset: () => void;
   
@@ -83,6 +85,7 @@ interface ConfigStore extends ExtensionConfig {
 const defaultConfig: ExtensionConfig = {
   maxEvents: 500,
   theme: 'auto',
+  preferredEventDetailView: 'structured',
   throttleMs: 100,
   pinnedProperties: {
     default: defaultPinnedProfile,
@@ -121,11 +124,13 @@ export const useConfigStore = create<ConfigStore>()(
 
       setMaxEvents: (max) => set({ maxEvents: Math.max(1, Math.min(10000, max)) }),
       setTheme: (theme) => set({ theme }),
+      setPreferredEventDetailView: (view) => set({ preferredEventDetailView: view }),
       setThrottleMs: (ms) => set({ throttleMs: Math.max(0, Math.min(5000, ms)) }),
       // Reset only user-visible settings, preserve pinned properties (internal state)
       reset: () => set((state) => ({
         maxEvents: defaultConfig.maxEvents,
         theme: defaultConfig.theme,
+        preferredEventDetailView: defaultConfig.preferredEventDetailView,
         throttleMs: defaultConfig.throttleMs,
         // Preserve pinnedProperties - they're internal state not shown in Options
         pinnedProperties: state.pinnedProperties,
@@ -201,44 +206,52 @@ export const useConfigStore = create<ConfigStore>()(
         return pinnedArr ?? [];
       },
     }),
-    {
-      name: 'analytics-xray-config',
-      storage: createJSONStorage(() => createChromeStorage()),
-      version: 3,
-      migrate: (persistedState, version) => {
-        const state = persistedState as ExtensionConfig;
-        if (version < 2) {
-          // Migration from v1 to v2: add pinnedProperties
-          return {
-            ...state,
-            pinnedProperties: {
-              default: defaultPinnedProfile,
-            },
-          };
-        }
-        if (version < 3) {
-          // Migration from v2 to v3: add traits to pinnedProperties profiles
-          const updatedPinnedProperties: PinnedPropertiesConfig = {};
-          for (const [profileKey, profile] of Object.entries(state.pinnedProperties)) {
-            updatedPinnedProperties[profileKey] = {
-              ...profile,
-              traits: [],
+      {
+        name: 'analytics-xray-config',
+        storage: createJSONStorage(() => createChromeStorage()),
+        version: 4,
+        migrate: (persistedState, version) => {
+          const state = persistedState as ExtensionConfig;
+          if (version < 2) {
+            // Migration from v1 to v2: add pinnedProperties
+            return {
+              ...state,
+              pinnedProperties: {
+                default: defaultPinnedProfile,
+              },
             };
           }
-          return {
-            ...state,
-            pinnedProperties: updatedPinnedProperties,
-          };
-        }
-        return state;
-      },
-    }
+          if (version < 3) {
+            // Migration from v2 to v3: add traits to pinnedProperties profiles
+            const updatedPinnedProperties: PinnedPropertiesConfig = {};
+            for (const [profileKey, profile] of Object.entries(state.pinnedProperties)) {
+              updatedPinnedProperties[profileKey] = {
+                ...profile,
+                traits: [],
+              };
+            }
+            return {
+              ...state,
+              pinnedProperties: updatedPinnedProperties,
+            };
+          }
+          if (version < 4) {
+            // Migration from v3 to v4: add preferredEventDetailView
+            return {
+              ...state,
+              preferredEventDetailView: defaultConfig.preferredEventDetailView,
+            };
+          }
+          return state;
+        },
+      }
   )
 );
 
 // Selectors for optimized re-renders
 export const selectMaxEvents = (state: ConfigStore) => state.maxEvents;
 export const selectTheme = (state: ConfigStore) => state.theme;
+export const selectPreferredEventDetailView = (state: ConfigStore) => state.preferredEventDetailView;
 export const selectThrottleMs = (state: ConfigStore) => state.throttleMs;
 export const selectPinnedProperties = (state: ConfigStore) => state.pinnedProperties;
 export const selectTogglePin = (state: ConfigStore) => state.togglePin;
