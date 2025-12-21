@@ -2,9 +2,9 @@ import { useMemo, useState, useCallback } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon, PinIcon, CodeIcon, TextIcon } from '@hugeicons/core-free-icons';
 import JsonView from '@uiw/react-json-view';
-import { darkTheme } from '@uiw/react-json-view/dark';
 import { cn, copyToClipboard } from '@src/lib/utils';
 import { highlightText } from '@src/lib/search';
+import { getJsonViewTheme } from '@src/lib/jsonViewTheme';
 
 interface PropertyRowProps {
   label: string;
@@ -332,8 +332,7 @@ export function PropertyRow({
               <JsonView
                 value={value}
                 style={{
-                  ...darkTheme,
-                  backgroundColor: 'transparent',
+                  ...getJsonViewTheme(),
                   fontSize: '11px',
                 }}
                 collapsed={false}

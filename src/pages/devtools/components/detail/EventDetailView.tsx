@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
 import JsonView from '@uiw/react-json-view';
-import { darkTheme } from '@uiw/react-json-view/dark';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Copy01Icon,
@@ -8,6 +7,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { copyToClipboard } from '@src/lib/utils';
 import { highlightText } from '@src/lib/search';
+import { getJsonViewTheme } from '@src/lib/jsonViewTheme';
 import type { SegmentEvent } from '@src/types/segment';
 import { PropertiesSection } from './PropertiesSection';
 import { TraitsSection } from './TraitsSection';
@@ -66,8 +66,7 @@ export function EventDetailView({
             <JsonView
               value={displayEvent}
               style={{
-                ...darkTheme,
-                backgroundColor: 'transparent',
+                ...getJsonViewTheme(),
                 fontSize: '12px',
               }}
               collapsed={false}

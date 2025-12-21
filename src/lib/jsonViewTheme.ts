@@ -1,0 +1,55 @@
+/**
+ * Theme for @uiw/react-json-view that matches the project's theme setting
+ * Uses built-in themes from the library based on config store
+ */
+
+import { useConfigStore } from '@src/stores/configStore';
+import { vscodeTheme } from '@uiw/react-json-view/vscode';
+import { lightTheme } from '@uiw/react-json-view/light';
+
+/**
+ * Check if dark mode is currently active based on config store
+ * Handles 'auto', 'light', and 'dark' theme settings
+ */
+function isDarkMode(): boolean {
+  const theme = useConfigStore.getState().theme;
+  
+  if (theme === 'dark') {
+    return true;
+  }
+  
+  if (theme === 'light') {
+    return false;
+  }
+  
+  // theme === 'auto' - use system preference
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  
+  // Fallback: check if dark class is applied
+  return document.documentElement.classList.contains('dark');
+}
+
+/**
+ * Get JSON view theme that matches the project's theme setting
+ * Returns a theme object from @uiw/react-json-view
+ */
+export function getJsonViewTheme() {
+  const dark = isDarkMode();
+  
+  // Use vscode theme for dark mode (good contrast and readability)
+  // Use github light theme for light mode (clean and modern)
+  const baseTheme = dark ? vscodeTheme : lightTheme;
+  
+  // Override background to be transparent to match the UI
+  return {
+    ...baseTheme,
+    '--w-rjv-background-color': 'transparent',
+    // Ensure font family matches project
+    '--w-rjv-font-family': getComputedStyle(document.documentElement)
+      .getPropertyValue('--font-mono')
+      .trim() || 'JetBrains Mono, monospace',
+  };
+}
+
