@@ -130,12 +130,18 @@ function handleRequest(
 
 /**
  * Store events in memory and persist to storage
+ * 
+ * Note: This function does NOT perform deduplication. Deduplication is handled
+ * by the tabStore when events are added via addEvent(). The background script
+ * simply forwards events to storage, and the store ensures no duplicates
+ * (by checking both id and messageId) before adding them to the state.
  */
 async function storeEvents(
   tabId: number,
   newEvents: SegmentEvent[]
 ): Promise<void> {
   // Update in-memory store
+  // Note: Deduplication happens in tabStore.addEvent(), not here
   const existing = tabEvents.get(tabId) || [];
   const updated = [...newEvents, ...existing].slice(0, MAX_EVENTS_PER_TAB);
   tabEvents.set(tabId, updated);

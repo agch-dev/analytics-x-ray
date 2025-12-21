@@ -231,5 +231,3 @@ This is already using `useCallback` patterns appropriately, but ensure all callb
 | File | Changes ||------|---------|| `src/pages/devtools/Panel.tsx` | Use debounced search || `src/pages/devtools/components/EventRow.tsx` | Add React.memo || `src/pages/devtools/components/EventRowHeader.tsx` | Add React.memo || `src/pages/devtools/components/detail/PropertyRow.tsx` | Add React.memo, consolidate state |---
 
 ## Expected Impact
-
-| Optimization | Impact | Effort ||--------------|--------|--------|| Search debouncing | High - eliminates lag while typing | Low || EventRow memo | Medium - reduces re-renders during scroll | Low || EventRowHeader memo | Medium - reduces re-renders | Low |

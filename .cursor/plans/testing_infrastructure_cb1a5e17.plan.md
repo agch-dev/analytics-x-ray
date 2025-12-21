@@ -291,33 +291,14 @@ describe('configStore', () => {
 
 ## 3. Files to Create
 
-| File | Purpose |
-
-|------|---------|
-
-| `vitest.config.ts` | Vitest configuration |
-
-| `src/lib/segment.test.ts` | Event parsing tests |
-
-| `src/lib/search.test.ts` | Search logic tests |
-
-| `src/stores/configStore.test.ts` | Config store tests |
-
-| `src/lib/utils.test.ts` | Utility function tests |
+| File | Purpose ||------|---------|| `vitest.config.ts` | Vitest configuration || `src/lib/segment.test.ts` | Event parsing tests || `src/lib/search.test.ts` | Search logic tests || `src/stores/configStore.test.ts` | Config store tests || `src/lib/utils.test.ts` | Utility function tests |
 
 ## 4. Files to Modify
 
-| File | Changes |
-
-|------|---------|
-
-| `package.json` | Add test scripts and devDependencies |
-
-| `tsconfig.json` | Add vitest types if needed |---
+| File | Changes ||------|---------|| `package.json` | Add test scripts and devDependencies || `tsconfig.json` | Add vitest types if needed |---
 
 ## Future Test Expansion
 
 Once infrastructure is in place, add tests for:
 
 - `tabStore.ts` - Event deduplication, state management
-- `usePinnedProperties.ts` - Hook behavior

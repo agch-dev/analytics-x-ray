@@ -170,6 +170,10 @@ function isSegmentPayload(payload: unknown): payload is SegmentBatchPayload {
 
 /**
  * Type guard to validate individual batch events
+ * 
+ * Note: messageId is optional here because normalizeEvent can generate
+ * a fallback messageId if one is missing. Some Segment implementations
+ * (especially custom ones) may not include messageId.
  */
 export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
   if (typeof event !== 'object' || event === null) return false;
@@ -179,8 +183,8 @@ export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
     typeof e.type === 'string' &&
     ['track', 'page', 'screen', 'identify', 'group', 'alias'].includes(
       e.type
-    ) &&
-    typeof e.messageId === 'string'
+    )
+    // messageId is optional - normalizeEvent handles missing messageId
   );
 }
 

@@ -4,28 +4,27 @@ overview: Fix event validation inconsistencies and remove redundant deduplicatio
 todos:
   - id: fix-validation
     content: Remove messageId requirement from isValidBatchEvent
-    status: pending
+    status: completed
   - id: document-dedup
     content: Add comments clarifying where deduplication happens
-    status: pending
+    status: completed
   - id: test-edge-cases
     content: Manually test events without messageId are captured correctly
-    status: pending
+    status: completed
 ---
 
 # Validation & Bug Fixes
 
 ## Problem
 
-There are validation inconsistencies that could cause subtle bugs with certain event payloads.
-
----
+There are validation inconsistencies that could cause subtle bugs with certain event payloads.---
 
 ## 1. Event Validation Mismatch
 
 ### Current State
 
 **`isValidBatchEvent`** in [`src/lib/segment.ts`](src/lib/segment.ts) (lines 174-185):
+
 ```typescript
 export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
   // ...
@@ -38,15 +37,16 @@ export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
 ```
 
 **`normalizeEvent`** in the same file (line 221):
+
 ```typescript
 const messageId = batchEvent.messageId || `generated_${Date.now()}_${Math.random()}`;
 ```
 
+
+
 ### The Bug
 
-Events without `messageId` are filtered out by `isValidBatchEvent` BEFORE they reach `normalizeEvent`, so the fallback generation never happens.
-
-Some Segment implementations (especially custom ones) may not include `messageId`.
+Events without `messageId` are filtered out by `isValidBatchEvent` BEFORE they reach `normalizeEvent`, so the fallback generation never happens.Some Segment implementations (especially custom ones) may not include `messageId`.
 
 ### Solution
 
@@ -71,15 +71,15 @@ export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
 
 ### Current State
 
-Events are deduplicated in TWO places:
+Events are deduplicated in TWO places:**Background script** ([`src/pages/background/index.ts`](src/pages/background/index.ts) line 140):
 
-**Background script** ([`src/pages/background/index.ts`](src/pages/background/index.ts) line 140):
 ```typescript
 const updated = [...newEvents, ...existing].slice(0, MAX_EVENTS_PER_TAB);
 // No explicit dedup, but overwrites by tabId
 ```
 
 **Tab store** ([`src/stores/tabStore.ts`](src/stores/tabStore.ts) lines 76-82):
+
 ```typescript
 const isDuplicate = state.events.some(
   (e) => e.id === event.id || e.messageId === event.messageId
@@ -89,6 +89,8 @@ if (isDuplicate) {
 }
 ```
 
+
+
 ### Issues
 
 1. Different dedup strategies in different places
@@ -97,14 +99,14 @@ if (isDuplicate) {
 
 ### Solution
 
-Centralize deduplication in ONE place:
+Centralize deduplication in ONE place:**Option A**: Keep dedup only in tabStore (recommended)
 
-**Option A**: Keep dedup only in tabStore (recommended)
 - Background just forwards events
 - Store handles all dedup logic
 - Single source of truth
 
 **Option B**: Keep dedup only in background
+
 - Background dedupes before storage
 - tabStore trusts incoming data
 - Requires ensuring background is always the entry point
@@ -129,15 +131,16 @@ async function storeEvents(tabId: number, newEvents: SegmentEvent[]): Promise<vo
 ## Files to Modify
 
 | File | Changes |
-|------|---------|
-| `src/lib/segment.ts` | Remove messageId requirement from isValidBatchEvent |
-| `src/pages/background/index.ts` | Document that dedup happens in tabStore |
 
----
+|------|---------|
+
+| `src/lib/segment.ts` | Remove messageId requirement from isValidBatchEvent |
+
+| `src/pages/background/index.ts` | Document that dedup happens in tabStore |---
 
 ## Testing
 
 After changes, verify:
+
 1. Events without messageId are captured and displayed
 2. Duplicate events (same messageId) don't appear twice
-3. Events with generated IDs show reasonable identifiers

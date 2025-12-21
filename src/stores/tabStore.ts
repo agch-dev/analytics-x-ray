@@ -72,7 +72,10 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         addEvent: (event) => {
           log.debug(`➕ Adding event to store (tabId: ${tabId}):`, event.name, event.type, event.id);
           set((state) => {
-            // Check if event already exists (deduplication by id AND messageId)
+            // DEDUPLICATION: This is the single source of truth for deduplication.
+            // Events are deduplicated by checking both id AND messageId to catch
+            // duplicates even if one field differs. The background script does NOT
+            // perform deduplication - it just forwards events here.
             const isDuplicate = state.events.some(
               (e) => e.id === event.id || e.messageId === event.messageId
             );

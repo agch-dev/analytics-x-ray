@@ -278,5 +278,3 @@ ESLint is installed but no `.eslintrc` or `eslint.config.js` is present in the p
 | Issue | File | Effort | Impact ||-------|------|--------|--------|| Add debounce to search | Panel.tsx | Low | High || Disable logging in production | logger.ts | Low | Medium || Extract ActionButtons component | Header.tsx | Low | Medium || Add React.memo to EventRow | EventRow.tsx | Low | Medium || Create shared message types | types/messages.ts | Low | High || Remove unused throttleMs OR implement it | configStore.ts | Low | Low |---
 
 ## Recommended Priority Order
-
-1. **Immediate** (bugs/risks): Fix isValidBatchEvent validation, add error boundaries

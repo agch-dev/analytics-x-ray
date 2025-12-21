@@ -179,5 +179,3 @@ export type SegmentEvent = Readonly<{
 ## Files to Modify
 
 | File | Changes ||------|---------|| `src/pages/background/index.ts` | Import shared types, use type guards || `src/pages/devtools/hooks/useEventSync.ts` | Import shared types, use type guards || `src/types/index.ts` | Re-export message types |---
-
-## Benefits
