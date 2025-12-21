@@ -14,6 +14,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { createTabStorage, logStorageSize } from '@src/lib/storage';
 import type { SegmentEvent } from '@src/types/segment';
 import { createContextLogger } from '@src/lib/logger';
+import Browser from 'webextension-polyfill';
 
 const log = createContextLogger('storage');
 
@@ -30,6 +31,9 @@ export interface TabState {
   // Tab metadata
   tabUrl: string | null;
   lastUpdated: number;
+  
+  // Reload tracking
+  reloadTimestamps: number[]; // Timestamps of page reloads for this tab
 }
 
 interface TabStore extends TabState {
@@ -43,6 +47,7 @@ interface TabStore extends TabState {
   hideAllEventNames: (eventNames: string[]) => void; // Hide all provided event names
   setSearchQuery: (query: string) => void; // Set search query
   setTabUrl: (url: string) => void;
+  addReloadTimestamp: (timestamp: number) => void; // Add a reload timestamp
   reset: () => void;
 }
 
@@ -54,6 +59,7 @@ const defaultTabState: TabState = {
   searchQuery: '',
   tabUrl: null,
   lastUpdated: Date.now(),
+  reloadTimestamps: [],
 };
 
 /**
@@ -99,14 +105,25 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
           });
         },
 
-        clearEvents: () => {
+        clearEvents: async () => {
           log.info(`🗑️ Clearing all events for tab ${tabId}`);
+          
+          // Clear reload timestamps from storage
+          try {
+            const reloadsKey = `tab_${tabId}_reloads`;
+            await Browser.storage.local.remove(reloadsKey);
+            log.debug(`  ✅ Cleared reload timestamps from storage`);
+          } catch (error) {
+            log.error(`  ⚠️ Failed to clear reload timestamps:`, error);
+          }
+          
           set({
             events: [],
             selectedEventId: null,
             expandedEventIds: new Set<string>(),
             hiddenEventNames: new Set<string>(),
             searchQuery: '',
+            reloadTimestamps: [],
             lastUpdated: Date.now(),
           });
           log.debug(`  ✅ Store cleared, events count: 0`);
@@ -156,6 +173,12 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
           set({ tabUrl: url });
         },
 
+        addReloadTimestamp: (timestamp) => {
+          set((state) => ({
+            reloadTimestamps: [...state.reloadTimestamps, timestamp].slice(-100), // Keep last 100
+          }));
+        },
+
         reset: () => {
           set(defaultTabState);
         },
@@ -173,9 +196,20 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         // Custom deserialization for Set - convert arrays back to Sets during merge
         merge: (persistedState, currentState) => {
           const persisted = persistedState as Partial<TabState> | undefined;
+          
+          // Load reload timestamps from storage synchronously (will be loaded async after)
+          // For now, use persisted reloadTimestamps if available, otherwise empty array
+          const reloadTimestamps = Array.isArray(persisted?.reloadTimestamps)
+            ? persisted.reloadTimestamps
+            : [];
+          
           if (!persisted) {
-            return currentState;
+            return {
+              ...currentState,
+              reloadTimestamps,
+            };
           }
+          
           return {
             ...currentState,
             ...persisted,
@@ -194,6 +228,8 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
                   ? persisted.hiddenEventNames 
                   : []
             ),
+            // Use reload timestamps from persisted state
+            reloadTimestamps,
           };
         },
       }
@@ -216,7 +252,13 @@ const tabStoreRegistry = new Map<number, ReturnType<typeof createTabStore>>();
 export const getTabStore = (tabId: number, maxEvents: number = 500) => {
   if (!tabStoreRegistry.has(tabId)) {
     log.info(`🏗️ Creating new tab store for tab ${tabId} (maxEvents: ${maxEvents})`);
-    tabStoreRegistry.set(tabId, createTabStore(tabId, maxEvents));
+    const store = createTabStore(tabId, maxEvents);
+    tabStoreRegistry.set(tabId, store);
+    
+    // Load reload timestamps from storage after store creation
+    syncReloadTimestamps(tabId).catch((error) => {
+      log.error(`Failed to load reload timestamps for tab ${tabId}:`, error);
+    });
   } else {
     log.debug(`♻️ Reusing existing tab store for tab ${tabId}`);
   }
@@ -236,5 +278,29 @@ export const removeTabStore = (tabId: number) => {
  */
 export const getActiveTabIds = (): number[] => {
   return Array.from(tabStoreRegistry.keys());
+};
+
+/**
+ * Sync reload timestamps from storage to the store
+ * Call this after store initialization to ensure reload timestamps are loaded
+ */
+export const syncReloadTimestamps = async (tabId: number): Promise<void> => {
+  const store = tabStoreRegistry.get(tabId);
+  if (!store) {
+    log.debug(`⚠️ No store found for tab ${tabId}, cannot sync reload timestamps`);
+    return;
+  }
+  
+  try {
+    const reloadsKey = `tab_${tabId}_reloads`;
+    const result = await Browser.storage.local.get(reloadsKey);
+    const reloadTimestamps = (result[reloadsKey] as number[]) || [];
+    
+    // Update store with reload timestamps using setState
+    store.setState({ reloadTimestamps });
+    log.debug(`✅ Synced ${reloadTimestamps.length} reload timestamps for tab ${tabId}`);
+  } catch (error) {
+    log.error(`❌ Failed to sync reload timestamps for tab ${tabId}:`, error);
+  }
 };
 

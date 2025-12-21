@@ -34,6 +34,7 @@ export default function Panel() {
   const expandedEventIds = useTabStore((state) => state.expandedEventIds);
   const hiddenEventNames = useTabStore((state) => state.hiddenEventNames);
   const searchQuery = useTabStore((state) => state.searchQuery);
+  const reloadTimestamps = useTabStore((state) => state.reloadTimestamps);
   const setSelectedEvent = useTabStore((state) => state.setSelectedEvent);
   const toggleEventExpanded = useTabStore((state) => state.toggleEventExpanded);
   const toggleEventNameVisibility = useTabStore((state) => state.toggleEventNameVisibility);
@@ -198,6 +199,7 @@ export default function Panel() {
         <EventList
           ref={eventListRef}
           events={filteredEvents}
+          reloadTimestamps={reloadTimestamps}
           selectedEventId={selectedEventId}
           expandedEventIds={expandedEventIds}
           hiddenEventNames={hiddenEventNames}

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle, useState, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { SegmentEvent } from '@src/types/segment';
-import { normalizeEventNameForFilter } from '@src/lib/utils';
+import { normalizeEventNameForFilter, pathsAreDifferent } from '@src/lib/utils';
 import type { SearchMatch } from '@src/lib/search';
 import { EventRow } from './EventRow';
 import { EventRowHeader } from './EventRowHeader';
 import { EmptyState } from './EmptyState';
+import { UrlDivider } from './UrlDivider';
 
 export interface EventListHandle {
   scrollToBottom: () => void;
@@ -16,6 +17,7 @@ type ViewMode = 'json' | 'structured';
 
 interface EventListProps {
   events: SegmentEvent[];
+  reloadTimestamps: number[];
   selectedEventId: string | null;
   expandedEventIds: Set<string>;
   hiddenEventNames: Set<string>;
@@ -28,10 +30,17 @@ interface EventListProps {
   onViewModeChange: (mode: ViewMode) => void;
 }
 
+// Union type for list items (events or dividers)
+type ListItem =
+  | { type: 'event'; event: SegmentEvent; index: number }
+  | { type: 'divider'; event: SegmentEvent; previousEvent?: SegmentEvent; isReload: boolean; timestamp: number; index: number };
+
 // Height of the row header (used for sticky header calculations)
 const ROW_HEADER_HEIGHT = 39;
 // Gap between event rows
 const ROW_GAP = 8; // 0.5rem / 8px
+// Height of divider (fixed)
+const DIVIDER_HEIGHT = 36; // ~32-40px as specified
 // Hysteresis buffer to prevent flickering - once sticky, require more scroll to un-stick
 const STICKY_SHOW_THRESHOLD = 50;  // Need this much visible to SHOW sticky
 const STICKY_HIDE_THRESHOLD = 10;  // Need less than this to HIDE sticky
@@ -39,6 +48,7 @@ const STICKY_HIDE_THRESHOLD = 10;  // Need less than this to HIDE sticky
 export const EventList = forwardRef<EventListHandle, EventListProps>(
   function EventList({ 
     events, 
+    reloadTimestamps,
     selectedEventId, 
     expandedEventIds,
     hiddenEventNames,
@@ -65,20 +75,79 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     const [isAtBottom, setIsAtBottom] = useState(true);
     
     // Reverse events so newest is at bottom
-    const displayEvents = useMemo(() => [...events].reverse(), [events]);
+    const reversedEvents = useMemo(() => [...events].reverse(), [events]);
     
-    // Dynamic size estimation based on expansion state
+    // Transform events into list items (events + dividers)
+    const listItems = useMemo(() => {
+      const items: ListItem[] = [];
+      
+      for (let i = 0; i < reversedEvents.length; i++) {
+        const event = reversedEvents[i];
+        const previousEvent = i > 0 ? reversedEvents[i - 1] : undefined;
+        
+        // Check if we need a divider before this event
+        let needsDivider = false;
+        let isReload = false;
+        let reloadTimestamp = 0;
+        
+        // Check for path change
+        if (previousEvent && pathsAreDifferent(previousEvent, event)) {
+          needsDivider = true;
+        }
+        
+        // Check for reload between events
+        if (previousEvent) {
+          // Check if any reload timestamp falls between these two events
+          for (const reloadTs of reloadTimestamps) {
+            if (reloadTs > previousEvent.capturedAt && reloadTs <= event.capturedAt) {
+              needsDivider = true;
+              isReload = true;
+              reloadTimestamp = reloadTs;
+              break;
+            }
+          }
+        }
+        
+        // Insert divider if needed
+        if (needsDivider) {
+          items.push({
+            type: 'divider',
+            event,
+            previousEvent,
+            isReload,
+            timestamp: reloadTimestamp || event.capturedAt,
+            index: items.length,
+          });
+        }
+        
+        // Add the event
+        items.push({
+          type: 'event',
+          event,
+          index: items.length,
+        });
+      }
+      
+      return items;
+    }, [reversedEvents, reloadTimestamps]);
+    
+    // Dynamic size estimation based on item type and expansion state
     const getEstimatedSize = (index: number) => {
-      const event = displayEvents[index];
-      if (!event) return ROW_HEADER_HEIGHT + ROW_GAP;
+      const item = listItems[index];
+      if (!item) return ROW_HEADER_HEIGHT + ROW_GAP;
+      
+      if (item.type === 'divider') {
+        return DIVIDER_HEIGHT + ROW_GAP;
+      }
+      
       // Base height + expanded height (rough estimate for JSON viewer) + gap
-      const baseHeight = expandedEventIds.has(event.id) ? 400 : ROW_HEADER_HEIGHT;
+      const baseHeight = expandedEventIds.has(item.event.id) ? 400 : ROW_HEADER_HEIGHT;
       return baseHeight + ROW_GAP;
     };
     
     // Set up virtualizer with dynamic measurement
     const virtualizer = useVirtualizer({
-      count: displayEvents.length,
+      count: listItems.length,
       getScrollElement: () => scrollContainerRef.current,
       estimateSize: getEstimatedSize,
       overscan: 5, // Render 5 extra items above and below viewport
@@ -91,10 +160,10 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     // Expose scrollToBottom method and isAtBottom state via ref
     useImperativeHandle(ref, () => ({
       scrollToBottom: () => {
-        if (displayEvents.length > 0) {
+        if (listItems.length > 0) {
           // Use setTimeout to ensure virtualizer is ready
           setTimeout(() => {
-            virtualizer.scrollToIndex(displayEvents.length - 1, {
+            virtualizer.scrollToIndex(listItems.length - 1, {
               align: 'end',
               behavior: 'auto',
             });
@@ -103,7 +172,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         }
       },
       isAtBottom,
-    }), [isAtBottom]);
+    }), [isAtBottom, listItems.length, virtualizer]);
     
     // Track current sticky event ID to avoid unnecessary state updates
     const currentStickyIdRef = useRef<string | null>(null);
@@ -125,8 +194,11 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       let foundStickyIndex: number | null = null;
       
       for (const virtualItem of virtualItems) {
-        const event = displayEvents[virtualItem.index];
-        if (!event || !expandedEventIds.has(event.id)) continue;
+        const item = listItems[virtualItem.index];
+        if (!item || item.type !== 'event') continue;
+        
+        const event = item.event;
+        if (!expandedEventIds.has(event.id)) continue;
         
         // Check if the header is above the viewport but the item is still visible
         const itemTop = virtualItem.start;
@@ -158,14 +230,14 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         setStickyEvent(foundStickyEvent);
         setStickyEventIndex(foundStickyIndex);
       }
-    }, [displayEvents, expandedEventIds, virtualizer, onScrollStateChange]);
+    }, [listItems, expandedEventIds, virtualizer, onScrollStateChange]);
     
     // Wrapper for toggle expand that also triggers remeasurement
     const handleToggleExpand = (id: string) => {
       const wasExpanded = expandedEventIds.has(id);
       
       // Find the index of the event being toggled before state update
-      const eventIndex = displayEvents.findIndex(event => event.id === id);
+      const eventIndex = listItems.findIndex(item => item.type === 'event' && item.event.id === id);
       
       onToggleExpand(id);
       
@@ -220,18 +292,18 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     
     // Auto-scroll to bottom when new events arrive
     useEffect(() => {
-      if (!shouldAutoScrollRef.current || displayEvents.length === 0) return;
+      if (!shouldAutoScrollRef.current || listItems.length === 0) return;
       
       // Use a small timeout to ensure virtualizer has measured items
       const timeoutId = setTimeout(() => {
-        virtualizer.scrollToIndex(displayEvents.length - 1, {
+        virtualizer.scrollToIndex(listItems.length - 1, {
           align: 'end',
           behavior: 'auto', // Use 'auto' instead of 'smooth' for more reliable scrolling
         });
       }, 0);
       
       return () => clearTimeout(timeoutId);
-    }, [displayEvents.length, virtualizer]); // Include virtualizer
+    }, [listItems.length, virtualizer]); // Include virtualizer
     
     // Recalculate virtualizer when expansion state changes
     useEffect(() => {
@@ -251,7 +323,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       }, 0);
       
       return () => clearTimeout(timeoutId);
-    }, [expandedEventIds.size, displayEvents.length, virtualizer]); // Use size for Set comparison
+    }, [expandedEventIds.size, listItems.length, virtualizer]); // Use size for Set comparison
 
     const virtualItems = virtualizer.getVirtualItems();
     
@@ -314,7 +386,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
           </div>
         )}
         
-        {displayEvents.length === 0 ? (
+        {listItems.length === 0 ? (
           <EmptyState searchQuery={searchMatch?.query} />
         ) : (
           <div
@@ -325,7 +397,46 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
             }}
           >
             {virtualItems.map((virtualItem) => {
-              const event = displayEvents[virtualItem.index];
+              const item = listItems[virtualItem.index];
+              if (!item) return null;
+              
+              if (item.type === 'divider') {
+                return (
+                  <div
+                    key={`divider-${item.index}`}
+                    ref={(el) => {
+                      if (el) {
+                        itemRefs.current.set(virtualItem.index, el);
+                        setTimeout(() => {
+                          virtualizer.measureElement(el);
+                        }, 0);
+                      } else {
+                        itemRefs.current.delete(virtualItem.index);
+                      }
+                    }}
+                    data-index={virtualItem.index}
+                    data-type="divider"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                      paddingBottom: `${ROW_GAP}px`,
+                    }}
+                  >
+                    <UrlDivider
+                      event={item.event}
+                      previousEvent={item.previousEvent}
+                      isReload={item.isReload}
+                      timestamp={item.timestamp}
+                    />
+                  </div>
+                );
+              }
+              
+              // Render event row
+              const event = item.event;
               const isExpanded = expandedEventIds.has(event.id);
               return (
                 <div

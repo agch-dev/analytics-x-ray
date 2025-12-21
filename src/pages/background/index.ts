@@ -222,9 +222,68 @@ async function clearEventsForTab(tabId: number): Promise<void> {
     const events: StoredEvents = (result.events as StoredEvents) || {};
     delete events[tabId];
     await Browser.storage.local.set({ events });
+    
+    // Also clear reload timestamps for this tab
+    const reloadsKey = `tab_${tabId}_reloads`;
+    await Browser.storage.local.remove(reloadsKey);
+    log.debug(`🗑️ Cleared reload timestamps for tab ${tabId}`);
   } catch (error) {
     console.error('[analytics-x-ray] Failed to clear events:', error);
   }
+}
+
+/**
+ * Track page reloads by listening to tab updates
+ * Detects when a tab reloads (status: 'loading' with same URL)
+ */
+function setupReloadTracking() {
+  // Track the last known URL for each tab to detect reloads
+  const tabUrls = new Map<number, string>();
+  
+  Browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    // Only process when status changes to 'loading'
+    if (changeInfo.status !== 'loading') {
+      return;
+    }
+    
+    // Need a valid tab ID and URL
+    if (tabId < 0 || !tab.url) {
+      return;
+    }
+    
+    const currentUrl = tab.url;
+    const previousUrl = tabUrls.get(tabId);
+    
+    // If the URL is the same as before, it's a reload
+    if (previousUrl && previousUrl === currentUrl) {
+      const timestamp = Date.now();
+      log.debug(`🔄 Detected page reload for tab ${tabId} at ${timestamp}`);
+      
+      try {
+        // Get existing reload timestamps
+        const reloadsKey = `tab_${tabId}_reloads`;
+        const result = await Browser.storage.local.get(reloadsKey);
+        const existingReloads = (result[reloadsKey] as number[]) || [];
+        
+        // Append new timestamp
+        const updatedReloads = [...existingReloads, timestamp];
+        
+        // Store back (limit to last 100 reloads to prevent storage bloat)
+        await Browser.storage.local.set({
+          [reloadsKey]: updatedReloads.slice(-100),
+        });
+        
+        log.debug(`✅ Recorded reload timestamp for tab ${tabId} (total: ${updatedReloads.length})`);
+      } catch (error) {
+        log.error(`❌ Failed to record reload timestamp for tab ${tabId}:`, error);
+      }
+    }
+    
+    // Update the stored URL for this tab
+    tabUrls.set(tabId, currentUrl);
+  });
+  
+  log.info('🔄 Reload tracking initialized');
 }
 
 /**
@@ -292,6 +351,10 @@ Browser.tabs.onRemoved.addListener(async (tabId) => {
     const events: StoredEvents = (result.events as StoredEvents) || {};
     delete events[tabId];
     await Browser.storage.local.set({ events });
+    
+    // Also clean up reload timestamps
+    const reloadsKey = `tab_${tabId}_reloads`;
+    await Browser.storage.local.remove(reloadsKey);
   } catch {
     // Ignore cleanup errors
   }
@@ -328,4 +391,5 @@ restoreEventsFromStorage().then(() => {
   logStorageSize('background');
 });
 setupWebRequestListener();
+setupReloadTracking();
 log.info('✅ Background script initialization complete');
