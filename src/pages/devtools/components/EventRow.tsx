@@ -53,7 +53,6 @@ export function EventRow({
           isHidden={isHidden}
           searchMatch={searchMatch}
           viewMode={viewMode}
-          onToggleExpand={onToggleExpand}
           onToggleHide={onToggleHide}
           onViewModeChange={onViewModeChange}
         />
