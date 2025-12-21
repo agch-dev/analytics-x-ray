@@ -4,28 +4,28 @@ overview: Add consistent barrel exports across the codebase and reorganize the d
 todos:
   - id: create-hooks-barrel
     content: Create src/hooks/index.ts with all hook exports
-    status: pending
+    status: completed
   - id: create-lib-barrel
     content: Create src/lib/index.ts with utility exports
-    status: pending
+    status: completed
   - id: create-components-barrel
     content: Create src/components/index.ts barrel export
-    status: pending
+    status: completed
   - id: create-ui-barrel
     content: Create src/components/ui/index.ts with all UI component exports
-    status: pending
+    status: completed
   - id: create-sections-folder
     content: Create detail/sections/ folder and move section components
-    status: pending
+    status: completed
   - id: create-primitives-folder
     content: Create detail/primitives/ folder and move primitive components
-    status: pending
+    status: completed
   - id: update-detail-barrel
     content: Update detail/index.ts for new folder structure
-    status: pending
+    status: completed
   - id: update-imports
     content: Update all imports across codebase to use new barrel exports
-    status: pending
+    status: completed
 ---
 
 # Component Organization
@@ -203,5 +203,3 @@ export { Switch } from './switch';
 | From | To ||------|-----|| `detail/PropertiesSection.tsx` | `detail/sections/PropertiesSection.tsx` || `detail/TraitsSection.tsx` | `detail/sections/TraitsSection.tsx` || `detail/ContextSection.tsx` | `detail/sections/ContextSection.tsx` || `detail/MiscSection.tsx` | `detail/sections/MiscSection.tsx` || `detail/PropertyRow.tsx` | `detail/primitives/PropertyRow.tsx` || `detail/PropertyList.tsx` | `detail/primitives/PropertyList.tsx` || `detail/CollapsibleSubsection.tsx` | `detail/primitives/CollapsibleSubsection.tsx` |
 
 ## Files to Modify
-
-| File | Changes ||------|---------|| `src/pages/devtools/components/detail/index.ts` | Update exports for new structure || All files importing from detail/ | Update import paths |---

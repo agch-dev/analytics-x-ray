@@ -7,7 +7,7 @@ import {
   PuzzleIcon,
 } from '@hugeicons/core-free-icons';
 import type { SegmentEvent } from '@src/types/segment';
-import { SubsectionGroup, type SubsectionDefinition } from './SubsectionGroup';
+import { SubsectionGroup, type SubsectionDefinition } from '../SubsectionGroup';
 
 interface MiscSectionProps {
   event: SegmentEvent;

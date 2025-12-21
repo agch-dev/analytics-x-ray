@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import type { SegmentEvent } from '@src/types/segment';
-import { ThemedJsonView } from '@src/components/ThemedJsonView';
-import { PropertiesSection } from './PropertiesSection';
-import { TraitsSection } from './TraitsSection';
-import { ContextSection } from './ContextSection';
-import { MiscSection } from './MiscSection';
+import { ThemedJsonView } from '@src/components';
+import {
+  PropertiesSection,
+  TraitsSection,
+  ContextSection,
+  MiscSection,
+} from './sections';
 
 type ViewMode = 'json' | 'structured';
 

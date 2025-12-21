@@ -1,7 +1,7 @@
 import { useState, useCallback, ReactNode } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRight01Icon, ArrowDown01Icon, PinIcon } from '@hugeicons/core-free-icons';
-import { cn } from '@src/lib/utils';
+import { cn } from '@src/lib';
 
 interface EventDetailSectionProps {
   title: string;

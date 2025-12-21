@@ -1,9 +1,7 @@
-import { Badge } from '@src/components/ui/badge';
-import { Input } from '@src/components/ui/input';
+import { Badge, Input, Logo } from '@src/components';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Search01Icon, SearchRemoveIcon } from '@hugeicons/core-free-icons';
 import Browser from 'webextension-polyfill';
-import { Logo } from '@src/components/Logo';
 import { ActionButtons } from './ActionButtons';
 
 interface HeaderProps {

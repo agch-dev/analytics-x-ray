@@ -1,11 +1,11 @@
-import { Badge } from '@src/components/ui/badge';
-import { Button } from '@src/components/ui/button';
 import {
+  Badge,
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@src/components/ui/dropdown-menu';
+} from '@src/components';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Delete02Icon,
@@ -14,7 +14,7 @@ import {
   FilterIcon,
 } from '@hugeicons/core-free-icons';
 import Browser from 'webextension-polyfill';
-import { cn } from '@src/lib/utils';
+import { cn } from '@src/lib';
 
 interface ActionButtonsProps {
   filteredEventNamesCount: number;

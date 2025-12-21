@@ -196,5 +196,3 @@ Add boundaries around:
 ## Files to Modify
 
 | File | Changes ||------|---------|| `src/stores/tabStore.ts` | Remove persist OR refactor registry || `src/pages/background/index.ts` | Simplify storage if Option A || `src/pages/devtools/Panel.tsx` | Wrap with error boundaries |---
-
-## Implementation Order

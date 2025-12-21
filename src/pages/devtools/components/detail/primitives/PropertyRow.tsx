@@ -1,10 +1,8 @@
 import { useMemo, useState, useCallback } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon, PinIcon, CodeIcon, TextIcon } from '@hugeicons/core-free-icons';
-import { cn, copyToClipboard } from '@src/lib/utils';
-import { getValueTypeColor } from '@src/lib/jsonViewTheme';
-import { HighlightedText } from '@src/components/HighlightedText';
-import { ThemedJsonView } from '@src/components/ThemedJsonView';
+import { cn, copyToClipboard, getValueTypeColor } from '@src/lib';
+import { HighlightedText, ThemedJsonView } from '@src/components';
 
 interface PropertyRowProps {
   label: string;

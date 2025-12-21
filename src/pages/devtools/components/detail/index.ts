@@ -1,16 +1,19 @@
+/**
+ * Detail Components Barrel Export
+ * 
+ * Central export point for all event detail view components.
+ */
+
 // Main view components
 export { EventDetailView } from './EventDetailView';
 export { EventDetailSection } from './EventDetailSection';
 
-// Section components (high-level)
-export { PropertiesSection } from './PropertiesSection';
-export { TraitsSection } from './TraitsSection';
-export { ContextSection } from './ContextSection';
-export { MiscSection } from './MiscSection';
-
-// Reusable building blocks
-export { PropertyRow } from './PropertyRow';
-export { PropertyList, PinnedPropertyList, type PropertyEntry } from './PropertyList';
+// Section components
 export { PinnableSection } from './PinnableSection';
 export { SubsectionGroup, type SubsectionDefinition } from './SubsectionGroup';
-export { CollapsibleSubsection, SubsectionHeader } from './CollapsibleSubsection';
+
+// Re-export sections
+export * from './sections';
+
+// Re-export primitives
+export * from './primitives';

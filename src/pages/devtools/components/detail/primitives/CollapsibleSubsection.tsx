@@ -1,8 +1,8 @@
 import { ReactNode, useCallback, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRight01Icon, ArrowDown01Icon, PinIcon } from '@hugeicons/core-free-icons';
-import { cn } from '@src/lib/utils';
-import { sortWithPinnedFirst } from '@src/hooks/usePinnedProperties';
+import { cn } from '@src/lib';
+import { sortWithPinnedFirst } from '@src/hooks';
 import { PropertyRow } from './PropertyRow';
 import type { PropertyEntry } from './PropertyList';
 

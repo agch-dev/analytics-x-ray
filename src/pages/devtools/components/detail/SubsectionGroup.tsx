@@ -2,11 +2,14 @@ import { useState, useMemo, useCallback, ReactNode } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PinIcon } from '@hugeicons/core-free-icons';
 import { useConfigStore } from '@src/stores/configStore';
-import type { PinSection, PinSubsection } from '@src/hooks/usePinnedProperties';
+import type { PinSection, PinSubsection } from '@src/hooks';
 import { EventDetailSection } from './EventDetailSection';
-import { CollapsibleSubsection, SubsectionHeader } from './CollapsibleSubsection';
-import { PropertyRow } from './PropertyRow';
-import type { PropertyEntry } from './PropertyList';
+import {
+  CollapsibleSubsection,
+  SubsectionHeader,
+  PropertyRow,
+  type PropertyEntry,
+} from './primitives';
 
 export interface SubsectionDefinition {
   /** Unique key for this subsection */

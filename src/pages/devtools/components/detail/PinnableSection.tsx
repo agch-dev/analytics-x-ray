@@ -1,7 +1,7 @@
 import { useMemo, useCallback, ReactNode } from 'react';
-import { usePinnedProperties, type PinSection } from '@src/hooks/usePinnedProperties';
+import { usePinnedProperties, type PinSection } from '@src/hooks';
 import { EventDetailSection } from './EventDetailSection';
-import { PropertyList, PinnedPropertyList, type PropertyEntry } from './PropertyList';
+import { PropertyList, PinnedPropertyList, type PropertyEntry } from './primitives';
 
 interface PinnableSectionProps {
   /** Section title */
