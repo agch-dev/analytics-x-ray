@@ -4,18 +4,21 @@ overview: Simplify the dual storage strategy, improve tab store registry managem
 todos:
   - id: create-error-boundary
     content: Create ErrorBoundary component with fallback UI
-    status: pending
+    status: completed
   - id: add-error-states
     content: Create error state components for Panel and EventList
-    status: pending
+    status: completed
   - id: wrap-with-boundaries
     content: Add error boundaries around Panel, EventList, EventDetailView
-    status: pending
+    status: completed
   - id: refactor-tab-registry
     content: Convert module-level Map to Zustand store
     status: pending
   - id: simplify-storage
-    content: Remove tabStore persistence, use background as source of truth
+    content: Remove tabStore event persistence, use storage.local['events'] as single source of truth. Keep UI state persistence in tabStore.
+    status: pending
+  - id: optimize-storage-writes
+    content: Add debouncing/batching to storage writes in background script to reduce I/O (batch every 500ms or 5 events)
     status: pending
 ---
 
@@ -61,34 +64,216 @@ This causes:
 
 ### Recommended Solution
 
-**Option A: Background as Single Source of Truth**Remove tabStore persistence, use it as a read-through cache:
+**Storage as Single Source of Truth** (Revised)
+
+The key insight: **Storage is the true source of truth** because it persists across service worker restarts. The background script is ephemeral and must restore from storage on startup.
 
 ```mermaid
-flowchart LR
-    Background["Background<br/>(Source of Truth)"] --> Storage["storage.local"]
-    Panel["tabStore<br/>(Cache Only)"] -.->|"reads from"| Background
-    Background -.->|"pushes to"| Panel
+flowchart TB
+    WebRequest[webRequest API] --> Background[Background Script]
+    
+    Background --> Storage["storage.local['events']<br/>(SINGLE SOURCE OF TRUTH)"]
+    Background -.->|"restores on startup"| Storage
+    
+    Panel[DevTools Panel] --> TabStore["Zustand tabStore<br/>(UI State Only)"]
+    TabStore -.->|"reads events from"| Background
+    Background -.->|"pushes new events"| Panel
+    
+    TabStore --> UIStorage["storage.local['tab-N']<br/>(UI State Only)"]
+    
+    style Storage fill:#90EE90
+    style TabStore fill:#FFE4B5
+    style UIStorage fill:#FFE4B5
 ```
 
-Changes:
+**Architecture Changes:**
 
-- Remove `persist` middleware from tabStore
-- tabStore becomes ephemeral UI state only
-- All event data flows from background
+1. **Storage (`storage.local['events']`) is the single source of truth for event data**
 
-**Option B: TabStore as Single Source of Truth**Remove background's Map and let tabStore own persistence:
+   - Persists across service worker restarts
+   - Background reads from it on startup (`restoreEventsFromStorage()`)
+   - Background writes to it when capturing events
 
-- Background only captures and forwards events
-- No in-memory Map in background
-- tabStore handles all persistence
+2. **Background script manages storage**
 
-### Recommendation
+   - In-memory `tabEvents` Map is a cache for performance
+   - On startup: restores from storage → populates Map
+   - On capture: updates Map → persists to storage
+   - On GET_EVENTS: returns from Map (or falls back to storage)
 
-**Option A** is cleaner because:
+3. **tabStore becomes UI state only**
 
-- Background already handles persistence for service worker restarts
-- Simpler mental model
-- Less storage usage (no duplicate keys)
+   - Remove `persist` middleware for `events` array
+   - Keep `persist` for UI state only: `selectedEventId`, `expandedEventIds`, `hiddenEventNames`, `searchQuery`
+   - Events are ephemeral in tabStore (loaded from background on mount)
+   - No duplication: events stored once in `storage.local['events']`
+
+**Why This Works:**
+
+- ✅ **Service worker restarts**: Background restores from storage on startup
+  - When service worker restarts (goes idle), it calls `restoreEventsFromStorage()`
+  - This populates the in-memory `tabEvents` Map from `storage.local['events']`
+  - Panel's `useEventSync` fetches from background, which now has restored data
+  - No data loss because storage is the source of truth
+
+- ✅ **No duplication**: Events stored once in `storage.local['events']`
+  - Background's Map is just a cache
+  - tabStore's events array is ephemeral (not persisted)
+  - UI state (expanded, hidden, search) persists separately in `storage.local['tab-N']`
+
+- ✅ **UI state persists**: User preferences (expanded, hidden, search) persist separately
+  - These are small and don't need background coordination
+  - Stored in `storage.local['tab-N']` for each tab
+
+- ✅ **Clear ownership**: Storage owns events, background manages it, tabStore displays it
+  - Storage = source of truth (persists across restarts)
+  - Background = manager (reads/writes to storage, maintains cache)
+  - tabStore = view layer (displays events, manages UI state)
+
+- ✅ **Race condition safe**: Panel always fetches from background (which reads from storage)
+  - Even if background just restarted, it has restored data
+  - Panel's `GET_EVENTS` message gets data from background's Map or storage fallback
+
+**Implementation Steps:**
+
+1. Modify `tabStore.ts`:
+
+   - Split persist config: persist UI state, NOT events
+   - Events array becomes ephemeral (loaded from background)
+
+2. Update `useEventSync.ts`:
+
+   - Already correct: fetches from background on mount
+   - Background will always have latest (from storage or cache)
+
+3. Background script:
+
+   - Already correct: restores from storage on startup
+   - **NEEDS OPTIMIZATION**: Currently reads/writes entire `events` object on every capture
+   - See "Performance Optimizations" section below
+
+---
+
+### Performance Optimizations for Storage
+
+**Current Issue:**
+
+The current `storeEvents()` function has a performance problem:
+
+```typescript
+// Current implementation - INEFFICIENT
+async function storeEvents(tabId: number, newEvents: SegmentEvent[]) {
+  // Update memory (fast ✅)
+  tabEvents.set(tabId, updated);
+  
+  // Read ALL tabs' events (slow ❌)
+  const result = await Browser.storage.local.get('events');
+  const events: StoredEvents = result.events || {};
+  
+  // Update one tab
+  events[tabId] = updated;
+  
+  // Write ALL tabs' events back (slow ❌)
+  await Browser.storage.local.set({ events });
+}
+```
+
+**Problem:** If you have 5 tabs with 100 events each, every new event capture reads/writes 500 events, even though only 1 tab changed.
+
+**Optimized Solution:**
+
+1. **Debounce/Batch Storage Writes**
+
+   - Use a write queue that batches multiple updates
+   - Write to storage every 500ms or after 5 events (whichever comes first)
+   - Memory Map is updated immediately (fast path for reads)
+
+2. **Write Only Changed Tab Data**
+
+   - Store events per-tab: `storage.local['events_tab_123'] `instead of one big `events` object
+   - Only read/write the specific tab's data
+   - On startup, restore all tab keys in parallel
+
+3. **Keep Memory-First Pattern** (already good ✅)
+
+   - Memory Map updated synchronously
+   - Storage writes are async and debounced
+   - `getEventsForTab()` checks memory first (fast path)
+
+**Recommended Implementation (Option A - Simple Debouncing):**
+
+Keep current storage structure, but debounce writes:
+
+```typescript
+// Debounced storage writes
+const storageWriteQueue = new Map<number, SegmentEvent[]>();
+let storageWriteTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function storeEvents(tabId: number, newEvents: SegmentEvent[]) {
+  // Update memory immediately (fast path for reads)
+  const existing = tabEvents.get(tabId) || [];
+  const updated = [...newEvents, ...existing].slice(0, MAX_EVENTS_PER_TAB);
+  tabEvents.set(tabId, updated);
+  
+  // Queue for batched storage write
+  storageWriteQueue.set(tabId, updated);
+  scheduleStorageWrite();
+}
+
+function scheduleStorageWrite() {
+  if (storageWriteTimer) return; // Already scheduled
+  
+  storageWriteTimer = setTimeout(async () => {
+    const queue = new Map(storageWriteQueue);
+    storageWriteQueue.clear();
+    storageWriteTimer = null;
+    
+    // Batch write: read once, update all queued tabs, write once
+    try {
+      const result = await Browser.storage.local.get('events');
+      const events: StoredEvents = (result.events as StoredEvents) || {};
+      
+      // Update all queued tabs
+      for (const [tabId, tabEvents] of queue.entries()) {
+        events[tabId] = tabEvents;
+      }
+      
+      // Single write for all changes
+      await Browser.storage.local.set({ events });
+    } catch (error) {
+      log.error('❌ Failed to batch write events:', error);
+    }
+  }, 500); // Batch writes every 500ms
+}
+```
+
+**Performance Impact:**
+
+- ✅ **Before**: 1 event = read 500 events + write 500 events (every time)
+- ✅ **After**: Multiple events in 500ms = 1 read + 1 write (batched)
+- ✅ **Reads**: Still fast (memory-first, ~0ms) ✅
+- ✅ **Writes**: 90% reduction in storage I/O when multiple events arrive quickly
+
+**Alternative (Option B - Per-Tab Keys):**
+
+Store each tab separately for even better performance:
+
+```typescript
+// Store per-tab: events_tab_123, events_tab_456, etc.
+await Browser.storage.local.set({ [`events_tab_${tabId}`]: updated });
+
+// Restore on startup (parallel reads)
+const allKeys = await Browser.storage.local.get(null);
+const tabKeys = Object.keys(allKeys).filter(k => k.startsWith('events_tab_'));
+const events = await Browser.storage.local.get(tabKeys);
+```
+
+**Trade-offs:**
+
+- ⚠️ **Option A Risk**: If service worker dies before batched write, last 500ms of events could be lost
+- ✅ **Option A Mitigation**: Accept small window (events still in memory until write)
+- ✅ **Option B**: Better performance, but requires migration of existing data
+- ✅ **Recommendation**: Start with Option A (simpler, no migration), consider Option B if needed
 
 ---
 
@@ -192,5 +377,3 @@ Add boundaries around:
 ## Files to Create
 
 | File | Purpose ||------|---------|| `src/components/ErrorBoundary.tsx` | Reusable error boundary || `src/components/ErrorStates.tsx` | Error UI components |
-
-## Files to Modify

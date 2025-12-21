@@ -5,6 +5,7 @@ import Panel from '@src/pages/devtools/Panel';
 import { useTheme } from '@src/hooks/useTheme';
 import { useConfigStore } from '@src/stores/configStore';
 import { createContextLogger } from '@src/lib/logger';
+import { ErrorBoundary, PanelErrorState } from '@src/components';
 import '@assets/styles/tailwind.css';
 
 const log = createContextLogger('devtools');
@@ -53,7 +54,11 @@ function PanelWrapper() {
     };
   }, []);
   
-  return <Panel />;
+  return (
+    <ErrorBoundary fallback={<PanelErrorState />}>
+      <Panel />
+    </ErrorBoundary>
+  );
 }
 
 log.info('🔧 DevTools script loading...');

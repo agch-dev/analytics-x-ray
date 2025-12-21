@@ -4,6 +4,7 @@ import type { SegmentEvent } from '@src/types/segment';
 import type { SearchMatch } from '@src/lib/search';
 import { EventRowHeader } from './EventRowHeader';
 import { EventDetailView } from './detail';
+import { ErrorBoundary, EventDetailErrorState } from '@src/components';
 
 type ViewMode = 'json' | 'structured';
 
@@ -61,11 +62,16 @@ export const EventRow = React.memo(function EventRow({
 
       {/* Expanded detail view */}
       {isExpanded && (
-        <EventDetailView
-          event={event}
-          viewMode={viewMode}
-          searchQuery={searchQuery}
-        />
+        <ErrorBoundary
+          fallback={<EventDetailErrorState />}
+          resetKeys={[event.id, viewMode]}
+        >
+          <EventDetailView
+            event={event}
+            viewMode={viewMode}
+            searchQuery={searchQuery}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );

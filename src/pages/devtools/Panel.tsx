@@ -8,6 +8,8 @@ import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
 import { useDebounce } from '@src/hooks';
+import { ErrorBoundary, EventListErrorState } from '@src/components';
+
 
 const log = createContextLogger('panel');
 
@@ -189,20 +191,25 @@ export default function Panel() {
         />
       )}
       
-      <EventList
-        ref={eventListRef}
-        events={filteredEvents}
-        selectedEventId={selectedEventId}
-        expandedEventIds={expandedEventIds}
-        hiddenEventNames={hiddenEventNames}
-        searchMatch={searchMatch}
-        viewMode={preferredViewMode}
-        onSelectEvent={setSelectedEvent}
-        onToggleExpand={toggleEventExpanded}
-        onToggleHide={toggleEventNameVisibility}
-        onScrollStateChange={setIsAtBottom}
-        onViewModeChange={handleViewModeChange}
-      />
+      <ErrorBoundary
+        fallback={<EventListErrorState />}
+        resetKeys={[filteredEvents.length]}
+      >
+        <EventList
+          ref={eventListRef}
+          events={filteredEvents}
+          selectedEventId={selectedEventId}
+          expandedEventIds={expandedEventIds}
+          hiddenEventNames={hiddenEventNames}
+          searchMatch={searchMatch}
+          viewMode={preferredViewMode}
+          onSelectEvent={setSelectedEvent}
+          onToggleExpand={toggleEventExpanded}
+          onToggleHide={toggleEventNameVisibility}
+          onScrollStateChange={setIsAtBottom}
+          onViewModeChange={handleViewModeChange}
+        />
+      </ErrorBoundary>
       
       <ScrollToBottomButton
         isVisible={!isAtBottom}
