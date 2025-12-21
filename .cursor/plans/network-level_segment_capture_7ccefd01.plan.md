@@ -26,21 +26,7 @@ todos:
 
 ## Problem with Current Approach
 
-The current [`segment-events.mdc`](.cursor/rules/segment-events.mdc) rule describes intercepting `window.analytics` methods. This captures events **before** Segment processes them, missing critical attributes that Segment adds:| Missing Data | Description |
-
-|--------------|-------------|
-
-| `anonymousId` | Segment-generated anonymous user ID |
-
-| `messageId` | Unique event identifier |
-
-| `sentAt` / `receivedAt` | Accurate timestamps |
-
-| `context.library` | Segment library version info |
-
-| `integrations` | Which destinations receive this event |
-
-| Batch structure | Events are batched before sending |
+The current [`segment-events.mdc`](.cursor/rules/segment-events.mdc) rule describes intercepting `window.analytics` methods. This captures events **before** Segment processes them, missing critical attributes that Segment adds:| Missing Data | Description ||--------------|-------------|| `anonymousId` | Segment-generated anonymous user ID || `messageId` | Unique event identifier || `sentAt` / `receivedAt` | Accurate timestamps || `context.library` | Segment library version info || `integrations` | Which destinations receive this event || Batch structure | Events are batched before sending |
 
 ## Recommended Approach: Network Interception
 
@@ -129,10 +115,7 @@ Browser.webRequest.onBeforeRequest.addListener(
 
 ### 3. Parse Segment Payloads
 
-Segment sends JSON payloads with this structure:
-
-```typescript
-interface SegmentPayload {
+Segment sends JSON payloads with this structure:interface SegmentPayload {
   batch: Array<{
     type: 'track' | 'page' | 'identify' | 'group' | 'alias';
     event?: string;        // For track events
@@ -152,7 +135,6 @@ interface SegmentPayload {
   sentAt: string;
   writeKey: string;
 }
-```
 
 
 
@@ -174,12 +156,4 @@ The background script forwards captured events to the DevTools panel via `Browse
 
 ## Files to Modify
 
-| File | Changes |
-
-|------|---------|
-
-| [`manifest.json`](manifest.json) | Add `webRequest` permission and host_permissions |
-
-| [`src/pages/background/index.ts`](src/pages/background/index.ts) | Implement webRequest listener and payload parsing |
-
-| [`.cursor/rules/segment-events.mdc`](.cursor/rules/segment-events.mdc) | Rewrite with network interception patterns |
+| File | Changes ||------|---------|| [`manifest.json`](manifest.json) | Add `webRequest` permission and host_permissions || [`src/pages/background/index.ts`](src/pages/background/index.ts) | Implement webRequest listener and payload parsing |
