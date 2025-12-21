@@ -49,5 +49,3 @@ The setting exists in:
 
 - **Implement throttling**: Add actual throttle logic in [`useEventSync.ts`](src/pages/devtools/hooks/useEventSync.ts) when adding events
 - **Remove the setting**: Delete from config store and Options page
-
----

@@ -201,5 +201,3 @@ export { Switch } from './switch';
 ## Files to Move
 
 | From | To ||------|-----|| `detail/PropertiesSection.tsx` | `detail/sections/PropertiesSection.tsx` || `detail/TraitsSection.tsx` | `detail/sections/TraitsSection.tsx` || `detail/ContextSection.tsx` | `detail/sections/ContextSection.tsx` || `detail/MiscSection.tsx` | `detail/sections/MiscSection.tsx` || `detail/PropertyRow.tsx` | `detail/primitives/PropertyRow.tsx` || `detail/PropertyList.tsx` | `detail/primitives/PropertyList.tsx` || `detail/CollapsibleSubsection.tsx` | `detail/primitives/CollapsibleSubsection.tsx` |
-
-## Files to Modify

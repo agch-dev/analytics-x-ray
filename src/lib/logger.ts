@@ -33,8 +33,8 @@ const CONTEXT_COLORS: Record<LogContext, string> = {
 
 class Logger {
   private config: LoggerConfig = {
-    enabled: true,
-    minLevel: 'debug',
+    enabled: __DEV_MODE__, // Only enabled in development
+    minLevel: __DEV_MODE__ ? 'debug' : 'error', // Only errors in production
     enabledContexts: 'all',
   };
 

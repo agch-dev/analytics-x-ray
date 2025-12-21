@@ -231,9 +231,15 @@ export const getStorageSizeInfo = async (): Promise<StorageSizeInfo> => {
 /**
  * Log storage size with detailed breakdown
  * Call this periodically or when debugging storage issues
+ * Only logs in development mode to avoid cluttering production console
  */
 export const logStorageSize = async (context: string = 'storage'): Promise<StorageSizeInfo> => {
   const info = await getStorageSizeInfo();
+  
+  // Only log in development mode
+  if (!__DEV_MODE__) {
+    return info;
+  }
   
   const prefix = '[analytics-x-ray]';
   const contextTag = `[${context}]`;

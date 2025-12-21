@@ -149,5 +149,3 @@ export function ThemedJsonView({
 | File | Purpose ||------|---------|| `src/pages/devtools/components/ActionButtons.tsx` | Extracted header buttons || `src/components/HighlightedText.tsx` | Shared search highlighting || `src/components/ThemedJsonView.tsx` | Configured JsonView wrapper |
 
 ## Files to Modify
-
-| File | Changes ||------|---------|| `src/pages/devtools/components/Header.tsx` | Use ActionButtons component |
