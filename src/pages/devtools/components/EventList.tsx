@@ -164,15 +164,28 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     const handleToggleExpand = (id: string) => {
       const wasExpanded = expandedEventIds.has(id);
       
+      // Find the index of the event being toggled before state update
+      const eventIndex = displayEvents.findIndex(event => event.id === id);
+      
       onToggleExpand(id);
       
       // If collapsing (was expanded, now collapsing), trigger ring animation
       if (wasExpanded) {
         setCollapsedEventId(id);
+        
         setTimeout(() => {
           setCollapsedEventId(null);
         }, 600); // Match animation duration
       }
+        if (eventIndex !== -1) {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              virtualizer.scrollToIndex(eventIndex, {
+                align: 'start',
+              });
+            });
+          });
+        }
       
       // Trigger remeasurement after state update
       requestAnimationFrame(() => {
