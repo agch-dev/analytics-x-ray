@@ -64,9 +64,7 @@ This causes:
 
 ### Recommended Solution
 
-**Storage as Single Source of Truth** (Revised)
-
-The key insight: **Storage is the true source of truth** because it persists across service worker restarts. The background script is ephemeral and must restore from storage on startup.
+**Storage as Single Source of Truth** (Revised)The key insight: **Storage is the true source of truth** because it persists across service worker restarts. The background script is ephemeral and must restore from storage on startup.
 
 ```mermaid
 flowchart TB
@@ -90,75 +88,69 @@ flowchart TB
 
 1. **Storage (`storage.local['events']`) is the single source of truth for event data**
 
-   - Persists across service worker restarts
-   - Background reads from it on startup (`restoreEventsFromStorage()`)
-   - Background writes to it when capturing events
+- Persists across service worker restarts
+- Background reads from it on startup (`restoreEventsFromStorage()`)
+- Background writes to it when capturing events
 
 2. **Background script manages storage**
 
-   - In-memory `tabEvents` Map is a cache for performance
-   - On startup: restores from storage → populates Map
-   - On capture: updates Map → persists to storage
-   - On GET_EVENTS: returns from Map (or falls back to storage)
+- In-memory `tabEvents` Map is a cache for performance
+- On startup: restores from storage → populates Map
+- On capture: updates Map → persists to storage
+- On GET_EVENTS: returns from Map (or falls back to storage)
 
 3. **tabStore becomes UI state only**
 
-   - Remove `persist` middleware for `events` array
-   - Keep `persist` for UI state only: `selectedEventId`, `expandedEventIds`, `hiddenEventNames`, `searchQuery`
-   - Events are ephemeral in tabStore (loaded from background on mount)
-   - No duplication: events stored once in `storage.local['events']`
+- Remove `persist` middleware for `events` array
+- Keep `persist` for UI state only: `selectedEventId`, `expandedEventIds`, `hiddenEventNames`, `searchQuery`
+- Events are ephemeral in tabStore (loaded from background on mount)
+- No duplication: events stored once in `storage.local['events']`
 
 **Why This Works:**
 
 - ✅ **Service worker restarts**: Background restores from storage on startup
-  - When service worker restarts (goes idle), it calls `restoreEventsFromStorage()`
-  - This populates the in-memory `tabEvents` Map from `storage.local['events']`
-  - Panel's `useEventSync` fetches from background, which now has restored data
-  - No data loss because storage is the source of truth
-
+- When service worker restarts (goes idle), it calls `restoreEventsFromStorage()`
+- This populates the in-memory `tabEvents` Map from `storage.local['events']`
+- Panel's `useEventSync` fetches from background, which now has restored data
+- No data loss because storage is the source of truth
 - ✅ **No duplication**: Events stored once in `storage.local['events']`
-  - Background's Map is just a cache
-  - tabStore's events array is ephemeral (not persisted)
-  - UI state (expanded, hidden, search) persists separately in `storage.local['tab-N']`
-
+- Background's Map is just a cache
+- tabStore's events array is ephemeral (not persisted)
+- UI state (expanded, hidden, search) persists separately in `storage.local['tab-N']`
 - ✅ **UI state persists**: User preferences (expanded, hidden, search) persist separately
-  - These are small and don't need background coordination
-  - Stored in `storage.local['tab-N']` for each tab
-
+- These are small and don't need background coordination
+- Stored in `storage.local['tab-N']` for each tab
 - ✅ **Clear ownership**: Storage owns events, background manages it, tabStore displays it
-  - Storage = source of truth (persists across restarts)
-  - Background = manager (reads/writes to storage, maintains cache)
-  - tabStore = view layer (displays events, manages UI state)
-
+- Storage = source of truth (persists across restarts)
+- Background = manager (reads/writes to storage, maintains cache)
+- tabStore = view layer (displays events, manages UI state)
 - ✅ **Race condition safe**: Panel always fetches from background (which reads from storage)
-  - Even if background just restarted, it has restored data
-  - Panel's `GET_EVENTS` message gets data from background's Map or storage fallback
+- Even if background just restarted, it has restored data
+- Panel's `GET_EVENTS` message gets data from background's Map or storage fallback
 
 **Implementation Steps:**
 
 1. Modify `tabStore.ts`:
 
-   - Split persist config: persist UI state, NOT events
-   - Events array becomes ephemeral (loaded from background)
+- Split persist config: persist UI state, NOT events
+- Events array becomes ephemeral (loaded from background)
 
 2. Update `useEventSync.ts`:
 
-   - Already correct: fetches from background on mount
-   - Background will always have latest (from storage or cache)
+- Already correct: fetches from background on mount
+- Background will always have latest (from storage or cache)
 
 3. Background script:
 
-   - Already correct: restores from storage on startup
-   - **NEEDS OPTIMIZATION**: Currently reads/writes entire `events` object on every capture
-   - See "Performance Optimizations" section below
+- Already correct: restores from storage on startup
+- **NEEDS OPTIMIZATION**: Currently reads/writes entire `events` object on every capture
+- See "Performance Optimizations" section below
 
 ---
 
 ### Performance Optimizations for Storage
 
-**Current Issue:**
-
-The current `storeEvents()` function has a performance problem:
+**Current Issue:**The current `storeEvents()` function has a performance problem:
 
 ```typescript
 // Current implementation - INEFFICIENT
@@ -178,31 +170,27 @@ async function storeEvents(tabId: number, newEvents: SegmentEvent[]) {
 }
 ```
 
-**Problem:** If you have 5 tabs with 100 events each, every new event capture reads/writes 500 events, even though only 1 tab changed.
-
-**Optimized Solution:**
+**Problem:** If you have 5 tabs with 100 events each, every new event capture reads/writes 500 events, even though only 1 tab changed.**Optimized Solution:**
 
 1. **Debounce/Batch Storage Writes**
 
-   - Use a write queue that batches multiple updates
-   - Write to storage every 500ms or after 5 events (whichever comes first)
-   - Memory Map is updated immediately (fast path for reads)
+- Use a write queue that batches multiple updates
+- Write to storage every 500ms or after 5 events (whichever comes first)
+- Memory Map is updated immediately (fast path for reads)
 
 2. **Write Only Changed Tab Data**
 
-   - Store events per-tab: `storage.local['events_tab_123'] `instead of one big `events` object
-   - Only read/write the specific tab's data
-   - On startup, restore all tab keys in parallel
+- Store events per-tab: `storage.local['events_tab_123'] `instead of one big `events` object
+- Only read/write the specific tab's data
+- On startup, restore all tab keys in parallel
 
 3. **Keep Memory-First Pattern** (already good ✅)
 
-   - Memory Map updated synchronously
-   - Storage writes are async and debounced
-   - `getEventsForTab()` checks memory first (fast path)
+- Memory Map updated synchronously
+- Storage writes are async and debounced
+- `getEventsForTab()` checks memory first (fast path)
 
-**Recommended Implementation (Option A - Simple Debouncing):**
-
-Keep current storage structure, but debounce writes:
+**Recommended Implementation (Option A - Simple Debouncing):**Keep current storage structure, but debounce writes:
 
 ```typescript
 // Debounced storage writes
@@ -254,9 +242,7 @@ function scheduleStorageWrite() {
 - ✅ **Reads**: Still fast (memory-first, ~0ms) ✅
 - ✅ **Writes**: 90% reduction in storage I/O when multiple events arrive quickly
 
-**Alternative (Option B - Per-Tab Keys):**
-
-Store each tab separately for even better performance:
+**Alternative (Option B - Per-Tab Keys):**Store each tab separately for even better performance:
 
 ```typescript
 // Store per-tab: events_tab_123, events_tab_456, etc.
@@ -375,5 +361,3 @@ Add boundaries around:
 ---
 
 ## Files to Create
-
-| File | Purpose ||------|---------|| `src/components/ErrorBoundary.tsx` | Reusable error boundary || `src/components/ErrorStates.tsx` | Error UI components |
