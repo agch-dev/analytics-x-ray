@@ -1,10 +1,10 @@
 import { useMemo, useState, useCallback } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon, PinIcon, CodeIcon, TextIcon } from '@hugeicons/core-free-icons';
-import JsonView from '@uiw/react-json-view';
 import { cn, copyToClipboard } from '@src/lib/utils';
-import { highlightText } from '@src/lib/search';
-import { getJsonViewTheme, getValueTypeColor } from '@src/lib/jsonViewTheme';
+import { getValueTypeColor } from '@src/lib/jsonViewTheme';
+import { HighlightedText } from '@src/components/HighlightedText';
+import { ThemedJsonView } from '@src/components/ThemedJsonView';
 
 interface PropertyRowProps {
   label: string;
@@ -121,33 +121,6 @@ function chunkArray<T>(array: T[], initialSize: number, chunkSize: number): Arra
   return chunks;
 }
 
-/**
- * Highlight text with search query matches
- */
-function HighlightedText({ text, searchQuery }: { text: string; searchQuery?: string }) {
-  if (!searchQuery) {
-    return <>{text}</>;
-  }
-
-  const parts = highlightText(text, searchQuery);
-  
-  return (
-    <>
-      {parts.map((part, index) =>
-        part.highlight ? (
-          <mark
-            key={index}
-            className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
-          >
-            {part.text}
-          </mark>
-        ) : (
-          <span key={index}>{part.text}</span>
-        )
-      )}
-    </>
-  );
-}
 
 export function PropertyRow({
   label,
@@ -350,15 +323,11 @@ export function PropertyRow({
           {/* JSON view for arrays */}
           {isArrayValue && useJsonView ? (
             <div className="my-2">
-              <JsonView
+              <ThemedJsonView
                 value={value}
-                style={{
-                  ...getJsonViewTheme(),
-                  fontSize: '11px',
-                }}
+                searchQuery={searchQuery}
+                fontSize="11px"
                 collapsed={false}
-                displayDataTypes={false}
-                displayObjectSize={false}
                 enableClipboard={false}
               />
             </div>

@@ -5,6 +5,7 @@
  */
 
 export { Header } from './Header';
+export { ActionButtons } from './ActionButtons';
 export { EventRow } from './EventRow';
 export { EventRowHeader } from './EventRowHeader';
 export { EventList, type EventListHandle } from './EventList';

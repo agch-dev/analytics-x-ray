@@ -280,4 +280,3 @@ ESLint is installed but no `.eslintrc` or `eslint.config.js` is present in the p
 ## Recommended Priority Order
 
 1. **Immediate** (bugs/risks): Fix isValidBatchEvent validation, add error boundaries
-2. **Short-term** (performance): Add search debounce, disable prod logging, memoize components

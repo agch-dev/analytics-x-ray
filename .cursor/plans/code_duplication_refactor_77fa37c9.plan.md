@@ -4,31 +4,30 @@ overview: "Extract duplicated code into reusable components: Header action butto
 todos:
   - id: extract-action-buttons
     content: Create ActionButtons component and refactor Header.tsx
-    status: pending
+    status: completed
   - id: create-highlighted-text
     content: Create shared HighlightedText component in src/components/
-    status: pending
+    status: completed
   - id: create-themed-jsonview
     content: Create ThemedJsonView wrapper component with search highlighting support
-    status: pending
+    status: completed
   - id: update-consumers
     content: Update EventDetailView and PropertyRow to use new shared components
-    status: pending
+    status: completed
 ---
 
 # Code Duplication Refactor
 
 ## Problem
 
-Several patterns are duplicated across the codebase, making maintenance harder and increasing bundle size.
-
----
+Several patterns are duplicated across the codebase, making maintenance harder and increasing bundle size.---
 
 ## 1. Header Action Buttons Duplication
 
 ### Current State
 
 [`src/pages/devtools/components/Header.tsx`](src/pages/devtools/components/Header.tsx) duplicates the same action buttons twice:
+
 - Lines 61-110: Mobile view (`lg:hidden`)
 - Lines 139-188: Desktop view (`hidden lg:flex`)
 
@@ -59,6 +58,7 @@ export function ActionButtons({ ... }: ActionButtonsProps) {
 ```
 
 Then use in Header:
+
 ```tsx
 <ActionButtons className="lg:hidden" {...props} />
 {/* ... search input ... */}
@@ -115,6 +115,7 @@ export function HighlightedText({ text, searchQuery, className }: HighlightedTex
 ### Current State
 
 The `getJsonViewTheme()` call with style overrides appears in:
+
 - [`EventDetailView.tsx`](src/pages/devtools/components/detail/EventDetailView.tsx) lines 66-86
 - [`PropertyRow.tsx`](src/pages/devtools/components/detail/PropertyRow.tsx) lines 351-362
 
@@ -146,15 +147,21 @@ export function ThemedJsonView({
 ## Files to Create
 
 | File | Purpose |
+
 |------|---------|
+
 | `src/pages/devtools/components/ActionButtons.tsx` | Extracted header buttons |
+
 | `src/components/HighlightedText.tsx` | Shared search highlighting |
+
 | `src/components/ThemedJsonView.tsx` | Configured JsonView wrapper |
 
 ## Files to Modify
 
 | File | Changes |
+
 |------|---------|
+
 | `src/pages/devtools/components/Header.tsx` | Use ActionButtons component |
+
 | `src/pages/devtools/components/detail/EventDetailView.tsx` | Use ThemedJsonView |
-| `src/pages/devtools/components/detail/PropertyRow.tsx` | Use HighlightedText, ThemedJsonView |
