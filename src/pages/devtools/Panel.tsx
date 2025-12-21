@@ -7,6 +7,7 @@ import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
+import { useDebounce } from '@src/hooks';
 
 const log = createContextLogger('panel');
 
@@ -40,9 +41,38 @@ export default function Panel() {
   const clearEvents = useTabStore((state) => state.clearEvents);
   const addEvent = useTabStore((state) => state.addEvent);
   
+  // Local state for immediate search input (for display)
+  const [searchInput, setSearchInput] = useState(searchQuery);
+  
+  // Ref to track the last debounced value we set to the store
+  // This helps us distinguish between store changes from our debounce vs external changes
+  const lastDebouncedValueRef = useRef<string>(searchQuery);
+  
+  // Debounce search input (250ms delay)
+  const debouncedSearch = useDebounce(searchInput, 250);
+  
+  // Update store's searchQuery when debounced value changes
+  useEffect(() => {
+    if (debouncedSearch !== lastDebouncedValueRef.current) {
+      lastDebouncedValueRef.current = debouncedSearch;
+      setSearchQuery(debouncedSearch);
+    }
+  }, [debouncedSearch, setSearchQuery]);
+  
+  // Sync local searchInput with store's searchQuery when it changes externally
+  // (e.g., when cleared from clearEvents, but not from our own debounced update)
+  useEffect(() => {
+    // Only sync if the store value differs from what we last set via debounce
+    // This prevents feedback loops from our own debounced updates
+    if (searchQuery !== lastDebouncedValueRef.current) {
+      lastDebouncedValueRef.current = searchQuery;
+      setSearchInput(searchQuery);
+    }
+  }, [searchQuery]);
+  
   const handleSearchChange = useCallback((query: string) => {
-    setSearchQuery(query);
-  }, [setSearchQuery]);
+    setSearchInput(query); // Update immediately for display
+  }, []);
   
   const handleViewModeChange = useCallback((mode: 'json' | 'structured') => {
     // Update the global preference when user toggles view mode
@@ -143,7 +173,7 @@ export default function Panel() {
         eventCount={filteredEvents.length}
         filteredEventNamesCount={filteredEventNamesCount}
         isFilterPanelOpen={isFilterPanelOpen}
-        searchQuery={searchQuery}
+        searchQuery={searchInput}
         onSearchChange={handleSearchChange}
         onClear={handleClearEvents}
         onToggleFilterPanel={handleToggleFilterPanel}

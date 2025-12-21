@@ -14,4 +14,5 @@ export {
 } from './usePinnedProperties';
 
 export { useTheme } from './useTheme';
+export { useDebounce } from './useDebounce';
 

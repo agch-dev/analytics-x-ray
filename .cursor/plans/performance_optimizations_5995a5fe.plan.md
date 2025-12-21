@@ -4,10 +4,10 @@ overview: Add search debouncing, memoize components to prevent unnecessary re-re
 todos:
   - id: create-debounce-hook
     content: Create useDebounce hook in src/hooks/
-    status: pending
+    status: completed
   - id: add-search-debounce
     content: Implement debounced search in Panel.tsx (200-300ms)
-    status: pending
+    status: completed
   - id: memo-event-row
     content: Add React.memo to EventRow component
     status: pending
@@ -75,6 +75,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 ```
 
 Usage in Panel:
+
 ```typescript
 const [searchInput, setSearchInput] = useState('');
 const debouncedSearch = useDebounce(searchInput, 200);
@@ -159,6 +160,8 @@ const [useJsonView, setUseJsonView] = useState(false);
 const [visibleChunks, setVisibleChunks] = useState<Set<number>>(new Set([0]));
 ```
 
+
+
 ### Solution
 
 Consolidate into a single state object:
@@ -213,35 +216,44 @@ const handleToggleExpand = (id: string) => {
 };
 ```
 
+
+
 ### Solution
 
-This is already using `useCallback` patterns appropriately, but ensure all callbacks passed to child components are memoized and don't change reference unnecessarily.
-
----
+This is already using `useCallback` patterns appropriately, but ensure all callbacks passed to child components are memoized and don't change reference unnecessarily.---
 
 ## Files to Create
 
 | File | Purpose |
+
 |------|---------|
+
 | `src/hooks/useDebounce.ts` | Debounce hook for search |
 
 ## Files to Modify
 
 | File | Changes |
-|------|---------|
-| `src/pages/devtools/Panel.tsx` | Use debounced search |
-| `src/pages/devtools/components/EventRow.tsx` | Add React.memo |
-| `src/pages/devtools/components/EventRowHeader.tsx` | Add React.memo |
-| `src/pages/devtools/components/detail/PropertyRow.tsx` | Add React.memo, consolidate state |
 
----
+|------|---------|
+
+| `src/pages/devtools/Panel.tsx` | Use debounced search |
+
+| `src/pages/devtools/components/EventRow.tsx` | Add React.memo |
+
+| `src/pages/devtools/components/EventRowHeader.tsx` | Add React.memo |
+
+| `src/pages/devtools/components/detail/PropertyRow.tsx` | Add React.memo, consolidate state |---
 
 ## Expected Impact
 
 | Optimization | Impact | Effort |
+
 |--------------|--------|--------|
+
 | Search debouncing | High - eliminates lag while typing | Low |
+
 | EventRow memo | Medium - reduces re-renders during scroll | Low |
+
 | EventRowHeader memo | Medium - reduces re-renders | Low |
+
 | PropertyRow memo | Medium - reduces nested re-renders | Medium |
-| State consolidation | Low - cleaner code, marginal perf | Medium |

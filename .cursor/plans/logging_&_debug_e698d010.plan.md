@@ -4,7 +4,7 @@ overview: Disable debug logging in production builds and optionally clean up emo
 todos:
   - id: disable-prod-logging
     content: Update logger.ts default config to use __DEV_MODE__
-    status: pending
+    status: completed
   - id: gate-storage-logging
     content: Add __DEV_MODE__ check to logStorageSize function
     status: completed
@@ -172,5 +172,3 @@ export const logStorageSize = async (context: string = 'storage'): Promise<Stora
 ## Verification
 
 After changes:
-
-1. Run dev build - should see all logs

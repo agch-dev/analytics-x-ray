@@ -116,27 +116,44 @@ Browser.webRequest.onBeforeRequest.addListener(
 ### 3. Parse Segment Payloads
 
 Segment sends JSON payloads with this structure:interface SegmentPayload {
-  batch: Array<{
-    type: 'track' | 'page' | 'identify' | 'group' | 'alias';
-    event?: string;        // For track events
-    name?: string;         // For page events
-    properties?: Record<string, unknown>;
-    traits?: Record<string, unknown>;
-    anonymousId: string;
-    userId?: string;
-    messageId: string;
-    timestamp: string;
-    context: {
-      library: { name: string; version: string };
-      page: { url: string; title: string; ... };
-      // ... more context
-    };
-  }>;
-  sentAt: string;
-  writeKey: string;
+
+batch: Array<{
+
+type: 'track' | 'page' | 'identify' | 'group' | 'alias';
+
+event?: string;        // For track events
+
+name?: string;         // For page events
+
+properties?: Record<string, unknown>;
+
+traits?: Record<string, unknown>;
+
+anonymousId: string;
+
+userId?: string;
+
+messageId: string;
+
+timestamp: string;
+
+context: {
+
+library: { name: string; version: string };
+
+page: { url: string; title: string; ... };
+
+// ... more context
+
+};
+
+}>;
+
+sentAt: string;
+
+writeKey: string;
+
 }
-
-
 
 ### 4. Update segment-events.mdc Rule
 
@@ -155,5 +172,3 @@ The background script forwards captured events to the DevTools panel via `Browse
 5. **Batched Events**: Sees the actual batched structure Segment uses
 
 ## Files to Modify
-
-| File | Changes ||------|---------|| [`manifest.json`](manifest.json) | Add `webRequest` permission and host_permissions || [`src/pages/background/index.ts`](src/pages/background/index.ts) | Implement webRequest listener and payload parsing |
