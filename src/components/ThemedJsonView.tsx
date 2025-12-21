@@ -147,6 +147,105 @@ export function ThemedJsonView({
         />
       )}
 
+      {/* Custom renderer for true boolean values to highlight search matches */}
+      {searchQuery && (
+        <JsonView.True
+          render={({ children, ...reset }, { type, value: val }: { type?: string; value?: unknown }) => {
+            if (type === 'value' && val === true) {
+              const valueStr = 'true';
+              const parts = highlightText(valueStr, searchQuery);
+
+              if (parts.some((p) => p.highlight)) {
+                return (
+                  <span {...reset}>
+                    {parts.map((part, index) =>
+                      part.highlight ? (
+                        <mark
+                          key={index}
+                          className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                        >
+                          {part.text}
+                        </mark>
+                      ) : (
+                        <span key={index}>{part.text}</span>
+                      )
+                    )}
+                  </span>
+                );
+              }
+            }
+
+            return <span {...reset}>{children}</span>;
+          }}
+        />
+      )}
+
+      {/* Custom renderer for false boolean values to highlight search matches */}
+      {searchQuery && (
+        <JsonView.False
+          render={({ children, ...reset }, { type, value: val }: { type?: string; value?: unknown }) => {
+            if (type === 'value' && val === false) {
+              const valueStr = 'false';
+              const parts = highlightText(valueStr, searchQuery);
+
+              if (parts.some((p) => p.highlight)) {
+                return (
+                  <span {...reset}>
+                    {parts.map((part, index) =>
+                      part.highlight ? (
+                        <mark
+                          key={index}
+                          className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                        >
+                          {part.text}
+                        </mark>
+                      ) : (
+                        <span key={index}>{part.text}</span>
+                      )
+                    )}
+                  </span>
+                );
+              }
+            }
+
+            return <span {...reset}>{children}</span>;
+          }}
+        />
+      )}
+
+      {/* Custom renderer for null values to highlight search matches */}
+      {searchQuery && (
+        <JsonView.Null
+          render={({ children, ...reset }, { type, value: val }: { type?: string; value?: unknown }) => {
+            if (type === 'value' && val === null) {
+              const valueStr = 'null';
+              const parts = highlightText(valueStr, searchQuery);
+
+              if (parts.some((p) => p.highlight)) {
+                return (
+                  <span {...reset}>
+                    {parts.map((part, index) =>
+                      part.highlight ? (
+                        <mark
+                          key={index}
+                          className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                        >
+                          {part.text}
+                        </mark>
+                      ) : (
+                        <span key={index}>{part.text}</span>
+                      )
+                    )}
+                  </span>
+                );
+              }
+            }
+
+            return <span {...reset}>{children}</span>;
+          }}
+        />
+      )}
+
       {/* Custom renderer for keys to highlight search matches */}
       {searchQuery && (
         <JsonView.KeyName

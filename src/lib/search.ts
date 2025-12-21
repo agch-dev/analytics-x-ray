@@ -19,21 +19,36 @@ export function parseSearchQuery(query: string): SearchMatch | null {
 }
 
 /**
+ * Format a value for search comparison (matches display format)
+ */
+function formatValueForSearch(value: unknown): string {
+  if (value === null) return 'null';
+  if (value === undefined) return 'undefined';
+  if (typeof value === 'boolean') return value ? 'true' : 'false';
+  if (typeof value === 'number') return String(value);
+  if (typeof value === 'string') return value;
+  return '';
+}
+
+/**
  * Recursively search through an object for a value or key
  */
 function searchInObject(obj: unknown, searchValue: string): boolean {
-  if (obj === null || obj === undefined) {
-    return false;
-  }
-
   const searchLower = searchValue.toLowerCase();
+
+  // Handle null and undefined - they should be searchable as "null" and "undefined"
+  if (obj === null || obj === undefined) {
+    const formatted = formatValueForSearch(obj);
+    return formatted.toLowerCase().includes(searchLower);
+  }
 
   if (typeof obj === 'string') {
     return obj.toLowerCase().includes(searchLower);
   }
 
   if (typeof obj === 'number' || typeof obj === 'boolean') {
-    return String(obj).toLowerCase().includes(searchLower);
+    const formatted = formatValueForSearch(obj);
+    return formatted.toLowerCase().includes(searchLower);
   }
 
   if (Array.isArray(obj)) {

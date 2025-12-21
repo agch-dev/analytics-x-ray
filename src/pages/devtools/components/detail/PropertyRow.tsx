@@ -172,7 +172,8 @@ export function PropertyRow({
     if (!searchQuery) return false;
     const searchLower = searchQuery.toLowerCase();
     const labelMatches = label.toLowerCase().includes(searchLower);
-    const valueStr = typeof value === 'string' ? value : JSON.stringify(value);
+    // Use formatValue to match what's actually displayed
+    const valueStr = formatValue(value);
     const valueMatches = valueStr.toLowerCase().includes(searchLower);
     return labelMatches || valueMatches;
   }, [label, value, searchQuery]);
@@ -277,7 +278,8 @@ export function PropertyRow({
             className={cn('text-xs font-mono break-all', valueColorStyle.className)}
             style={valueColorStyle.color ? { color: valueColorStyle.color } : undefined}
           >
-            {typeof value === 'string' || typeof value === 'number' ? (
+            {/* Highlight search matches for all primitive types (string, number, boolean, null, undefined) */}
+            {typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null || value === undefined ? (
               <HighlightedText text={displayValue} searchQuery={searchQuery} />
             ) : (
               displayValue
