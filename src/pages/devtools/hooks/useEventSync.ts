@@ -11,20 +11,13 @@ import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';
 import type { SegmentEvent } from '@src/types/segment';
 import { createContextLogger } from '@src/lib/logger';
+import { isEventsCapturedMessage } from '@src/types/messages';
 
 const log = createContextLogger('panel');
 
 interface EventSyncOptions {
   tabId: number;
   addEvent: (event: SegmentEvent) => void;
-}
-
-interface EventsCapturedMessage {
-  type: 'EVENTS_CAPTURED';
-  payload: {
-    tabId: number;
-    events: SegmentEvent[];
-  };
 }
 
 export function useEventSync({ tabId, addEvent }: EventSyncOptions) {
@@ -62,25 +55,33 @@ export function useEventSync({ tabId, addEvent }: EventSyncOptions) {
 
     // 2. Listen for new events from background script
     const handleMessage = (message: unknown) => {
-      const msg = message as EventsCapturedMessage;
+      // Use type guard instead of type assertion
+      if (!isEventsCapturedMessage(message)) {
+        return;
+      }
 
-      if (msg.type === 'EVENTS_CAPTURED') {
-        const { tabId: eventTabId, events } = msg.payload;
+      const { tabId: eventTabId, events } = message.payload;
 
-        log.debug(`📬 Received EVENTS_CAPTURED message (tabId: ${eventTabId}, events: ${events?.length})`);
+      log.debug(
+        `📬 Received EVENTS_CAPTURED message (tabId: ${eventTabId}, events: ${events?.length})`
+      );
 
-        // Only process events for our tab
-        if (eventTabId !== tabId) {
-          log.debug(`⏭️ Ignoring events for different tab (our tab: ${tabId}, event tab: ${eventTabId})`);
-          return;
-        }
+      // Only process events for our tab
+      if (eventTabId !== tabId) {
+        log.debug(
+          `⏭️ Ignoring events for different tab (our tab: ${tabId}, event tab: ${eventTabId})`
+        );
+        return;
+      }
 
-        if (events && Array.isArray(events)) {
-          log.info(`✅ Adding ${events.length} new event(s) to store:`, events.map((e) => e.name));
-          events.forEach((event) => addEvent(event));
-        } else {
-          log.warn('⚠️ Received invalid events in message:', events);
-        }
+      if (events && Array.isArray(events)) {
+        log.info(
+          `✅ Adding ${events.length} new event(s) to store:`,
+          events.map((e) => e.name)
+        );
+        events.forEach((event) => addEvent(event));
+      } else {
+        log.warn('⚠️ Received invalid events in message:', events);
       }
     };
 

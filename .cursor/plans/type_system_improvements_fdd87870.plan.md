@@ -4,19 +4,19 @@ overview: Create shared message types and replace type assertions with proper ty
 todos:
   - id: create-message-types
     content: Create src/types/messages.ts with all extension message types
-    status: pending
+    status: completed
   - id: add-type-guards
     content: Add type guard functions for each message type
-    status: pending
+    status: completed
   - id: update-background
     content: Update background/index.ts to use shared types and guards
-    status: pending
+    status: completed
   - id: update-use-event-sync
     content: Update useEventSync.ts to use shared types and guards
-    status: pending
+    status: completed
   - id: update-type-exports
     content: Add message types to src/types/index.ts barrel export
-    status: pending
+    status: completed
 ---
 
 # Type System Improvements
@@ -181,5 +181,3 @@ export type SegmentEvent = Readonly<{
 | File | Changes ||------|---------|| `src/pages/background/index.ts` | Import shared types, use type guards || `src/pages/devtools/hooks/useEventSync.ts` | Import shared types, use type guards || `src/types/index.ts` | Re-export message types |---
 
 ## Benefits
-
-- Single source of truth for message types

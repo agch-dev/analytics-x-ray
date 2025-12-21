@@ -16,19 +16,19 @@ import {
 } from '@src/lib/segment';
 import { createContextLogger } from '@src/lib/logger';
 import { logStorageSize } from '@src/lib/storage';
+import type { EventsCapturedMessage } from '@src/types/messages';
+import {
+  isExtensionMessage,
+  isGetEventsMessage,
+  isClearEventsMessage,
+  isGetEventCountMessage,
+} from '@src/types/messages';
 
 const log = createContextLogger('background');
 
 // Type for events stored per tab
 interface StoredEvents {
   [tabId: number]: SegmentEvent[];
-}
-
-// Message types for communication
-interface ExtensionMessage {
-  type: 'GET_EVENTS' | 'CLEAR_EVENTS' | 'GET_EVENT_COUNT' | 'EVENTS_CAPTURED';
-  tabId?: number;
-  payload?: unknown;
 }
 
 log.info('🚀 Background service worker loaded');
@@ -168,7 +168,7 @@ async function storeEvents(
  * Notify DevTools panel and other listeners about new events
  */
 function notifyListeners(tabId: number, events: SegmentEvent[]): void {
-  const message = {
+  const message: EventsCapturedMessage = {
     type: 'EVENTS_CAPTURED',
     payload: { tabId, events },
   };
@@ -226,13 +226,20 @@ async function clearEventsForTab(tabId: number): Promise<void> {
  */
 Browser.runtime.onMessage.addListener(
   (message: unknown, sender: Browser.Runtime.MessageSender) => {
-    const msg = message as ExtensionMessage;
+    // Use type guard instead of type assertion
+    if (!isExtensionMessage(message)) {
+      log.debug('⚠️ Received invalid message format');
+      return false;
+    }
 
-    log.debug(`📬 Received message: ${msg.type}`, { tabId: msg.tabId, sender: sender.tab?.id });
+    log.debug(`📬 Received message: ${message.type}`, {
+      tabId: message.tabId,
+      sender: sender.tab?.id,
+    });
 
-  switch (msg.type) {
-    case 'GET_EVENTS': {
-      const tabId = msg.tabId ?? sender.tab?.id;
+    // Handle each message type with specific type guards
+    if (isGetEventsMessage(message)) {
+      const tabId = message.tabId ?? sender.tab?.id;
       if (typeof tabId === 'number') {
         log.debug(`📤 Responding with events for tab ${tabId}`);
         return getEventsForTab(tabId).then((events) => {
@@ -244,8 +251,8 @@ Browser.runtime.onMessage.addListener(
       return Promise.resolve([]);
     }
 
-    case 'CLEAR_EVENTS': {
-      const tabId = msg.tabId ?? sender.tab?.id;
+    if (isClearEventsMessage(message)) {
+      const tabId = message.tabId ?? sender.tab?.id;
       if (typeof tabId === 'number') {
         log.info(`🗑️ Clearing events for tab ${tabId}`);
         return clearEventsForTab(tabId);
@@ -253,8 +260,8 @@ Browser.runtime.onMessage.addListener(
       return Promise.resolve();
     }
 
-    case 'GET_EVENT_COUNT': {
-      const tabId = msg.tabId ?? sender.tab?.id;
+    if (isGetEventCountMessage(message)) {
+      const tabId = message.tabId ?? sender.tab?.id;
       if (typeof tabId === 'number') {
         const events = tabEvents.get(tabId) || [];
         log.debug(`📊 Event count for tab ${tabId}: ${events.length}`);
@@ -263,9 +270,8 @@ Browser.runtime.onMessage.addListener(
       return Promise.resolve(0);
     }
 
-    default:
-      return false;
-    }
+    // Unknown message type
+    return false;
   }
 );
 
