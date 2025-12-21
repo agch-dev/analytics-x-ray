@@ -11,7 +11,7 @@ import { lightTheme } from '@uiw/react-json-view/light';
  * Check if dark mode is currently active based on config store
  * Handles 'auto', 'light', and 'dark' theme settings
  */
-function isDarkMode(): boolean {
+export function isDarkMode(): boolean {
   const theme = useConfigStore.getState().theme;
   
   if (theme === 'dark') {
@@ -29,6 +29,45 @@ function isDarkMode(): boolean {
   
   // Fallback: check if dark class is applied
   return document.documentElement.classList.contains('dark');
+}
+
+/**
+ * Color values from vscodeTheme (dark mode)
+ */
+const VSCODE_COLORS = {
+  string: '#ce9178',
+  number: '#b5cea8',
+  boolean: '#569cd6',
+  null: '#569cd6',
+  undefined: '#569cd6',
+} as const;
+
+/**
+ * Color values from lightTheme (light mode)
+ */
+const LIGHT_COLORS = {
+  string: '#cb4b16',
+  number: '#268bd2', // int color (float uses #859900 but we'll use int for consistency)
+  boolean: '#2aa198',
+  null: '#d33682',
+  undefined: '#586e75',
+} as const;
+
+/**
+ * Get the color for a specific value type based on the current theme
+ */
+export function getValueTypeColor(value: unknown): string {
+  const dark = isDarkMode();
+  const colors = dark ? VSCODE_COLORS : LIGHT_COLORS;
+  
+  if (value === null) return colors.null;
+  if (value === undefined) return colors.undefined;
+  if (typeof value === 'boolean') return colors.boolean;
+  if (typeof value === 'number') return colors.number;
+  if (typeof value === 'string') return colors.string;
+  
+  // Default to muted foreground for objects/arrays
+  return '';
 }
 
 /**

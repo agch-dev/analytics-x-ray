@@ -4,7 +4,7 @@ import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon, PinIcon, Cod
 import JsonView from '@uiw/react-json-view';
 import { cn, copyToClipboard } from '@src/lib/utils';
 import { highlightText } from '@src/lib/search';
-import { getJsonViewTheme } from '@src/lib/jsonViewTheme';
+import { getJsonViewTheme, getValueTypeColor } from '@src/lib/jsonViewTheme';
 
 interface PropertyRowProps {
   label: string;
@@ -36,13 +36,31 @@ function formatValue(value: unknown): string {
 
 /**
  * Get the display color for a value type
+ * Returns an object with color and className for styling
  */
-function getValueColor(value: unknown): string {
-  if (value === null || value === undefined) return 'text-muted-foreground italic';
-  if (typeof value === 'boolean') return value ? 'text-green-400' : 'text-red-400';
-  if (typeof value === 'number') return 'text-amber-400';
-  if (typeof value === 'string') return 'text-blue-400 dark:text-blue-300';
-  return 'text-muted-foreground';
+function getValueColor(value: unknown): { color?: string; className: string } {
+  const color = getValueTypeColor(value);
+  
+  // For null/undefined, use italic styling
+  if (value === null || value === undefined) {
+    return {
+      color: color || undefined,
+      className: 'italic',
+    };
+  }
+  
+  // For other types, use the theme color
+  if (color) {
+    return {
+      color,
+      className: '',
+    };
+  }
+  
+  // Fallback for objects/arrays
+  return {
+    className: 'text-muted-foreground',
+  };
 }
 
 /**
@@ -148,7 +166,7 @@ export function PropertyRow({
 
   const expandable = isExpandable(value);
   const displayValue = formatValue(value);
-  const valueColor = getValueColor(value);
+  const valueColorStyle = getValueColor(value);
   const canPin = showPinButton && depth === 0 && onTogglePin;
   const shouldChunk = shouldChunkArray(value);
   const isArrayValue = isArray(value);
@@ -282,7 +300,10 @@ export function PropertyRow({
         {/* Value and Copy button container */}
         <div className="flex-1 flex items-start gap-1.5 min-w-0">
           {/* Value */}
-          <span className={cn('text-xs font-mono break-all', valueColor)}>
+          <span
+            className={cn('text-xs font-mono break-all', valueColorStyle.className)}
+            style={valueColorStyle.color ? { color: valueColorStyle.color } : undefined}
+          >
             {typeof value === 'string' || typeof value === 'number' ? (
               <HighlightedText text={displayValue} searchQuery={searchQuery} />
             ) : (
