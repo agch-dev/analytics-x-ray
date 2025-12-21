@@ -1,3 +1,4 @@
+import React from 'react';
 import { cn, normalizeEventNameForFilter } from '@src/lib/utils';
 import type { SegmentEvent } from '@src/types/segment';
 import type { SearchMatch } from '@src/lib/search';
@@ -31,7 +32,7 @@ interface EventRowHeaderProps {
   onViewModeChange?: (mode: ViewMode) => void;
 }
 
-export function EventRowHeader({ 
+export const EventRowHeader = React.memo(function EventRowHeader({ 
   event, 
   isExpanded = false,
   isSticky = false,
@@ -160,5 +161,5 @@ export function EventRowHeader({
       )}
     </div>
   );
-}
+});
 

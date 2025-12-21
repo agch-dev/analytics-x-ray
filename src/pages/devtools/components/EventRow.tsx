@@ -1,3 +1,4 @@
+import React from 'react';
 import { cn } from '@src/lib/utils';
 import type { SegmentEvent } from '@src/types/segment';
 import type { SearchMatch } from '@src/lib/search';
@@ -19,7 +20,7 @@ interface EventRowProps {
   onViewModeChange: (mode: ViewMode) => void;
 }
 
-export function EventRow({ 
+export const EventRow = React.memo(function EventRow({ 
   event, 
   isSelected, 
   isExpanded,
@@ -68,4 +69,4 @@ export function EventRow({
       )}
     </div>
   );
-}
+});

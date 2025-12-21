@@ -10,13 +10,13 @@ todos:
     status: completed
   - id: memo-event-row
     content: Add React.memo to EventRow component
-    status: pending
+    status: completed
   - id: memo-event-row-header
     content: Add React.memo to EventRowHeader component
-    status: pending
+    status: completed
   - id: memo-property-row
     content: Add React.memo with custom comparator to PropertyRow
-    status: pending
+    status: completed
   - id: consolidate-property-state
     content: Consolidate PropertyRow useState calls into single state object
     status: pending

@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon, PinIcon, CodeIcon, TextIcon } from '@hugeicons/core-free-icons';
 import { cn, copyToClipboard, getValueTypeColor } from '@src/lib';
@@ -120,16 +120,17 @@ function chunkArray<T>(array: T[], initialSize: number, chunkSize: number): Arra
 }
 
 
-export function PropertyRow({
-  label,
-  value,
-  searchQuery = '',
-  depth = 0,
-  isNested = false,
-  isPinned = false,
-  onTogglePin,
-  showPinButton = false,
-}: PropertyRowProps) {
+export const PropertyRow = React.memo(
+  function PropertyRow({
+    label,
+    value,
+    searchQuery = '',
+    depth = 0,
+    isNested = false,
+    isPinned = false,
+    onTogglePin,
+    showPinButton = false,
+  }: PropertyRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [useJsonView, setUseJsonView] = useState(false);
@@ -402,5 +403,20 @@ export function PropertyRow({
       )}
     </div>
   );
-}
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.label === nextProps.label &&
+      prevProps.searchQuery === nextProps.searchQuery &&
+      prevProps.isPinned === nextProps.isPinned &&
+      prevProps.isNested === nextProps.isNested &&
+      prevProps.depth === nextProps.depth &&
+      prevProps.showPinButton === nextProps.showPinButton &&
+      // For value, compare by reference (parent should memoize)
+      prevProps.value === nextProps.value &&
+      // For callbacks, compare by reference (parent should memoize)
+      prevProps.onTogglePin === nextProps.onTogglePin
+    );
+  }
+);
 
