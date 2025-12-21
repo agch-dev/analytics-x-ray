@@ -1,7 +1,7 @@
 import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle, useState, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { SegmentEvent } from '@src/types/segment';
-import { normalizeEventNameForFilter, pathsAreDifferent } from '@src/lib/utils';
+import { normalizeEventNameForFilter, urlsAreDifferent } from '@src/lib/utils';
 import type { SearchMatch } from '@src/lib/search';
 import { EventRow } from './EventRow';
 import { EventRowHeader } from './EventRowHeader';
@@ -119,8 +119,9 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         let reloadTimestamp = 0;
         let hasPathChange = false;
         
-        // Check for path change - compare with previous event in timeline (not just filtered)
-        if (previousTimelineEvent && pathsAreDifferent(previousTimelineEvent, event)) {
+        // Check for URL change - compare with previous event in timeline (not just filtered)
+        // This detects changes in path, query params, and domain
+        if (previousTimelineEvent && urlsAreDifferent(previousTimelineEvent, event)) {
           needsDivider = true;
           hasPathChange = true;
         }

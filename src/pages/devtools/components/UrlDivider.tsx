@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@src/lib/utils';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Route01Icon, ReloadIcon } from '@hugeicons/core-free-icons';
-import { getDisplayPath, getEventDomain, domainsAreDifferent } from '@src/lib/utils';
+import { getDisplayPath, getEventDomain, getEventUrl, domainsAreDifferent } from '@src/lib/utils';
 import type { SegmentEvent } from '@src/types/segment';
 
 export interface UrlDividerProps {
@@ -19,6 +19,7 @@ export const UrlDivider = React.memo(function UrlDivider({
   timestamp,
 }: UrlDividerProps) {
   const currentPath = getDisplayPath(event);
+  const currentUrl = getEventUrl(event);
   const currentDomain = getEventDomain(event);
   const previousDomain = previousEvent ? getEventDomain(previousEvent) : null;
   
@@ -27,14 +28,21 @@ export const UrlDivider = React.memo(function UrlDivider({
   
   // Determine what to display
   let displayText: string;
-  if (!currentPath) {
+  let fullUrl: string | null = null;
+  
+  if (!currentPath && !currentUrl) {
     displayText = 'Unknown path';
-  } else if (domainChanged && event.context?.page?.url) {
+  } else if (domainChanged && currentUrl) {
     // Show full URL if domain changed
-    displayText = event.context.page.url;
-  } else {
-    // Show only path if same domain
+    displayText = currentUrl;
+    fullUrl = currentUrl;
+  } else if (currentPath) {
+    // Show only path if same domain (includes query params if present)
     displayText = currentPath;
+    // Store full URL for tooltip
+    fullUrl = currentUrl;
+  } else {
+    displayText = 'Unknown path';
   }
   
   // Choose icon and color based on type
@@ -51,14 +59,17 @@ export const UrlDivider = React.memo(function UrlDivider({
         'flex items-center gap-2 text-xs text-muted-foreground',
         'rounded-b-md' // Rounded bottom corners for visual distinction
       )}
-      title={displayText !== labelText ? displayText : undefined}
+      title={fullUrl || displayText}
     >
       <HugeiconsIcon
         icon={Icon}
         size={16}
         className={iconColor}
       />
-      <span className="font-mono truncate flex-1" title={displayText}>
+      <span 
+        className="font-mono truncate flex-1" 
+        title={fullUrl || displayText}
+      >
         {labelText}
       </span>
       {isReload && currentPath && (

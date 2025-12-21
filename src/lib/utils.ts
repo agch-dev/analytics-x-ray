@@ -105,14 +105,31 @@ export function extractDomainFromUrl(url: string): string | null {
 
 /**
  * Get the path to display for an event
- * Prefers context.page.path, falls back to parsing context.page.url
+ * Includes query parameters if available
+ * Prefers context.page.path + search, falls back to parsing context.page.url
  * @param event - The Segment event
- * @returns The path string to display, or empty string if unavailable
+ * @returns The path string to display (with query params), or empty string if unavailable
  */
-export function getDisplayPath(event: { context?: { page?: { path?: string; url?: string } } }): string {
+export function getDisplayPath(event: { 
+  context?: { 
+    page?: { 
+      path?: string; 
+      url?: string; 
+      search?: string;
+    } 
+  } 
+}): string {
+  // If we have path and search separately, combine them
   if (event.context?.page?.path) {
-    return event.context.page.path;
+    const path = event.context.page.path;
+    const search = event.context.page.search || '';
+    // Only append search if it's not already in the path
+    if (search && !path.includes('?')) {
+      return path + search;
+    }
+    return path;
   }
+  // Fallback to extracting from URL (which includes query params)
   if (event.context?.page?.url) {
     return extractPathFromUrl(event.context.page.url);
   }
@@ -129,6 +146,42 @@ export function getEventDomain(event: { context?: { page?: { url?: string } } })
     return extractDomainFromUrl(event.context.page.url);
   }
   return null;
+}
+
+/**
+ * Get the full URL from an event (for comparison)
+ * Uses context.page.url only
+ * @param event - The Segment event
+ * @returns The full URL string or null if unavailable
+ */
+export function getEventUrl(
+  event: { context?: { page?: { url?: string } } }
+): string | null {
+  return event.context?.page?.url || null;
+}
+
+/**
+ * Check if URLs are different between two events
+ * Compares full URLs (including query params) to detect navigation changes
+ * Uses referrer as fallback if URL is not available
+ * @param event1 - First event
+ * @param event2 - Second event
+ * @returns true if URLs are different
+ */
+export function urlsAreDifferent(
+  event1: { context?: { page?: { url?: string; referrer?: string } } },
+  event2: { context?: { page?: { url?: string; referrer?: string } } }
+): boolean {
+  const url1 = getEventUrl(event1);
+  const url2 = getEventUrl(event2);
+  
+  // If either URL is missing, we can't compare
+  if (!url1 || !url2) {
+    return false;
+  }
+  
+  // Compare full URLs (including query params and hash)
+  return url1 !== url2;
 }
 
 /**
