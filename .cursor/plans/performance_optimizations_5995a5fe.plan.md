@@ -19,7 +19,7 @@ todos:
     status: completed
   - id: consolidate-property-state
     content: Consolidate PropertyRow useState calls into single state object
-    status: pending
+    status: completed
 ---
 
 # Performance Optimizations
@@ -224,36 +224,12 @@ This is already using `useCallback` patterns appropriately, but ensure all callb
 
 ## Files to Create
 
-| File | Purpose |
-
-|------|---------|
-
-| `src/hooks/useDebounce.ts` | Debounce hook for search |
+| File | Purpose ||------|---------|| `src/hooks/useDebounce.ts` | Debounce hook for search |
 
 ## Files to Modify
 
-| File | Changes |
-
-|------|---------|
-
-| `src/pages/devtools/Panel.tsx` | Use debounced search |
-
-| `src/pages/devtools/components/EventRow.tsx` | Add React.memo |
-
-| `src/pages/devtools/components/EventRowHeader.tsx` | Add React.memo |
-
-| `src/pages/devtools/components/detail/PropertyRow.tsx` | Add React.memo, consolidate state |---
+| File | Changes ||------|---------|| `src/pages/devtools/Panel.tsx` | Use debounced search || `src/pages/devtools/components/EventRow.tsx` | Add React.memo || `src/pages/devtools/components/EventRowHeader.tsx` | Add React.memo || `src/pages/devtools/components/detail/PropertyRow.tsx` | Add React.memo, consolidate state |---
 
 ## Expected Impact
 
-| Optimization | Impact | Effort |
-
-|--------------|--------|--------|
-
-| Search debouncing | High - eliminates lag while typing | Low |
-
-| EventRow memo | Medium - reduces re-renders during scroll | Low |
-
-| EventRowHeader memo | Medium - reduces re-renders | Low |
-
-| PropertyRow memo | Medium - reduces nested re-renders | Medium |
+| Optimization | Impact | Effort ||--------------|--------|--------|| Search debouncing | High - eliminates lag while typing | Low || EventRow memo | Medium - reduces re-renders during scroll | Low || EventRowHeader memo | Medium - reduces re-renders | Low |

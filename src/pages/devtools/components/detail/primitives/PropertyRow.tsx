@@ -18,6 +18,13 @@ interface PropertyRowProps {
   showPinButton?: boolean;
 }
 
+interface PropertyRowState {
+  isExpanded: boolean;
+  copied: boolean;
+  useJsonView: boolean;
+  visibleChunks: Set<number>;
+}
+
 /**
  * Format a value for display
  */
@@ -126,15 +133,22 @@ export const PropertyRow = React.memo(
     value,
     searchQuery = '',
     depth = 0,
-    isNested = false,
+    isNested: _isNested = false,
     isPinned = false,
     onTogglePin,
     showPinButton = false,
   }: PropertyRowProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [useJsonView, setUseJsonView] = useState(false);
-  const [visibleChunks, setVisibleChunks] = useState<Set<number>>(new Set([0])); // First chunk visible by default
+  const [state, setState] = useState<PropertyRowState>({
+    isExpanded: false,
+    copied: false,
+    useJsonView: false,
+    visibleChunks: new Set([0]), // First chunk visible by default
+  });
+
+  // Helper for partial updates
+  const updateState = useCallback((partial: Partial<PropertyRowState>) => {
+    setState((prev) => ({ ...prev, ...partial }));
+  }, []);
 
   const expandable = isExpandable(value);
   const displayValue = formatValue(value);
@@ -147,24 +161,26 @@ export const PropertyRow = React.memo(
     const textToCopy = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
     const success = copyToClipboard(textToCopy);
     if (success) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      updateState({ copied: true });
+      setTimeout(() => updateState({ copied: false }), 1500);
     }
-  }, [value]);
+  }, [value, updateState]);
 
   const toggleExpand = useCallback(() => {
     if (expandable) {
-      setIsExpanded((prev) => {
-        const newExpanded = !prev;
-        // Reset view state when collapsing
-        if (!newExpanded) {
-          setUseJsonView(false);
-          setVisibleChunks(new Set([0]));
-        }
-        return newExpanded;
-      });
+      const newExpanded = !state.isExpanded;
+      // Reset view state when collapsing
+      if (!newExpanded) {
+        updateState({
+          isExpanded: newExpanded,
+          useJsonView: false,
+          visibleChunks: new Set([0]),
+        });
+      } else {
+        updateState({ isExpanded: newExpanded });
+      }
     }
-  }, [expandable]);
+  }, [expandable, state.isExpanded, updateState]);
 
   // Check if this row matches search
   const matchesSearch = useMemo(() => {
@@ -179,7 +195,7 @@ export const PropertyRow = React.memo(
 
   // Get nested entries for expandable values
   const nestedEntries = useMemo(() => {
-    if (!expandable || !isExpanded) return [];
+    if (!expandable || !state.isExpanded) return [];
     if (Array.isArray(value)) {
       return value.map((item, index) => ({ key: String(index), value: item }));
     }
@@ -187,7 +203,7 @@ export const PropertyRow = React.memo(
       return Object.entries(value).map(([key, val]) => ({ key, value: val }));
     }
     return [];
-  }, [value, expandable, isExpanded]);
+  }, [value, expandable, state.isExpanded]);
 
   // Get chunked array data for arrays that need chunking
   const arrayChunks = useMemo(() => {
@@ -196,20 +212,18 @@ export const PropertyRow = React.memo(
   }, [shouldChunk, value]);
 
   const toggleChunk = useCallback((chunkIndex: number) => {
-    setVisibleChunks((prev) => {
-      const next = new Set(prev);
-      if (next.has(chunkIndex)) {
-        next.delete(chunkIndex);
-      } else {
-        next.add(chunkIndex);
-      }
-      return next;
-    });
-  }, []);
+    const next = new Set(state.visibleChunks);
+    if (next.has(chunkIndex)) {
+      next.delete(chunkIndex);
+    } else {
+      next.add(chunkIndex);
+    }
+    updateState({ visibleChunks: next });
+  }, [state.visibleChunks, updateState]);
 
   const showAllChunks = useCallback(() => {
-    setVisibleChunks(new Set(arrayChunks.map((_, i) => i)));
-  }, [arrayChunks]);
+    updateState({ visibleChunks: new Set(arrayChunks.map((_, i) => i)) });
+  }, [arrayChunks, updateState]);
 
   return (
     <div className="group">
@@ -256,7 +270,7 @@ export const PropertyRow = React.memo(
             className="shrink-0 mt-0.5 p-0.5 hover:bg-muted rounded"
           >
             <HugeiconsIcon
-              icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
+              icon={state.isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
               size={12}
               className="text-muted-foreground"
             />
@@ -286,17 +300,17 @@ export const PropertyRow = React.memo(
           </span>
 
           {/* View mode toggle for arrays */}
-          {isArrayValue && isExpanded && (
+          {isArrayValue && state.isExpanded && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setUseJsonView((prev) => !prev);
+                updateState({ useJsonView: !state.useJsonView });
               }}
               className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-muted rounded"
-              title={useJsonView ? 'Switch to structured view' : 'Switch to JSON view'}
+              title={state.useJsonView ? 'Switch to structured view' : 'Switch to JSON view'}
             >
               <HugeiconsIcon
-                icon={useJsonView ? TextIcon : CodeIcon}
+                icon={state.useJsonView ? TextIcon : CodeIcon}
                 size={12}
                 className="text-muted-foreground hover:text-blue-500"
               />
@@ -310,19 +324,19 @@ export const PropertyRow = React.memo(
             title="Copy value"
           >
             <HugeiconsIcon
-              icon={copied ? Tick01Icon : Copy01Icon}
+              icon={state.copied ? Tick01Icon : Copy01Icon}
               size={12}
-              className={copied ? 'text-green-500' : 'text-muted-foreground'}
+              className={state.copied ? 'text-green-500' : 'text-muted-foreground'}
             />
           </button>
         </div>
       </div>
 
       {/* Nested properties */}
-      {isExpanded && (
+      {state.isExpanded && (
         <div className="ml-4 pl-3 border-l border-border/50">
           {/* JSON view for arrays */}
-          {isArrayValue && useJsonView ? (
+          {isArrayValue && state.useJsonView ? (
             <div className="my-2">
               <ThemedJsonView
                 value={value}
@@ -336,9 +350,9 @@ export const PropertyRow = React.memo(
             /* Chunked structured view for large arrays */
             <div className="my-2">
               {arrayChunks.map((chunk, chunkIndex) => {
-                const isVisible = visibleChunks.has(chunkIndex);
+                const isVisible = state.visibleChunks.has(chunkIndex);
                 const isLastChunk = chunkIndex === arrayChunks.length - 1;
-                const allChunksVisible = visibleChunks.size === arrayChunks.length;
+                const allChunksVisible = state.visibleChunks.size === arrayChunks.length;
                 
                 return (
                   <div key={chunkIndex}>
