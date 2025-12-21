@@ -19,7 +19,7 @@ export function ScrollToBottomButton({ isVisible, onClick }: ScrollToBottomButto
       <Button
         onClick={onClick}
         size="lg"
-        className="rounded-full shadow-lg h-12 w-12 p-0"
+        className="shadow-lg h-12 w-12 p-0"
         title="Scroll to latest"
       >
         <HugeiconsIcon icon={ArrowDown01Icon} size={20} />

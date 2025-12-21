@@ -116,7 +116,7 @@ export function FilterPanel({
               size="sm"
               onClick={() => onToggleEventName(eventName)}
               className={cn(
-                "text-xs h-7 px-3 rounded-full",
+                "text-xs h-7 px-3",
                 hasColor && pillColorClasses,
                 isHidden && "opacity-50 line-through"
               )}
