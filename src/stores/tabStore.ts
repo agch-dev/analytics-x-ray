@@ -168,18 +168,37 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         name: `tab-${tabId}`,
         storage: createJSONStorage(() => createTabStorage(tabId)),
         version: 1,
-        // Custom serialization for Set
+        // Custom serialization for Set - convert to arrays for JSON storage
         partialize: (state) => ({
           ...state,
           expandedEventIds: Array.from(state.expandedEventIds),
           hiddenEventNames: Array.from(state.hiddenEventNames),
         }),
-        // Custom deserialization for Set
-        onRehydrateStorage: () => (state) => {
-          if (state) {
-            state.expandedEventIds = new Set(state.expandedEventIds as unknown as string[]);
-            state.hiddenEventNames = new Set(state.hiddenEventNames as unknown as string[]);
+        // Custom deserialization for Set - convert arrays back to Sets during merge
+        merge: (persistedState, currentState) => {
+          const persisted = persistedState as Partial<TabState> | undefined;
+          if (!persisted) {
+            return currentState;
           }
+          return {
+            ...currentState,
+            ...persisted,
+            // Ensure Sets are properly reconstructed from persisted arrays
+            expandedEventIds: new Set(
+              Array.isArray(persisted.expandedEventIds) 
+                ? persisted.expandedEventIds 
+                : persisted.expandedEventIds instanceof Set 
+                  ? persisted.expandedEventIds 
+                  : []
+            ),
+            hiddenEventNames: new Set(
+              Array.isArray(persisted.hiddenEventNames) 
+                ? persisted.hiddenEventNames 
+                : persisted.hiddenEventNames instanceof Set 
+                  ? persisted.hiddenEventNames 
+                  : []
+            ),
+          };
         },
       }
     )
