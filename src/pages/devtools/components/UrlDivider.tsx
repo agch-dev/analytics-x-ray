@@ -48,7 +48,8 @@ export const UrlDivider = React.memo(function UrlDivider({
     <div
       className={cn(
         'w-full border-t border-border/50 bg-card/40 px-4 py-2',
-        'flex items-center gap-2 text-xs text-muted-foreground'
+        'flex items-center gap-2 text-xs text-muted-foreground',
+        'rounded-b-md' // Rounded bottom corners for visual distinction
       )}
       title={displayText !== labelText ? displayText : undefined}
     >

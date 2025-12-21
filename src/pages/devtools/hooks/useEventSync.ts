@@ -11,7 +11,8 @@ import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';
 import type { SegmentEvent } from '@src/types/segment';
 import { createContextLogger } from '@src/lib/logger';
-import { isEventsCapturedMessage } from '@src/types/messages';
+import { isEventsCapturedMessage, isReloadDetectedMessage } from '@src/types/messages';
+import { syncReloadTimestamps } from '@src/stores/tabStore';
 
 const log = createContextLogger('panel');
 
@@ -53,35 +54,57 @@ export function useEventSync({ tabId, addEvent }: EventSyncOptions) {
 
     fetchInitialEvents();
 
-    // 2. Listen for new events from background script
+    // 2. Listen for new events and reload notifications from background script
     const handleMessage = (message: unknown) => {
-      // Use type guard instead of type assertion
-      if (!isEventsCapturedMessage(message)) {
-        return;
-      }
+      // Handle events captured
+      if (isEventsCapturedMessage(message)) {
+        const { tabId: eventTabId, events } = message.payload;
 
-      const { tabId: eventTabId, events } = message.payload;
-
-      log.debug(
-        `📬 Received EVENTS_CAPTURED message (tabId: ${eventTabId}, events: ${events?.length})`
-      );
-
-      // Only process events for our tab
-      if (eventTabId !== tabId) {
         log.debug(
-          `⏭️ Ignoring events for different tab (our tab: ${tabId}, event tab: ${eventTabId})`
+          `📬 Received EVENTS_CAPTURED message (tabId: ${eventTabId}, events: ${events?.length})`
         );
+
+        // Only process events for our tab
+        if (eventTabId !== tabId) {
+          log.debug(
+            `⏭️ Ignoring events for different tab (our tab: ${tabId}, event tab: ${eventTabId})`
+          );
+          return;
+        }
+
+        if (events && Array.isArray(events)) {
+          log.info(
+            `✅ Adding ${events.length} new event(s) to store:`,
+            events.map((e) => e.name)
+          );
+          events.forEach((event) => addEvent(event));
+        } else {
+          log.warn('⚠️ Received invalid events in message:', events);
+        }
         return;
       }
 
-      if (events && Array.isArray(events)) {
-        log.info(
-          `✅ Adding ${events.length} new event(s) to store:`,
-          events.map((e) => e.name)
+      // Handle reload detected
+      if (isReloadDetectedMessage(message)) {
+        const { tabId: reloadTabId, timestamp } = message;
+
+        log.debug(
+          `🔄 Received RELOAD_DETECTED message (tabId: ${reloadTabId}, timestamp: ${timestamp})`
         );
-        events.forEach((event) => addEvent(event));
-      } else {
-        log.warn('⚠️ Received invalid events in message:', events);
+
+        // Only process reloads for our tab
+        if (reloadTabId !== tabId) {
+          log.debug(
+            `⏭️ Ignoring reload for different tab (our tab: ${tabId}, reload tab: ${reloadTabId})`
+          );
+          return;
+        }
+
+        // Sync reload timestamps from storage
+        syncReloadTimestamps(tabId).catch((error) => {
+          log.error('❌ Failed to sync reload timestamps:', error);
+        });
+        return;
       }
     };
 

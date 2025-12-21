@@ -89,14 +89,17 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         let needsDivider = false;
         let isReload = false;
         let reloadTimestamp = 0;
+        let hasPathChange = false;
         
-        // Check for path change
+        // Check for path change first
         if (previousEvent && pathsAreDifferent(previousEvent, event)) {
           needsDivider = true;
+          hasPathChange = true;
         }
         
         // Check for reload between events
-        if (previousEvent) {
+        // Only mark as reload if there's NO path change (reload on same page)
+        if (previousEvent && !hasPathChange) {
           // Check if any reload timestamp falls between these two events
           for (const reloadTs of reloadTimestamps) {
             if (reloadTs > previousEvent.capturedAt && reloadTs <= event.capturedAt) {
@@ -419,8 +422,8 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
                     style={{
                       position: 'absolute',
                       top: 0,
-                      left: 0,
-                      width: '100%',
+                      left: '1rem', // mx-4 = 1rem margin on each side
+                      right: '1rem',
                       transform: `translateY(${virtualItem.start}px)`,
                       paddingBottom: `${ROW_GAP}px`,
                     }}

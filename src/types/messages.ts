@@ -12,7 +12,8 @@ export type MessageType =
   | 'GET_EVENTS'
   | 'CLEAR_EVENTS'
   | 'GET_EVENT_COUNT'
-  | 'EVENTS_CAPTURED';
+  | 'EVENTS_CAPTURED'
+  | 'RELOAD_DETECTED';
 
 // Base message interface
 export interface BaseMessage {
@@ -44,12 +45,19 @@ export interface EventsCapturedMessage extends BaseMessage {
   };
 }
 
+export interface ReloadDetectedMessage extends BaseMessage {
+  type: 'RELOAD_DETECTED';
+  tabId: number;
+  timestamp: number;
+}
+
 // Union of all messages
 export type ExtensionMessage =
   | GetEventsMessage
   | ClearEventsMessage
   | GetEventCountMessage
-  | EventsCapturedMessage;
+  | EventsCapturedMessage
+  | ReloadDetectedMessage;
 
 // Type guards
 export function isExtensionMessage(msg: unknown): msg is ExtensionMessage {
@@ -67,6 +75,7 @@ export function isExtensionMessage(msg: unknown): msg is ExtensionMessage {
     'CLEAR_EVENTS',
     'GET_EVENT_COUNT',
     'EVENTS_CAPTURED',
+    'RELOAD_DETECTED',
   ];
 
   return validTypes.includes(m.type as MessageType);
@@ -115,6 +124,17 @@ export function isEventsCapturedMessage(
     m.payload !== null &&
     typeof m.payload.tabId === 'number' &&
     Array.isArray(m.payload.events)
+  );
+}
+
+export function isReloadDetectedMessage(
+  msg: unknown
+): msg is ReloadDetectedMessage {
+  return (
+    isExtensionMessage(msg) &&
+    msg.type === 'RELOAD_DETECTED' &&
+    typeof (msg as ReloadDetectedMessage).tabId === 'number' &&
+    typeof (msg as ReloadDetectedMessage).timestamp === 'number'
   );
 }
 

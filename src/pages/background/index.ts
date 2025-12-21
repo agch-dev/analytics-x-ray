@@ -16,7 +16,7 @@ import {
 } from '@src/lib/segment';
 import { createContextLogger } from '@src/lib/logger';
 import { logStorageSize } from '@src/lib/storage';
-import type { EventsCapturedMessage } from '@src/types/messages';
+import type { EventsCapturedMessage, ReloadDetectedMessage } from '@src/types/messages';
 import {
   isExtensionMessage,
   isGetEventsMessage,
@@ -238,7 +238,23 @@ async function clearEventsForTab(tabId: number): Promise<void> {
  */
 function setupReloadTracking() {
   // Track the last known URL for each tab to detect reloads
+  // This is in-memory for quick access, but we also persist to storage
   const tabUrls = new Map<number, string>();
+  
+  // Load tab URLs from storage on startup
+  Browser.storage.local.get(null).then((allStorage) => {
+    const tabUrlsKey = 'tab_urls';
+    const storedTabUrls = (allStorage[tabUrlsKey] as Record<string, string>) || {};
+    for (const [tabIdStr, url] of Object.entries(storedTabUrls)) {
+      const tabId = parseInt(tabIdStr, 10);
+      if (!isNaN(tabId) && url) {
+        tabUrls.set(tabId, url);
+      }
+    }
+    log.debug(`📋 Restored ${tabUrls.size} tab URLs from storage`);
+  }).catch((error) => {
+    log.error('❌ Failed to restore tab URLs:', error);
+  });
   
   Browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     // Only process when status changes to 'loading'
@@ -254,8 +270,29 @@ function setupReloadTracking() {
     const currentUrl = tab.url;
     const previousUrl = tabUrls.get(tabId);
     
-    // If the URL is the same as before, it's a reload
-    if (previousUrl && previousUrl === currentUrl) {
+    // Normalize URLs for comparison (remove trailing slashes from path, but keep query/hash)
+    const normalizeUrl = (url: string): string => {
+      try {
+        const urlObj = new URL(url);
+        // Normalize pathname (remove trailing slash except for root)
+        let pathname = urlObj.pathname;
+        if (pathname.length > 1 && pathname.endsWith('/')) {
+          pathname = pathname.slice(0, -1);
+        }
+        // Reconstruct URL with normalized pathname
+        return `${urlObj.protocol}//${urlObj.host}${pathname}${urlObj.search}${urlObj.hash}`;
+      } catch {
+        // If URL parsing fails, return as-is
+        return url;
+      }
+    };
+    
+    const normalizedCurrent = normalizeUrl(currentUrl);
+    const normalizedPrevious = previousUrl ? normalizeUrl(previousUrl) : null;
+    
+    // If the normalized URL is the same as before, it's a reload
+    // Only detect reload if URLs match exactly (including query/hash) after normalization
+    if (normalizedPrevious && normalizedCurrent === normalizedPrevious) {
       const timestamp = Date.now();
       log.debug(`🔄 Detected page reload for tab ${tabId} at ${timestamp}`);
       
@@ -274,13 +311,38 @@ function setupReloadTracking() {
         });
         
         log.debug(`✅ Recorded reload timestamp for tab ${tabId} (total: ${updatedReloads.length})`);
+        
+        // Notify listeners about the reload so they can update
+        try {
+          const message: ReloadDetectedMessage = {
+            type: 'RELOAD_DETECTED',
+            tabId,
+            timestamp,
+          };
+          await Browser.runtime.sendMessage(message);
+          log.debug(`📤 Sent RELOAD_DETECTED message for tab ${tabId}`);
+        } catch (error) {
+          // No listeners - panel might not be open, that's okay
+          log.debug(`⚠️ No listeners for reload notification:`, error);
+        }
       } catch (error) {
         log.error(`❌ Failed to record reload timestamp for tab ${tabId}:`, error);
       }
     }
     
-    // Update the stored URL for this tab
+    // Update the stored URL for this tab (both in memory and storage)
     tabUrls.set(tabId, currentUrl);
+    
+    // Persist tab URLs to storage
+    try {
+      const tabUrlsKey = 'tab_urls';
+      const result = await Browser.storage.local.get(tabUrlsKey);
+      const storedTabUrls = (result[tabUrlsKey] as Record<string, string>) || {};
+      storedTabUrls[tabId.toString()] = currentUrl;
+      await Browser.storage.local.set({ [tabUrlsKey]: storedTabUrls });
+    } catch (error) {
+      log.error(`❌ Failed to persist tab URL for tab ${tabId}:`, error);
+    }
   });
   
   log.info('🔄 Reload tracking initialized');
@@ -355,6 +417,13 @@ Browser.tabs.onRemoved.addListener(async (tabId) => {
     // Also clean up reload timestamps
     const reloadsKey = `tab_${tabId}_reloads`;
     await Browser.storage.local.remove(reloadsKey);
+    
+    // Clean up tab URL from storage
+    const tabUrlsKey = 'tab_urls';
+    const tabUrlsResult = await Browser.storage.local.get(tabUrlsKey);
+    const storedTabUrls = (tabUrlsResult[tabUrlsKey] as Record<string, string>) || {};
+    delete storedTabUrls[tabId.toString()];
+    await Browser.storage.local.set({ [tabUrlsKey]: storedTabUrls });
   } catch {
     // Ignore cleanup errors
   }
