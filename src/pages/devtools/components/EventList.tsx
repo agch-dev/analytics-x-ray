@@ -16,8 +16,7 @@ export interface EventListHandle {
 type ViewMode = 'json' | 'structured';
 
 interface EventListProps {
-  events: SegmentEvent[]; // Filtered events
-  allEvents: SegmentEvent[]; // All events (unfiltered) for accurate divider detection
+  events: SegmentEvent[];
   reloadTimestamps: number[];
   selectedEventId: string | null;
   expandedEventIds: Set<string>;
@@ -48,8 +47,7 @@ const STICKY_HIDE_THRESHOLD = 10;  // Need less than this to HIDE sticky
 
 export const EventList = forwardRef<EventListHandle, EventListProps>(
   function EventList({ 
-    events, // Filtered events
-    allEvents, // All events for divider detection
+    events, 
     reloadTimestamps,
     selectedEventId, 
     expandedEventIds,
@@ -76,42 +74,16 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     // Track if user is at bottom for floating button visibility
     const [isAtBottom, setIsAtBottom] = useState(true);
     
-    // Reverse filtered events so newest is at bottom
+    // Reverse events so newest is at bottom
     const reversedEvents = useMemo(() => [...events].reverse(), [events]);
     
-    // Create a map of event IDs to events for quick lookup
-    const eventMap = useMemo(() => {
-      const map = new Map<string, SegmentEvent>();
-      allEvents.forEach((event) => map.set(event.id, event));
-      return map;
-    }, [allEvents]);
-    
-    // Create sorted array of all events for finding previous/next events
-    const allEventsSorted = useMemo(() => {
-      return [...allEvents].sort((a, b) => a.capturedAt - b.capturedAt);
-    }, [allEvents]);
-    
-    // Transform filtered events into list items (events + dividers)
+    // Transform events into list items (events + dividers)
     const listItems = useMemo(() => {
       const items: ListItem[] = [];
       
       for (let i = 0; i < reversedEvents.length; i++) {
         const event = reversedEvents[i];
-        
-        // Find the previous visible event in the filtered list (for display)
-        const previousFilteredEvent = i > 0 ? reversedEvents[i - 1] : undefined;
-        
-        // Find the actual previous event in the full timeline (may be filtered out)
-        // This is needed to detect path changes even when intermediate events are filtered
-        let previousTimelineEvent: SegmentEvent | undefined;
-        const currentIndex = allEventsSorted.findIndex((e) => e.id === event.id);
-        if (currentIndex > 0) {
-          // Get the immediately previous event in the timeline
-          previousTimelineEvent = allEventsSorted[currentIndex - 1];
-        }
-        
-        // Use the previous filtered event for display, but previous timeline event for path comparison
-        const previousEvent = previousFilteredEvent;
+        const previousEvent = i > 0 ? reversedEvents[i - 1] : undefined;
         
         // Check if we need a divider before this event
         let needsDivider = false;
@@ -119,19 +91,18 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         let reloadTimestamp = 0;
         let hasPathChange = false;
         
-        // Check for URL change - compare with previous event in timeline (not just filtered)
-        // This detects changes in path, query params, and domain
-        if (previousTimelineEvent && urlsAreDifferent(previousTimelineEvent, event)) {
+        // Check for path change first
+        if (previousEvent && urlsAreDifferent(previousEvent, event)) {
           needsDivider = true;
           hasPathChange = true;
         }
         
         // Check for reload between events
         // Only mark as reload if there's NO path change (reload on same page)
-        if (previousTimelineEvent && !hasPathChange) {
+        if (previousEvent && !hasPathChange) {
           // Check if any reload timestamp falls between these two events
           for (const reloadTs of reloadTimestamps) {
-            if (reloadTs > previousTimelineEvent.capturedAt && reloadTs <= event.capturedAt) {
+            if (reloadTs > previousEvent.capturedAt && reloadTs <= event.capturedAt) {
               needsDivider = true;
               isReload = true;
               reloadTimestamp = reloadTs;
@@ -145,7 +116,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
           items.push({
             type: 'divider',
             event,
-            previousEvent: previousFilteredEvent, // Use filtered event for display
+            previousEvent,
             isReload,
             timestamp: reloadTimestamp || event.capturedAt,
             index: items.length,
@@ -161,7 +132,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       }
       
       return items;
-    }, [reversedEvents, allEventsSorted, reloadTimestamps]);
+    }, [reversedEvents, reloadTimestamps]);
     
     // Dynamic size estimation based on item type and expansion state
     const getEstimatedSize = (index: number) => {

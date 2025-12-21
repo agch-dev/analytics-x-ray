@@ -199,7 +199,6 @@ export default function Panel() {
         <EventList
           ref={eventListRef}
           events={filteredEvents}
-          allEvents={events}
           reloadTimestamps={reloadTimestamps}
           selectedEventId={selectedEventId}
           expandedEventIds={expandedEventIds}
