@@ -11,7 +11,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { createTabStorage } from '@src/lib/storage';
+import { createTabStorage, logStorageSize } from '@src/lib/storage';
 import type { SegmentEvent } from '@src/types/segment';
 import { createContextLogger } from '@src/lib/logger';
 
@@ -86,6 +86,12 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             
             const events = [event, ...state.events].slice(0, maxEvents);
             log.debug(`  ✅ Added event. Total events in store: ${events.length}`);
+            
+            // Log storage size periodically (every 25 events to avoid spam)
+            if (events.length % 25 === 0) {
+              logStorageSize('storage');
+            }
+            
             return {
               events,
               lastUpdated: Date.now(),

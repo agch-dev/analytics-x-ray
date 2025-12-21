@@ -15,6 +15,7 @@ import {
   type SegmentEvent,
 } from '@src/lib/segment';
 import { createContextLogger } from '@src/lib/logger';
+import { logStorageSize } from '@src/lib/storage';
 
 const log = createContextLogger('background');
 
@@ -148,8 +149,18 @@ async function storeEvents(
     events[tabId] = updated;
     await Browser.storage.local.set({ events });
     log.debug(`💾 Persisted ${updated.length} event(s) to storage.local['events'][${tabId}]`);
+    
+    // Log storage size periodically (every 10 events to avoid spam)
+    if (updated.length % 10 === 0) {
+      logStorageSize('background');
+    }
   } catch (error) {
     log.error('❌ Failed to persist events:', error);
+    // Check if storage quota exceeded
+    if (error instanceof Error && error.message.includes('QUOTA')) {
+      log.error('🚨 Storage quota exceeded! Logging current usage...');
+      logStorageSize('background');
+    }
   }
 }
 
@@ -300,6 +311,9 @@ async function restoreEventsFromStorage(): Promise<void> {
 
 // Initialize
 log.info('🔧 Initializing background script...');
-restoreEventsFromStorage();
+restoreEventsFromStorage().then(() => {
+  // Log storage size on startup
+  logStorageSize('background');
+});
 setupWebRequestListener();
 log.info('✅ Background script initialization complete');
