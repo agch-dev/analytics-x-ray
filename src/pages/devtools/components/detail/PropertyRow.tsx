@@ -1,6 +1,8 @@
 import { useMemo, useState, useCallback } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon, PinIcon } from '@hugeicons/core-free-icons';
+import { Copy01Icon, Tick01Icon, ArrowRight01Icon, ArrowDown01Icon, PinIcon, CodeIcon, TextIcon } from '@hugeicons/core-free-icons';
+import JsonView from '@uiw/react-json-view';
+import { darkTheme } from '@uiw/react-json-view/dark';
 import { cn, copyToClipboard } from '@src/lib/utils';
 import { highlightText } from '@src/lib/search';
 
@@ -53,6 +55,55 @@ function isExpandable(value: unknown): boolean {
 }
 
 /**
+ * Check if array should use chunking (for arrays > 10 items)
+ */
+const CHUNKING_THRESHOLD = 10;
+
+function shouldChunkArray(value: unknown): boolean {
+  return Array.isArray(value) && value.length > CHUNKING_THRESHOLD;
+}
+
+/**
+ * Check if value is an array (for JSON view toggle)
+ */
+function isArray(value: unknown): value is unknown[] {
+  return Array.isArray(value);
+}
+
+/**
+ * Chunk array for display
+ */
+const INITIAL_CHUNK_SIZE = 10;
+const CHUNK_SIZE = 20;
+
+function chunkArray<T>(array: T[], initialSize: number, chunkSize: number): Array<{ start: number; end: number; items: T[] }> {
+  const chunks: Array<{ start: number; end: number; items: T[] }> = [];
+  
+  if (array.length <= initialSize) {
+    return [{ start: 0, end: array.length, items: array }];
+  }
+  
+  // First chunk
+  chunks.push({
+    start: 0,
+    end: initialSize,
+    items: array.slice(0, initialSize),
+  });
+  
+  // Remaining chunks
+  for (let i = initialSize; i < array.length; i += chunkSize) {
+    const end = Math.min(i + chunkSize, array.length);
+    chunks.push({
+      start: i,
+      end,
+      items: array.slice(i, end),
+    });
+  }
+  
+  return chunks;
+}
+
+/**
  * Highlight text with search query matches
  */
 function HighlightedText({ text, searchQuery }: { text: string; searchQuery?: string }) {
@@ -92,11 +143,15 @@ export function PropertyRow({
 }: PropertyRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [useJsonView, setUseJsonView] = useState(false);
+  const [visibleChunks, setVisibleChunks] = useState<Set<number>>(new Set([0])); // First chunk visible by default
 
   const expandable = isExpandable(value);
   const displayValue = formatValue(value);
   const valueColor = getValueColor(value);
   const canPin = showPinButton && depth === 0 && onTogglePin;
+  const shouldChunk = shouldChunkArray(value);
+  const isArrayValue = isArray(value);
 
   const handleCopy = useCallback(() => {
     const textToCopy = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
@@ -109,7 +164,15 @@ export function PropertyRow({
 
   const toggleExpand = useCallback(() => {
     if (expandable) {
-      setIsExpanded((prev) => !prev);
+      setIsExpanded((prev) => {
+        const newExpanded = !prev;
+        // Reset view state when collapsing
+        if (!newExpanded) {
+          setUseJsonView(false);
+          setVisibleChunks(new Set([0]));
+        }
+        return newExpanded;
+      });
     }
   }, [expandable]);
 
@@ -134,6 +197,28 @@ export function PropertyRow({
     }
     return [];
   }, [value, expandable, isExpanded]);
+
+  // Get chunked array data for arrays that need chunking
+  const arrayChunks = useMemo(() => {
+    if (!shouldChunk || !Array.isArray(value)) return [];
+    return chunkArray(value, INITIAL_CHUNK_SIZE, CHUNK_SIZE);
+  }, [shouldChunk, value]);
+
+  const toggleChunk = useCallback((chunkIndex: number) => {
+    setVisibleChunks((prev) => {
+      const next = new Set(prev);
+      if (next.has(chunkIndex)) {
+        next.delete(chunkIndex);
+      } else {
+        next.add(chunkIndex);
+      }
+      return next;
+    });
+  }, []);
+
+  const showAllChunks = useCallback(() => {
+    setVisibleChunks(new Set(arrayChunks.map((_, i) => i)));
+  }, [arrayChunks]);
 
   return (
     <div className="group">
@@ -205,6 +290,24 @@ export function PropertyRow({
             )}
           </span>
 
+          {/* View mode toggle for arrays */}
+          {isArrayValue && isExpanded && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setUseJsonView((prev) => !prev);
+              }}
+              className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-muted rounded"
+              title={useJsonView ? 'Switch to structured view' : 'Switch to JSON view'}
+            >
+              <HugeiconsIcon
+                icon={useJsonView ? TextIcon : CodeIcon}
+                size={12}
+                className="text-muted-foreground hover:text-blue-500"
+              />
+            </button>
+          )}
+
           {/* Copy button */}
           <button
             onClick={handleCopy}
@@ -221,18 +324,91 @@ export function PropertyRow({
       </div>
 
       {/* Nested properties */}
-      {isExpanded && nestedEntries.length > 0 && (
+      {isExpanded && (
         <div className="ml-4 pl-3 border-l border-border/50">
-          {nestedEntries.map(({ key, value: nestedValue }) => (
-            <PropertyRow
-              key={key}
-              label={key}
-              value={nestedValue}
-              searchQuery={searchQuery}
-              depth={depth + 1}
-              isNested
-            />
-          ))}
+          {/* JSON view for arrays */}
+          {isArrayValue && useJsonView ? (
+            <div className="my-2">
+              <JsonView
+                value={value}
+                style={{
+                  ...darkTheme,
+                  backgroundColor: 'transparent',
+                  fontSize: '11px',
+                }}
+                collapsed={false}
+                displayDataTypes={false}
+                displayObjectSize={false}
+                enableClipboard={false}
+              />
+            </div>
+          ) : shouldChunk && Array.isArray(value) && arrayChunks.length > 0 ? (
+            /* Chunked structured view for large arrays */
+            <div className="my-2">
+              {arrayChunks.map((chunk, chunkIndex) => {
+                const isVisible = visibleChunks.has(chunkIndex);
+                const isLastChunk = chunkIndex === arrayChunks.length - 1;
+                const allChunksVisible = visibleChunks.size === arrayChunks.length;
+                
+                return (
+                  <div key={chunkIndex}>
+                    {chunkIndex > 0 && (
+                      <button
+                        onClick={() => toggleChunk(chunkIndex)}
+                        className="w-full text-left py-1 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors flex items-center gap-1"
+                      >
+                        <HugeiconsIcon
+                          icon={isVisible ? ArrowDown01Icon : ArrowRight01Icon}
+                          size={10}
+                          className="text-muted-foreground"
+                        />
+                        <span>
+                          {isVisible ? 'Hide' : 'Show'} items {chunk.start}–{chunk.end - 1} ({chunk.items.length} items)
+                        </span>
+                      </button>
+                    )}
+                    {isVisible && (
+                      <div className={chunkIndex > 0 ? 'ml-2 pl-2 border-l border-border/30' : ''}>
+                        {chunk.items.map((item, itemIndex) => {
+                          const actualIndex = chunk.start + itemIndex;
+                          return (
+                            <PropertyRow
+                              key={actualIndex}
+                              label={String(actualIndex)}
+                              value={item}
+                              searchQuery={searchQuery}
+                              depth={depth + 1}
+                              isNested
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                    {isLastChunk && !allChunksVisible && (
+                      <button
+                        onClick={showAllChunks}
+                        className="mt-2 py-1 px-2 text-xs text-blue-500 hover:text-blue-400 hover:bg-blue-500/10 rounded transition-colors"
+                      >
+                        Show all items ({value.length} total)
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : nestedEntries.length > 0 ? (
+            /* Regular nested view for small arrays and objects */
+            nestedEntries.map(({ key, value: nestedValue }) => (
+              <PropertyRow
+                key={key}
+                label={key}
+                value={nestedValue}
+                searchQuery={searchQuery}
+                depth={depth + 1}
+                isNested
+              />
+            ))
+          ) : null}
         </div>
       )}
     </div>

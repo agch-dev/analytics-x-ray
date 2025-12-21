@@ -6,7 +6,7 @@ import {
   Copy01Icon,
   Tick01Icon,
 } from '@hugeicons/core-free-icons';
-import { cn, copyToClipboard } from '@src/lib/utils';
+import { copyToClipboard } from '@src/lib/utils';
 import { highlightText } from '@src/lib/search';
 import type { SegmentEvent } from '@src/types/segment';
 import { PropertiesSection } from './PropertiesSection';
@@ -70,18 +70,22 @@ export function EventDetailView({
                 backgroundColor: 'transparent',
                 fontSize: '12px',
               }}
-            collapsed={false}
-            displayDataTypes={false}
-            displayObjectSize={false}
-            enableClipboard={true}
-            shouldExpandNodeInitially={(isExpanded, { keyName }) => {
-              // Collapse large nested objects by default
-              if (keyName === 'integrations' || keyName === 'userAgentData') {
-                return false;
-              }
-              return isExpanded;
-            }}
-          >
+              collapsed={false}
+              displayDataTypes={false}
+              displayObjectSize={false}
+              enableClipboard={true}
+              shouldExpandNodeInitially={(isExpanded, { keyName, value }) => {
+                // Collapse large nested objects by default
+                if (keyName === 'integrations' || keyName === 'userAgentData') {
+                  return false;
+                }
+                // Collapse arrays longer than 10 items
+                if (Array.isArray(value) && value.length > 10) {
+                  return false;
+                }
+                return isExpanded;
+              }}
+            >
             {/* Custom renderer for string values to highlight search matches */}
             {searchQuery && (
               <JsonView.String
