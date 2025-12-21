@@ -105,7 +105,7 @@ export function EventRowHeader({
             size="sm"
             onClick={(e) => handleViewModeClick(e, 'structured')}
             className={cn(
-              "h-6 px-2 py-0 flex items-center gap-1",
+              "h-6 px-1 sm:px-2 py-0 flex items-center gap-1",
               viewMode === 'structured' 
                 ? "bg-primary text-primary-foreground" 
                 : "text-muted-foreground hover:text-foreground"
@@ -116,14 +116,14 @@ export function EventRowHeader({
               icon={TextIcon} 
               size={12} 
             />
-            <span className="text-xs font-medium">Structured</span>
+            <span className="text-xs font-medium hidden sm:inline">Structured</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={(e) => handleViewModeClick(e, 'json')}
             className={cn(
-              "h-6 px-2 py-0 flex items-center gap-1",
+              "h-6 px-1 sm:px-2 py-0 flex items-center gap-1",
               viewMode === 'json' 
                 ? "bg-primary text-primary-foreground" 
                 : "text-muted-foreground hover:text-foreground"
@@ -134,7 +134,7 @@ export function EventRowHeader({
               icon={CodeIcon} 
               size={12} 
             />
-            <span className="text-xs font-medium">JSON</span>
+            <span className="text-xs font-medium hidden sm:inline">JSON</span>
           </Button>
         </div>
       )}
