@@ -33,7 +33,7 @@ export function EventDetailSection({
   const hasPinnedContent = pinnedCount > 0 && pinnedContent;
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden bg-card/50">
+    <div className="border border-border overflow-hidden bg-card/50">
       {/* Header */}
       <button
         onClick={toggleExpand}
@@ -74,7 +74,7 @@ export function EventDetailSection({
 
       {/* Pinned content shown when collapsed */}
       {!isExpanded && hasPinnedContent && (
-        <div className="px-1 pb-2 border-t border-border/50 bg-amber-500/5">
+        <div className="px-1 pb-2 border-t border-border/50 bg-neutral-400/5">
           {pinnedContent}
         </div>
       )}

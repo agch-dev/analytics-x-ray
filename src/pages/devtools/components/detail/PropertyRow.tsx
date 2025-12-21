@@ -242,10 +242,10 @@ export function PropertyRow({
     <div className="group">
       <div
         className={cn(
-          'flex items-start gap-2 py-1.5 px-2 rounded-md transition-colors',
+          'flex items-start gap-2 py-1.5 px-2 transition-colors',
           'hover:bg-muted/50',
           matchesSearch && 'bg-yellow-500/10',
-          isPinned && 'bg-amber-500/5 border-l-2 border-l-amber-500/50'
+          isPinned && 'bg-neutral-400/5 border-l-2 border-l-amber-500/50'
         )}
       >
         {/* Pin button - only show for first-level properties (left side) */}

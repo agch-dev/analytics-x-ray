@@ -274,7 +274,7 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
               )}
               {/* Show pinned properties when subsection is collapsed */}
               {!isExpanded && pinnedProps.length > 0 && (
-                <div className="border-l border-amber-500/30 ml-2 mt-0.5 bg-amber-500/5 rounded-r">
+                <div className="border-l border-amber-500/30 ml-2 mt-0.5 bg-neutral-400/5">
                   {pinned.map(({ key, value }) => (
                     <PropertyRow
                       key={key}

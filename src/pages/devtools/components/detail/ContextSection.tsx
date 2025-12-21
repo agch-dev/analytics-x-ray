@@ -214,7 +214,7 @@ export function ContextSection({ event, searchQuery = '' }: ContextSectionProps)
                 onClick={() => toggleSubsection(subsection.key)}
                 className={cn(
                   'w-full flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground',
-                  'hover:bg-muted/30 transition-colors rounded',
+                  'hover:bg-muted/30 transition-colors',
                   'text-left'
                 )}
               >
@@ -272,7 +272,7 @@ export function ContextSection({ event, searchQuery = '' }: ContextSectionProps)
               )}
               {/* Show pinned properties when subsection is collapsed */}
               {!isExpanded && pinnedProps.length > 0 && (
-                <div className="border-l border-amber-500/30 ml-2 mt-0.5 bg-amber-500/5 rounded-r">
+                <div className="border-l border-amber-500/30 ml-2 mt-0.5 bg-neutral-400/5">
                   {pinned.map(({ key, value }) => (
                     <PropertyRow
                       key={key}
