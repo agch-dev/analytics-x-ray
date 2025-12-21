@@ -4,10 +4,10 @@ overview: Remove placeholder content script and unused throttleMs configuration 
 todos:
   - id: evaluate-content-script
     content: Decide whether to remove or repurpose content script
-    status: pending
+    status: completed
   - id: handle-throttle-setting
     content: Either implement throttling in useEventSync or remove the setting entirely
-    status: pending
+    status: completed
 ---
 
 # Dead Code Cleanup
@@ -51,5 +51,3 @@ The setting exists in:
 - **Remove the setting**: Delete from config store and Options page
 
 ---
-
-## Files to Modify

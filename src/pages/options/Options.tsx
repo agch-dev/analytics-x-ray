@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useConfigStore, selectMaxEvents, selectTheme, selectPreferredEventDetailView, selectThrottleMs } from '@src/stores/configStore';
+import { useConfigStore, selectMaxEvents, selectTheme, selectPreferredEventDetailView } from '@src/stores/configStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { Button } from '@src/components/ui/button';
 import { Input } from '@src/components/ui/input';
@@ -11,20 +11,16 @@ export default function Options() {
   const maxEvents = useConfigStore(selectMaxEvents);
   const theme = useConfigStore(selectTheme);
   const preferredEventDetailView = useConfigStore(selectPreferredEventDetailView);
-  const throttleMs = useConfigStore(selectThrottleMs);
   
   // Store actions
   const setMaxEvents = useConfigStore((state) => state.setMaxEvents);
   const setTheme = useConfigStore((state) => state.setTheme);
   const setPreferredEventDetailView = useConfigStore((state) => state.setPreferredEventDetailView);
-  const setThrottleMs = useConfigStore((state) => state.setThrottleMs);
   const reset = useConfigStore((state) => state.reset);
 
   // Local state for input values and validation
   const [maxEventsInput, setMaxEventsInput] = useState(maxEvents.toString());
-  const [throttleMsInput, setThrottleMsInput] = useState(throttleMs.toString());
   const [maxEventsError, setMaxEventsError] = useState('');
-  const [throttleMsError, setThrottleMsError] = useState('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Validation and update handlers
@@ -42,27 +38,11 @@ export default function Options() {
     }
   };
 
-  const handleThrottleMsBlur = () => {
-    const value = parseInt(throttleMsInput, 10);
-    if (isNaN(value)) {
-      setThrottleMsError('Please enter a valid number');
-      setThrottleMsInput(throttleMs.toString());
-    } else if (value < 0 || value > 5000) {
-      setThrottleMsError('Value must be between 0 and 5,000');
-      setThrottleMsInput(throttleMs.toString());
-    } else {
-      setThrottleMsError('');
-      setThrottleMs(value);
-    }
-  };
-
   const handleReset = () => {
     if (showResetConfirm) {
       reset();
       setMaxEventsInput('500');
-      setThrottleMsInput('100');
       setMaxEventsError('');
-      setThrottleMsError('');
       setShowResetConfirm(false);
     } else {
       setShowResetConfirm(true);
@@ -156,41 +136,6 @@ export default function Options() {
               <p className="text-sm text-muted-foreground">
                 Default view mode when expanding event details. You can still toggle between views for individual events.
               </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Advanced Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Advanced</CardTitle>
-            <CardDescription>
-              Fine-tune performance and behavior settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="throttle-ms">Throttle interval (ms)</Label>
-              <Input
-                id="throttle-ms"
-                type="number"
-                min="0"
-                max="5000"
-                value={throttleMsInput}
-                onChange={(e) => {
-                  setThrottleMsInput(e.target.value);
-                  setThrottleMsError('');
-                }}
-                onBlur={handleThrottleMsBlur}
-                className={throttleMsError ? 'border-red-500' : ''}
-              />
-              {throttleMsError ? (
-                <p className="text-sm text-red-500">{throttleMsError}</p>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Delay between processing high-frequency events (0-5,000ms). Lower values provide faster updates but may impact performance.
-                </p>
-              )}
             </div>
           </CardContent>
         </Card>

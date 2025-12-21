@@ -61,9 +61,6 @@ export interface ExtensionConfig {
   theme: 'light' | 'dark' | 'auto';
   preferredEventDetailView: 'json' | 'structured'; // Preferred view mode for event details
   
-  // Advanced settings
-  throttleMs: number; // Throttle interval for high-frequency events
-  
   // Pinned properties settings (keyed by profile, "default" is the default profile)
   pinnedProperties: PinnedPropertiesConfig;
 }
@@ -73,7 +70,6 @@ interface ConfigStore extends ExtensionConfig {
   setMaxEvents: (max: number) => void;
   setTheme: (theme: ExtensionConfig['theme']) => void;
   setPreferredEventDetailView: (view: ExtensionConfig['preferredEventDetailView']) => void;
-  setThrottleMs: (ms: number) => void;
   reset: () => void;
   
   // Pin actions
@@ -86,7 +82,6 @@ const defaultConfig: ExtensionConfig = {
   maxEvents: 500,
   theme: 'auto',
   preferredEventDetailView: 'structured',
-  throttleMs: 100,
   pinnedProperties: {
     default: defaultPinnedProfile,
   },
@@ -125,13 +120,11 @@ export const useConfigStore = create<ConfigStore>()(
       setMaxEvents: (max) => set({ maxEvents: Math.max(1, Math.min(10000, max)) }),
       setTheme: (theme) => set({ theme }),
       setPreferredEventDetailView: (view) => set({ preferredEventDetailView: view }),
-      setThrottleMs: (ms) => set({ throttleMs: Math.max(0, Math.min(5000, ms)) }),
       // Reset only user-visible settings, preserve pinned properties (internal state)
       reset: () => set((state) => ({
         maxEvents: defaultConfig.maxEvents,
         theme: defaultConfig.theme,
         preferredEventDetailView: defaultConfig.preferredEventDetailView,
-        throttleMs: defaultConfig.throttleMs,
         // Preserve pinnedProperties - they're internal state not shown in Options
         pinnedProperties: state.pinnedProperties,
       })),
@@ -252,7 +245,6 @@ export const useConfigStore = create<ConfigStore>()(
 export const selectMaxEvents = (state: ConfigStore) => state.maxEvents;
 export const selectTheme = (state: ConfigStore) => state.theme;
 export const selectPreferredEventDetailView = (state: ConfigStore) => state.preferredEventDetailView;
-export const selectThrottleMs = (state: ConfigStore) => state.throttleMs;
 export const selectPinnedProperties = (state: ConfigStore) => state.pinnedProperties;
 export const selectTogglePin = (state: ConfigStore) => state.togglePin;
 export const selectIsPinned = (state: ConfigStore) => state.isPinned;
