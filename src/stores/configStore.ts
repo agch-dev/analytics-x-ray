@@ -216,12 +216,32 @@ export const useConfigStore = create<ConfigStore>()(
       },
       addDeniedDomain: (domain) => {
         set((state) => {
-          // Remove from allowed if it was there
-          const updatedAllowed = state.allowedDomains.filter((d) => d.domain !== domain);
-          // Add to denied if not already there
-          const updatedDenied = state.deniedDomains.includes(domain)
+          // Normalize domain (strip www.)
+          let normalizedDomain = domain.toLowerCase().trim();
+          if (normalizedDomain.startsWith('www.')) {
+            normalizedDomain = normalizedDomain.slice(4);
+          }
+          
+          // Remove from allowed if it was there (check both original and normalized)
+          const updatedAllowed = state.allowedDomains.filter((d) => {
+            const allowedNormalized = d.domain.toLowerCase().startsWith('www.') 
+              ? d.domain.toLowerCase().slice(4) 
+              : d.domain.toLowerCase();
+            return allowedNormalized !== normalizedDomain && d.domain !== domain && d.domain !== normalizedDomain;
+          });
+          
+          // Add to denied if not already there (check both original and normalized)
+          const alreadyDenied = state.deniedDomains.some((d) => {
+            const deniedNormalized = d.toLowerCase().startsWith('www.') 
+              ? d.toLowerCase().slice(4) 
+              : d.toLowerCase();
+            return deniedNormalized === normalizedDomain || d === domain || d === normalizedDomain;
+          });
+          
+          const updatedDenied = alreadyDenied
             ? state.deniedDomains
-            : [...state.deniedDomains, domain];
+            : [...state.deniedDomains, normalizedDomain];
+          
           return {
             allowedDomains: updatedAllowed,
             deniedDomains: updatedDenied,

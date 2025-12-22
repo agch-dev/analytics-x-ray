@@ -214,9 +214,9 @@ export default function Options() {
         {/* Domain Tracking Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Domain Tracking</CardTitle>
+            <CardTitle>Domain Scanning</CardTitle>
             <CardDescription>
-              Control which domains have their Segment events tracked
+              Control which domains have their Segment events scanned
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -259,7 +259,7 @@ export default function Options() {
                 ) : (
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">
-                      Enter a domain name (e.g., example.com) or a full URL. Only domains in this list will have their Segment events tracked.
+                      Enter a domain name (e.g., example.com) or a full URL. Only domains in this list will have their Segment events scanned.
                     </p>
                     <p className="text-xs text-muted-foreground">
                       <strong>Tip:</strong> Use "Allow subdomains" for cases like PR Preview Apps where the subdomain is dynamic (e.g., pr-123.example.com, pr-456.example.com).
@@ -325,7 +325,7 @@ export default function Options() {
                 <div className="text-center py-8 text-muted-foreground">
                   <p className="text-sm">No domains in allowlist</p>
                   <p className="text-xs mt-1">
-                    Add a domain above to start tracking Segment events
+                    Add a domain above to start scanning Segment events
                   </p>
                 </div>
               )}

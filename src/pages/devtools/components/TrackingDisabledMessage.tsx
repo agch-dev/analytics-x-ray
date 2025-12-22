@@ -22,10 +22,10 @@ export function TrackingDisabledMessage({ domain }: TrackingDisabledMessageProps
         />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground">
-            Tracking is disabled for <span className="font-mono text-primary">{domain}</span>
+            Scanning is disabled for <span className="font-mono text-primary">{domain}</span>
           </p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Enable tracking in settings to capture Segment events from this domain
+            Enable scanning in settings to capture Segment events from this domain
           </p>
         </div>
         <Button

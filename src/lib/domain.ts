@@ -96,9 +96,59 @@ export function isDomainAllowed(domain: string, allowedDomains: AllowedDomain[])
     return false;
   }
   
-  return allowedDomains.some((allowed) =>
-    matchesDomainWithSubdomains(domain, allowed.domain, allowed.allowSubdomains)
-  );
+  const normalizedDomain = normalizeDomain(domain);
+  
+  for (const allowed of allowedDomains) {
+    const matches = matchesDomainWithSubdomains(domain, allowed.domain, allowed.allowSubdomains);
+    if (matches) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+/**
+ * Check if a domain is a subdomain of an allowed domain (excluding www.)
+ * Returns the matching allowed domain if found, null otherwise
+ */
+export function isSubdomainOfAllowedDomain(
+  domain: string,
+  allowedDomains: AllowedDomain[]
+): { allowedDomain: AllowedDomain; baseDomain: string } | null {
+  if (!domain || allowedDomains.length === 0) {
+    return null;
+  }
+  
+  const normalizedDomain = normalizeDomain(domain);
+  const baseDomain = getBaseDomain(normalizedDomain);
+  
+  // Check if www. - in that case, it's not a subdomain, it's the base domain
+  if (normalizedDomain === baseDomain) {
+    return null;
+  }
+  
+  // Check each allowed domain
+  for (const allowed of allowedDomains) {
+    const normalizedAllowed = normalizeDomain(allowed.domain);
+    
+    // If subdomains are already allowed, this case shouldn't happen
+    // (the domain would already be allowed)
+    if (allowed.allowSubdomains) {
+      continue;
+    }
+    
+    // Check if the base domain matches the allowed domain
+    if (baseDomain === normalizedAllowed) {
+      // Verify that the current domain is actually a subdomain
+      // (not just the base domain with www.)
+      if (normalizedDomain !== normalizedAllowed && normalizedDomain.endsWith(`.${normalizedAllowed}`)) {
+        return { allowedDomain: allowed, baseDomain: normalizedAllowed };
+      }
+    }
+  }
+  
+  return null;
 }
 
 /**

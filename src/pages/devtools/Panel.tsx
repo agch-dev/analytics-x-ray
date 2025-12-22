@@ -9,7 +9,8 @@ import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
 import { useDebounce } from '@src/hooks';
 import { ErrorBoundary, EventListErrorState } from '@src/components';
-import { getTabDomain, isDomainAllowed, isSpecialPage } from '@src/lib/domain';
+import { getTabDomain, isDomainAllowed, isSpecialPage, normalizeDomain, isSubdomainOfAllowedDomain } from '@src/lib/domain';
+import { isDomainChangedMessage } from '@src/types/messages';
 
 
 const log = createContextLogger('panel');
@@ -26,6 +27,7 @@ export default function Panel() {
   const [currentDomain, setCurrentDomain] = useState<string | null>(null);
   const [domainAllowed, setDomainAllowed] = useState<boolean | null>(null);
   const [domainCheckComplete, setDomainCheckComplete] = useState(false);
+  const [subdomainInfo, setSubdomainInfo] = useState<{ allowedDomain: { domain: string; allowSubdomains: boolean }; baseDomain: string } | null>(null);
   
   // Get preferred view mode from config store (used directly, not persisted per tab)
   const preferredViewMode = useConfigStore(selectPreferredEventDetailView);
@@ -110,51 +112,92 @@ export default function Panel() {
     setPreferredEventDetailView(mode);
   }, [setPreferredEventDetailView]);
   
-  // Check domain on mount and when allowlist/denylist changes
-  useEffect(() => {
-    const checkDomain = async () => {
+  // Function to check domain
+  const checkDomain = useCallback(async () => {
+    try {
+      // Try to get domain from background script first (it has the cached domain info)
+      let domain: string | null = null;
       try {
-        // Try to get domain from background script first (it has the cached domain info)
-        let domain: string | null = null;
-        try {
-          const response = await Browser.runtime.sendMessage({
-            type: 'GET_TAB_DOMAIN',
-            tabId,
-          });
-          if (response && typeof response === 'string') {
-            domain = response;
-          }
-        } catch (error) {
-          // Fallback to direct method
-          domain = await getTabDomain(tabId);
+        const response = await Browser.runtime.sendMessage({
+          type: 'GET_TAB_DOMAIN',
+          tabId,
+        });
+        if (response && typeof response === 'string') {
+          domain = response;
         }
-        
-        setCurrentDomain(domain);
-        
-        if (!domain) {
-          // Special page or invalid URL
-          setDomainAllowed(false);
-          setDomainCheckComplete(true);
-          return;
-        }
-        
-        // Check if domain is explicitly denied
-        const isDenied = deniedDomains.includes(domain);
-        
-        // Check if domain is allowed
-        const allowed = isDomainAllowed(domain, allowedDomains);
-        
-        setDomainAllowed(allowed && !isDenied);
-        setDomainCheckComplete(true);
       } catch (error) {
-        log.error('❌ [Panel] Failed to check domain:', error);
+        // Fallback to direct method
+        domain = await getTabDomain(tabId);
+      }
+      
+      setCurrentDomain(domain);
+      
+      if (!domain) {
+        // Special page or invalid URL
         setDomainAllowed(false);
         setDomainCheckComplete(true);
+        return;
+      }
+      
+      // Normalize domain for denied check
+      const normalizedDomain = normalizeDomain(domain);
+      const isDenied = deniedDomains.some((denied) => {
+        const normalizedDenied = normalizeDomain(denied);
+        return normalizedDenied === normalizedDomain || denied === domain;
+      });
+      
+      // Check if domain is allowed
+      const allowed = isDomainAllowed(domain, allowedDomains);
+      
+      // Check if this is a subdomain of an allowed domain (but subdomains not enabled)
+      let subdomainMatch: { allowedDomain: { domain: string; allowSubdomains: boolean }; baseDomain: string } | null = null;
+      if (!allowed && !isDenied) {
+        const match = isSubdomainOfAllowedDomain(domain, allowedDomains);
+        if (match) {
+          subdomainMatch = match;
+        }
+      }
+      
+      setSubdomainInfo(subdomainMatch);
+      setDomainAllowed(allowed && !isDenied);
+      setDomainCheckComplete(true);
+    } catch (error) {
+      log.error('❌ [Panel] Failed to check domain:', error);
+      setDomainAllowed(false);
+      setDomainCheckComplete(true);
+    }
+  }, [tabId, allowedDomains, deniedDomains]);
+
+  // Check domain on mount and when allowlist/denylist changes
+  useEffect(() => {
+    checkDomain();
+  }, [checkDomain]);
+
+  // Listen for domain change messages from background script
+  useEffect(() => {
+    const handleMessage = (message: unknown) => {
+      if (isDomainChangedMessage(message) && message.tabId === tabId) {
+        log.info(`🌐 Domain changed notification received for tab ${tabId}: ${message.domain}`);
+        // Re-check domain when we get a change notification
+        checkDomain();
       }
     };
-    
-    checkDomain();
-  }, [tabId, allowedDomains, deniedDomains]);
+
+    Browser.runtime.onMessage.addListener(handleMessage);
+
+    return () => {
+      Browser.runtime.onMessage.removeListener(handleMessage);
+    };
+  }, [tabId, checkDomain]);
+
+  // Also periodically check domain (fallback in case messages don't arrive)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkDomain();
+    }, 2000); // Check every 2 seconds
+
+    return () => clearInterval(interval);
+  }, [checkDomain]);
   
   // Sync events with background script
   useEventSync({ tabId, addEvent });
@@ -312,6 +355,7 @@ export default function Panel() {
           domain={currentDomain}
           onAllowed={handleDomainAllowed}
           onDenied={handleDomainDenied}
+          subdomainInfo={subdomainInfo}
         />
       ) : (
         <ErrorBoundary

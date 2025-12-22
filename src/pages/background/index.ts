@@ -16,8 +16,8 @@ import {
 } from '@src/lib/segment';
 import { createContextLogger } from '@src/lib/logger';
 import { logStorageSize, cleanupStaleTabs } from '@src/lib/storage';
-import { extractDomain, isDomainAllowed, isSpecialPage } from '@src/lib/domain';
-import type { EventsCapturedMessage, ReloadDetectedMessage } from '@src/types/messages';
+import { extractDomain, isDomainAllowed, isSpecialPage, normalizeDomain } from '@src/lib/domain';
+import type { EventsCapturedMessage, ReloadDetectedMessage, DomainChangedMessage } from '@src/types/messages';
 import {
   isExtensionMessage,
   isGetEventsMessage,
@@ -40,14 +40,17 @@ log.info('🚀 Background service worker loaded');
 // Note: Service workers can be terminated, so we also persist to storage
 const tabEvents = new Map<number, SegmentEvent[]>();
 
-// In-memory domain tracking (per tab)
-// Maps tabId to { domain, isAllowed }
-// Updated via onUpdated listener for fast lookups
+  // In-memory domain tracking (per tab)
+  // Maps tabId to { domain, isAllowed }
+  // Updated via onUpdated listener for fast lookups
 interface TabDomainInfo {
   domain: string;
   isAllowed: boolean;
 }
 const tabDomains = new Map<number, TabDomainInfo>();
+
+// Track last known domain per tab to detect changes
+const lastKnownDomains = new Map<number, string>();
 
 /**
  * Get the current maxEvents limit from config store
@@ -275,17 +278,66 @@ function updateTabDomainInfo(tabId: number, url: string): void {
   
   // Handle special pages and invalid URLs
   if (!domain || isSpecialPage(url)) {
+    const previousDomain = lastKnownDomains.get(tabId);
     tabDomains.set(tabId, { domain: '', isAllowed: false });
+    lastKnownDomains.set(tabId, '');
+    
+    // Notify if domain changed (from valid to invalid)
+    if (previousDomain && previousDomain !== '') {
+      notifyDomainChanged(tabId, null);
+    }
     return;
   }
   
+  // Check if domain actually changed
+  const previousDomain = lastKnownDomains.get(tabId);
+  const domainChanged = previousDomain !== domain;
+  
   // Check against allowlist and denied list
   const config = useConfigStore.getState();
-  const isDenied = config.deniedDomains.includes(domain);
+  
+  // Normalize domain for denied list check (denied domains are stored normalized)
+  const normalizedDomain = normalizeDomain(domain);
+  const isDenied = config.deniedDomains.some((denied) => {
+    const normalizedDenied = normalizeDomain(denied);
+    return normalizedDenied === normalizedDomain || denied === domain;
+  });
+  
   const isAllowed = !isDenied && isDomainAllowed(domain, config.allowedDomains);
   
   tabDomains.set(tabId, { domain, isAllowed });
-  log.debug(`🌐 Updated domain info for tab ${tabId}: ${domain} (allowed: ${isAllowed}, denied: ${isDenied})`);
+  lastKnownDomains.set(tabId, domain);
+  
+  log.debug(`🌐 Updated domain info for tab ${tabId}: ${domain} (normalized: ${normalizedDomain}, allowed: ${isAllowed}, denied: ${isDenied})`);
+  
+  // Log detailed matching info for debugging
+  if (!isAllowed && !isDenied) {
+    log.debug(`🔍 Domain ${domain} not in allowlist. Allowed domains:`, config.allowedDomains.map(d => `${d.domain} (subdomains: ${d.allowSubdomains})`));
+  }
+  
+  // Notify panel if domain changed
+  if (domainChanged) {
+    notifyDomainChanged(tabId, domain);
+  }
+}
+
+/**
+ * Notify DevTools panel when domain changes
+ */
+function notifyDomainChanged(tabId: number, domain: string | null): void {
+  try {
+    const message: DomainChangedMessage = {
+      type: 'DOMAIN_CHANGED',
+      tabId,
+      domain,
+    };
+    Browser.runtime.sendMessage(message).catch((error) => {
+      // No listeners - panel might not be open, that's okay
+      log.debug(`⚠️ No listeners for domain change notification:`, error);
+    });
+  } catch (error) {
+    log.debug(`⚠️ Failed to notify domain change:`, error);
+  }
 }
 
 /**
