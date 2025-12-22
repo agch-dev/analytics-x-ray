@@ -79,21 +79,23 @@ export function DomainPermissionPrompt({
     if (isHorizontal) {
       // Horizontal two-column layout for subdomain case
       return (
-        <div className="flex h-full overflow-y-auto">
-          <div className="flex-1 flex flex-col items-center justify-start p-6 border-r border-border overflow-y-auto">
-            {/* Left column: Icon, title, description */}
-            <div className="max-w-md space-y-6 text-center pt-4">
-              {/* Icon */}
-              <div className="flex justify-center">
-                <div className="rounded-full bg-primary/10 p-4">
-                  <HugeiconsIcon
-                    icon={Shield01Icon}
-                    size={48}
-                    className="text-primary"
-                  />
-                </div>
+        <div className="flex h-full overflow-y-auto relative">
+          {/* Centered icon overlapping the border */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+            <div className="rounded-full bg-background border-2 border-border p-3">
+              <div className="rounded-full bg-primary/10 p-3">
+                <HugeiconsIcon
+                  icon={Shield01Icon}
+                  size={40}
+                  className="text-primary"
+                />
               </div>
+            </div>
+          </div>
 
+          <div className="flex-1 flex flex-col items-center justify-start p-6 border-r border-border overflow-y-auto">
+            {/* Left column: Title, description */}
+            <div className="max-w-md space-y-4 text-center w-full my-auto">
               {/* Title */}
               <div className="space-y-2">
                 <h2 className="text-2xl font-semibold text-foreground">
@@ -126,7 +128,7 @@ export function DomainPermissionPrompt({
 
           <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-y-auto">
             {/* Right column: Options and actions */}
-            <div className="max-w-md w-full space-y-3 pt-4">
+            <div className="max-w-md w-full space-y-3 pt-4 my-auto">
               {/* Two main options in a grid */}
               <div className="grid grid-cols-1 gap-3">
                 <div className="space-y-1.5">
@@ -178,7 +180,7 @@ export function DomainPermissionPrompt({
     // Vertical layout for subdomain case
     return (
       <div className="flex flex-col items-center justify-start h-full p-4 pb-2 text-center overflow-y-auto">
-        <div className="max-w-md space-y-6 mx-auto pt-4">
+        <div className="max-w-md space-y-6 mx-auto pt-4 my-auto">
           {/* Icon */}
           <div className="flex justify-center">
             <div className="rounded-full bg-primary/10 p-4">
@@ -269,21 +271,23 @@ export function DomainPermissionPrompt({
   if (isHorizontal) {
     // Horizontal two-column layout for normal case
     return (
-      <div className="flex h-full overflow-y-auto">
-        <div className="flex-1 flex flex-col items-center justify-start p-6 border-r border-border overflow-y-auto">
-          {/* Left column: Icon, title, description */}
-          <div className="max-w-md space-y-6 text-center pt-4">
-            {/* Icon */}
-            <div className="flex justify-center">
-              <div className="rounded-full bg-primary/10 p-4">
-                <HugeiconsIcon
-                  icon={Shield01Icon}
-                  size={48}
-                  className="text-primary"
-                />
-              </div>
+      <div className="flex h-full overflow-y-auto relative">
+        {/* Centered icon overlapping the border */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="rounded-full bg-background border-2 border-border p-3">
+            <div className="rounded-full bg-primary/10 p-3">
+              <HugeiconsIcon
+                icon={Shield01Icon}
+                size={40}
+                className="text-primary"
+              />
             </div>
+          </div>
+        </div>
 
+        <div className="flex-1 flex flex-col items-center justify-center p-6 border-r border-border overflow-y-auto">
+          {/* Left column: Title, description */}
+          <div className="max-w-md space-y-4 text-center w-full my-auto">
             {/* Title */}
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold text-foreground">
@@ -357,8 +361,8 @@ export function DomainPermissionPrompt({
 
   // Vertical layout for normal case
   return (
-    <div className="flex flex-col items-center justify-start h-full p-4 pb-2 text-center overflow-y-auto">
-      <div className="max-w-md space-y-6 mx-auto pt-4">
+    <div className="flex flex-col items-center justify-center h-full p-4 pb-2 text-center overflow-y-auto">
+      <div className="max-w-md space-y-6 mx-auto pt-4 my-auto">
         {/* Icon */}
         <div className="flex justify-center">
           <div className="rounded-full bg-primary/10 p-4">
