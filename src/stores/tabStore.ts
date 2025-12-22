@@ -15,6 +15,7 @@ import { createTabStorage, logStorageSize } from '@src/lib/storage';
 import type { SegmentEvent } from '@src/types/segment';
 import { createContextLogger } from '@src/lib/logger';
 import Browser from 'webextension-polyfill';
+import { useConfigStore } from '@src/stores/configStore';
 
 const log = createContextLogger('storage');
 
@@ -68,6 +69,8 @@ const defaultTabState: TabState = {
  * 
  * @param tabId - The tab ID to create/store data for
  * @param maxEvents - Maximum number of events to store (default: from config or 500)
+ *                    Note: This is only used as a fallback. The actual limit is read
+ *                    dynamically from the config store to allow instant updates.
  */
 export const createTabStore = (tabId: number, maxEvents: number = 500) => {
   return create<TabStore>()(
@@ -90,8 +93,19 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
               return state;
             }
             
-            const events = [event, ...state.events].slice(0, maxEvents);
-            log.debug(`  ✅ Added event. Total events in store: ${events.length}`);
+            // Read maxEvents dynamically from config store to allow instant updates
+            // Fall back to the passed maxEvents if config store is not available
+            let currentMaxEvents = maxEvents;
+            try {
+              const configState = useConfigStore.getState();
+              currentMaxEvents = configState.maxEvents;
+            } catch (error) {
+              // Config store might not be available in all contexts, use fallback
+              log.debug(`  ⚠️ Could not read maxEvents from config store, using fallback: ${maxEvents}`);
+            }
+            
+            const events = [event, ...state.events].slice(0, currentMaxEvents);
+            log.debug(`  ✅ Added event. Total events in store: ${events.length} (max: ${currentMaxEvents})`);
             
             // Log storage size periodically (every 25 events to avoid spam)
             if (events.length % 25 === 0) {

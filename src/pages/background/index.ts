@@ -23,6 +23,7 @@ import {
   isClearEventsMessage,
   isGetEventCountMessage,
 } from '@src/types/messages';
+import { useConfigStore } from '@src/stores/configStore';
 
 const log = createContextLogger('background');
 
@@ -36,7 +37,19 @@ log.info('🚀 Background service worker loaded');
 // In-memory event storage (per tab)
 // Note: Service workers can be terminated, so we also persist to storage
 const tabEvents = new Map<number, SegmentEvent[]>();
-const MAX_EVENTS_PER_TAB = 500;
+
+/**
+ * Get the current maxEvents limit from config store
+ * Falls back to 500 if config store is not available
+ */
+function getMaxEvents(): number {
+  try {
+    return useConfigStore.getState().maxEvents;
+  } catch (error) {
+    log.debug('⚠️ Could not read maxEvents from config store, using default: 500');
+    return 500;
+  }
+}
 
 /**
  * Set up the webRequest listener to intercept Segment API calls
@@ -143,7 +156,8 @@ async function storeEvents(
   // Update in-memory store
   // Note: Deduplication happens in tabStore.addEvent(), not here
   const existing = tabEvents.get(tabId) || [];
-  const updated = [...newEvents, ...existing].slice(0, MAX_EVENTS_PER_TAB);
+  const maxEvents = getMaxEvents();
+  const updated = [...newEvents, ...existing].slice(0, maxEvents);
   tabEvents.set(tabId, updated);
 
   log.debug(`💾 Stored ${newEvents.length} event(s) in memory (total: ${updated.length} for tab ${tabId})`);
@@ -453,6 +467,48 @@ async function restoreEventsFromStorage(): Promise<void> {
   }
 }
 
+/**
+ * Trim events for all tabs when maxEvents is reduced
+ * This ensures that when a user reduces the limit, existing events are trimmed immediately
+ */
+function setupMaxEventsListener() {
+  let previousMaxEvents = getMaxEvents();
+  
+  // Subscribe to config store changes and check if maxEvents changed
+  useConfigStore.subscribe((state) => {
+    const currentMaxEvents = state.maxEvents;
+    
+    // Only trim if maxEvents was reduced
+    if (currentMaxEvents < previousMaxEvents) {
+      log.info(`📉 Max events reduced from ${previousMaxEvents} to ${currentMaxEvents}, trimming existing events...`);
+      
+      // Trim events for all active tabs
+      for (const [tabId, events] of tabEvents.entries()) {
+        if (events.length > currentMaxEvents) {
+          const trimmed = events.slice(0, currentMaxEvents);
+          tabEvents.set(tabId, trimmed);
+          log.debug(`  ✂️ Trimmed tab ${tabId}: ${events.length} → ${trimmed.length} events`);
+          
+          // Also update persisted storage
+          Browser.storage.local.get('events').then((result) => {
+            const storedEvents: StoredEvents = (result.events as StoredEvents) || {};
+            storedEvents[tabId] = trimmed;
+            Browser.storage.local.set({ events: storedEvents }).catch((error) => {
+              log.error(`❌ Failed to persist trimmed events for tab ${tabId}:`, error);
+            });
+          }).catch((error) => {
+            log.error(`❌ Failed to read events for trimming tab ${tabId}:`, error);
+          });
+        }
+      }
+    }
+    
+    previousMaxEvents = currentMaxEvents;
+  });
+  
+  log.info('👂 Max events change listener registered');
+}
+
 // Initialize
 log.info('🔧 Initializing background script...');
 restoreEventsFromStorage().then(() => {
@@ -461,4 +517,5 @@ restoreEventsFromStorage().then(() => {
 });
 setupWebRequestListener();
 setupReloadTracking();
+setupMaxEventsListener();
 log.info('✅ Background script initialization complete');

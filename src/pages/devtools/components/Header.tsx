@@ -1,11 +1,13 @@
 import { Badge, Input, Logo } from '@src/components';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Search01Icon, SearchRemoveIcon } from '@hugeicons/core-free-icons';
+import { Search01Icon, SearchRemoveIcon, Clock04Icon } from '@hugeicons/core-free-icons';
 import Browser from 'webextension-polyfill';
 import { ActionButtons } from './ActionButtons';
 
 interface HeaderProps {
   eventCount: number;
+  totalEventCount: number; // Total unfiltered events count
+  maxEvents: number; // Maximum events limit
   filteredEventNamesCount: number;
   isFilterPanelOpen: boolean;
   searchQuery: string;
@@ -16,6 +18,8 @@ interface HeaderProps {
 
 export function Header({ 
   eventCount, 
+  totalEventCount,
+  maxEvents,
   filteredEventNamesCount,
   isFilterPanelOpen,
   searchQuery,
@@ -23,6 +27,8 @@ export function Header({
   onClear,
   onToggleFilterPanel,
 }: HeaderProps) {
+  // Check if we're at the max events limit (showing truncation indicator)
+  const isAtMaxEvents = totalEventCount >= maxEvents;
   const handleOpenSettings = () => {
     Browser.runtime.openOptionsPage();
   };
@@ -37,8 +43,20 @@ export function Header({
               Analytics X-Ray
             </h1>
           </div>
-          <Badge variant="secondary" className="text-xs font-mono shrink-0">
-            <span >{eventCount} events</span>
+          <Badge variant="secondary" className="text-xs font-mono shrink-0 flex items-center gap-1.5">
+            <span>{eventCount} events</span>
+            {isAtMaxEvents && (
+              <span 
+                title={`Event log is truncated at ${maxEvents} events. Older events are being removed.`}
+                className="flex items-center"
+              >
+                <HugeiconsIcon 
+                  icon={Clock04Icon} 
+                  size={14} 
+                  className="text-yellow-500 animate-pulse"
+                />
+              </span>
+            )}
           </Badge>
         </div>
         

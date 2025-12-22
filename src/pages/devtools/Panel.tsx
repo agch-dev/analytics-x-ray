@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
 import { getTabStore } from '@src/stores/tabStore';
-import { useConfigStore, selectPreferredEventDetailView } from '@src/stores/configStore';
+import { useConfigStore, selectPreferredEventDetailView, selectMaxEvents } from '@src/stores/configStore';
 import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
@@ -25,8 +25,25 @@ export default function Panel() {
   const preferredViewMode = useConfigStore(selectPreferredEventDetailView);
   const setPreferredEventDetailView = useConfigStore((state) => state.setPreferredEventDetailView);
   
-  // Initialize tab store
-  const useTabStore = useMemo(() => getTabStore(tabId, 500), []);
+  // Get maxEvents from config store to pass to tab store
+  const maxEvents = useConfigStore(selectMaxEvents);
+  
+  // Initialize tab store with current maxEvents from config
+  // Note: The store will read maxEvents dynamically from config store on each addEvent,
+  // but we pass it here for initial setup and fallback
+  const useTabStore = useMemo(() => getTabStore(tabId, maxEvents), [maxEvents]);
+  
+  // Trim events when maxEvents is reduced (apply instantly when user changes setting)
+  useEffect(() => {
+    const currentEvents = useTabStore.getState().events;
+    if (currentEvents.length > maxEvents) {
+      log.info(`✂️ Trimming events from ${currentEvents.length} to ${maxEvents} (maxEvents setting changed)`);
+      useTabStore.setState({
+        events: currentEvents.slice(0, maxEvents),
+        lastUpdated: Date.now(),
+      });
+    }
+  }, [maxEvents, useTabStore]);
   
   // Selectors - only subscribe to what we need
   const events = useTabStore((state) => state.events);
@@ -174,6 +191,8 @@ export default function Panel() {
     <div className="h-screen bg-background text-foreground flex flex-col">
       <Header
         eventCount={filteredEvents.length}
+        totalEventCount={events.length}
+        maxEvents={maxEvents}
         filteredEventNamesCount={filteredEventNamesCount}
         isFilterPanelOpen={isFilterPanelOpen}
         searchQuery={searchInput}
