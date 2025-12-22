@@ -14,6 +14,7 @@ interface HeaderProps {
   onSearchChange: (query: string) => void;
   onClear: () => void;
   onToggleFilterPanel: () => void;
+  onOpenFeedback: () => void;
 }
 
 export function Header({ 
@@ -26,6 +27,7 @@ export function Header({
   onSearchChange,
   onClear,
   onToggleFilterPanel,
+  onOpenFeedback,
 }: HeaderProps) {
   // Check if we're at the max events limit (showing truncation indicator)
   const isAtMaxEvents = totalEventCount >= maxEvents;
@@ -66,6 +68,7 @@ export function Header({
           onClear={onClear}
           onToggleFilterPanel={onToggleFilterPanel}
           onOpenSettings={handleOpenSettings}
+          onOpenFeedback={onOpenFeedback}
           className="lg:hidden"
         />
       </div>
@@ -102,6 +105,7 @@ export function Header({
         onClear={onClear}
         onToggleFilterPanel={onToggleFilterPanel}
         onOpenSettings={handleOpenSettings}
+        onOpenFeedback={onOpenFeedback}
         className="hidden lg:flex"
       />
     </header>

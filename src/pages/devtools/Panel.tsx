@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
 import { getTabStore } from '@src/stores/tabStore';
 import { useConfigStore, selectPreferredEventDetailView, selectMaxEvents, selectAllowedDomains, selectDeniedDomains } from '@src/stores/configStore';
-import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, DomainPermissionPrompt, TrackingDisabledMessage, type EventListHandle } from './components';
+import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, DomainPermissionPrompt, TrackingDisabledMessage, FeedbackModal, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
@@ -22,6 +22,7 @@ export default function Panel() {
   const eventListRef = useRef<EventListHandle>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   
   // Domain tracking state
   const [currentDomain, setCurrentDomain] = useState<string | null>(null);
@@ -338,6 +339,7 @@ export default function Panel() {
         onSearchChange={handleSearchChange}
         onClear={handleClearEvents}
         onToggleFilterPanel={handleToggleFilterPanel}
+        onOpenFeedback={() => setIsFeedbackModalOpen(true)}
       />
       
       {isFilterPanelOpen && (
@@ -386,6 +388,11 @@ export default function Panel() {
       />
       
       <Footer tabId={tabId} />
+      
+      <FeedbackModal
+        open={isFeedbackModalOpen}
+        onOpenChange={setIsFeedbackModalOpen}
+      />
     </div>
   );
 }

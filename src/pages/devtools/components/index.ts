@@ -15,6 +15,7 @@ export { FilterPanel } from './FilterPanel';
 export { ScrollToBottomButton } from './ScrollToBottomButton';
 export { DomainPermissionPrompt } from './DomainPermissionPrompt';
 export { TrackingDisabledMessage } from './TrackingDisabledMessage';
+export { FeedbackModal } from './FeedbackModal';
 
 // Detail view components
 export {

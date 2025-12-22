@@ -12,6 +12,7 @@ import {
   MoreVerticalIcon,
   Settings02Icon,
   FilterIcon,
+  Mail01Icon,
 } from '@hugeicons/core-free-icons';
 import Browser from 'webextension-polyfill';
 import { cn } from '@src/lib';
@@ -22,6 +23,7 @@ interface ActionButtonsProps {
   onClear: () => void;
   onToggleFilterPanel: () => void;
   onOpenSettings: () => void;
+  onOpenFeedback: () => void;
   className?: string;
 }
 
@@ -31,6 +33,7 @@ export function ActionButtons({
   onClear,
   onToggleFilterPanel,
   onOpenSettings,
+  onOpenFeedback,
   className,
 }: ActionButtonsProps) {
   return (
@@ -80,6 +83,10 @@ export function ActionButtons({
           <DropdownMenuItem onClick={onOpenSettings}>
             <HugeiconsIcon icon={Settings02Icon} size={14} className="mr-2" />
             Settings
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onOpenFeedback}>
+            <HugeiconsIcon icon={Mail01Icon} size={14} className="mr-2" />
+            Feedback
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
