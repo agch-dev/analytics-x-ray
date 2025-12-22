@@ -30,7 +30,6 @@ export interface TabState {
   searchQuery: string; // Search query for filtering events
   
   // Tab metadata
-  tabUrl: string | null;
   lastUpdated: number;
   
   // Reload tracking
@@ -47,7 +46,6 @@ interface TabStore extends TabState {
   showAllEventNames: () => void; // Show all hidden event names
   hideAllEventNames: (eventNames: string[]) => void; // Hide all provided event names
   setSearchQuery: (query: string) => void; // Set search query
-  setTabUrl: (url: string) => void;
   addReloadTimestamp: (timestamp: number) => void; // Add a reload timestamp
   reset: () => void;
 }
@@ -58,7 +56,6 @@ const defaultTabState: TabState = {
   expandedEventIds: new Set(),
   hiddenEventNames: new Set(),
   searchQuery: '',
-  tabUrl: null,
   lastUpdated: Date.now(),
   reloadTimestamps: [],
 };
@@ -181,10 +178,6 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
 
         setSearchQuery: (query) => {
           set({ searchQuery: query });
-        },
-
-        setTabUrl: (url) => {
-          set({ tabUrl: url });
         },
 
         addReloadTimestamp: (timestamp) => {

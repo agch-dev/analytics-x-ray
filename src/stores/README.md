@@ -49,7 +49,6 @@ Stores tab-specific analytics events and UI state. Each tab has its own isolated
 - `events` (SegmentEvent[]) - Array of captured Segment events for this tab
 - `selectedEventId` (string | null) - ID of the currently selected event (for detail panel)
 - `expandedEventIds` (Set<string>) - Set of expanded event IDs (for list view)
-- `tabUrl` (string | null) - Current tab URL
 - `lastUpdated` (number) - Timestamp of last update
 
 **Key Methods:**
@@ -57,7 +56,6 @@ Stores tab-specific analytics events and UI state. Each tab has its own isolated
 - `clearEvents()` - Clear all events for this tab
 - `setSelectedEvent(id)` - Select one event (for detail panel - only one can be selected)
 - `toggleEventExpanded(id)` - Toggle event expansion in list (multiple can be expanded)
-- `setTabUrl(url)` - Update the tab URL
 - `reset()` - Reset tab state to defaults
 
 **Usage:**

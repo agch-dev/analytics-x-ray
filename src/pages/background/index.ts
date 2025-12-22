@@ -252,23 +252,8 @@ async function clearEventsForTab(tabId: number): Promise<void> {
  */
 function setupReloadTracking() {
   // Track the last known URL for each tab to detect reloads
-  // This is in-memory for quick access, but we also persist to storage
+  // This is in-memory only - we don't need to persist across extension restarts
   const tabUrls = new Map<number, string>();
-  
-  // Load tab URLs from storage on startup
-  Browser.storage.local.get(null).then((allStorage) => {
-    const tabUrlsKey = 'tab_urls';
-    const storedTabUrls = (allStorage[tabUrlsKey] as Record<string, string>) || {};
-    for (const [tabIdStr, url] of Object.entries(storedTabUrls)) {
-      const tabId = parseInt(tabIdStr, 10);
-      if (!isNaN(tabId) && url) {
-        tabUrls.set(tabId, url);
-      }
-    }
-    log.debug(`📋 Restored ${tabUrls.size} tab URLs from storage`);
-  }).catch((error) => {
-    log.error('❌ Failed to restore tab URLs:', error);
-  });
   
   Browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     // Only process when status changes to 'loading'
@@ -344,19 +329,8 @@ function setupReloadTracking() {
       }
     }
     
-    // Update the stored URL for this tab (both in memory and storage)
+    // Update the stored URL for this tab (in memory only)
     tabUrls.set(tabId, currentUrl);
-    
-    // Persist tab URLs to storage
-    try {
-      const tabUrlsKey = 'tab_urls';
-      const result = await Browser.storage.local.get(tabUrlsKey);
-      const storedTabUrls = (result[tabUrlsKey] as Record<string, string>) || {};
-      storedTabUrls[tabId.toString()] = currentUrl;
-      await Browser.storage.local.set({ [tabUrlsKey]: storedTabUrls });
-    } catch (error) {
-      log.error(`❌ Failed to persist tab URL for tab ${tabId}:`, error);
-    }
   });
   
   log.info('🔄 Reload tracking initialized');
@@ -434,13 +408,6 @@ async function cleanupTabData(tabId: number): Promise<void> {
     // Clean up reload timestamps
     const reloadsKey = `tab_${tabId}_reloads`;
     await Browser.storage.local.remove(reloadsKey);
-    
-    // Clean up tab URL from storage
-    const tabUrlsKey = 'tab_urls';
-    const tabUrlsResult = await Browser.storage.local.get(tabUrlsKey);
-    const storedTabUrls = (tabUrlsResult[tabUrlsKey] as Record<string, string>) || {};
-    delete storedTabUrls[tabId.toString()];
-    await Browser.storage.local.set({ [tabUrlsKey]: storedTabUrls });
     
     // Clean up Zustand persisted storage (tab_${tabId}_store)
     const zustandKey = `tab_${tabId}_store`;

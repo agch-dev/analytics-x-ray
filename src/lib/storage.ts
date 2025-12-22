@@ -221,14 +221,6 @@ export const cleanupStaleTabs = async (maxAgeMs: number = 24 * 60 * 60 * 1000): 
       
       // Remove reload timestamps
       keysToRemove.push(`tab_${tabId}_reloads`);
-      
-      // Remove tab URL
-      const tabUrlsKey = 'tab_urls';
-      const tabUrls = allStorage[tabUrlsKey];
-      if (tabUrls && typeof tabUrls === 'object') {
-        const urls = tabUrls as Record<string, unknown>;
-        delete urls[tabId.toString()];
-      }
     }
 
     // Remove all identified keys
@@ -240,14 +232,6 @@ export const cleanupStaleTabs = async (maxAgeMs: number = 24 * 60 * 60 * 1000): 
     if (eventsStorage && typeof eventsStorage === 'object') {
       const events = eventsStorage as Record<string, unknown>;
       await Browser.storage.local.set({ events });
-    }
-
-    // Update tab URLs if we modified it
-    const tabUrlsKey = 'tab_urls';
-    const tabUrls = allStorage[tabUrlsKey];
-    if (tabUrls && typeof tabUrls === 'object') {
-      const urls = tabUrls as Record<string, unknown>;
-      await Browser.storage.local.set({ [tabUrlsKey]: urls });
     }
 
     const cleanedCount = staleTabIds.size;
