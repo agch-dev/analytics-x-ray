@@ -118,7 +118,7 @@ export function DomainPermissionPrompt({
                   <p className="font-medium text-foreground">Privacy Notice:</p>
                   <ul className="space-y-1 list-disc list-inside text-xs">
                     <li>All data is stored locally on your device</li>
-                    <li>No data is sent to external servers</li>
+                    <li>No scanned data is sent to external servers</li>
                     <li>You have full control over which domains are locally scanned</li>
                   </ul>
                 </div>
@@ -214,7 +214,7 @@ export function DomainPermissionPrompt({
               <p className="font-medium text-foreground">Privacy Notice:</p>
               <ul className="space-y-1 list-disc list-inside text-xs">
                 <li>All data is stored locally on your device</li>
-                <li>No data is sent to external servers</li>
+                <li>No scanned data is sent to external servers</li>
                 <li>You have full control over which domains are locally scanned</li>
               </ul>
             </div>
@@ -307,7 +307,7 @@ export function DomainPermissionPrompt({
                 <p className="font-medium text-foreground">Privacy Notice:</p>
                 <ul className="space-y-1 list-disc list-inside text-xs">
                   <li>All data is stored locally on your device</li>
-                  <li>No data is sent to external servers</li>
+                  <li>No scanned data is sent to external servers</li>
                   <li>You have full control over which domains are locally scanned</li>
                 </ul>
               </div>
@@ -393,7 +393,7 @@ export function DomainPermissionPrompt({
             <p className="font-medium text-foreground">Privacy Notice:</p>
             <ul className="space-y-1 list-disc list-inside text-xs">
               <li>All data is stored locally on your device</li>
-              <li>No data is sent to external servers</li>
+              <li>No scanned data is sent to external servers</li>
               <li>You have full control over which domains are locally scanned</li>
             </ul>
           </div>
