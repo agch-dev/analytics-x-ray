@@ -18,7 +18,7 @@ interface SupportModalProps {
 export function SupportModal({ open, onOpenChange }: SupportModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3 text-left">
           <DialogTitle className="flex items-center gap-2">
             <HugeiconsIcon icon={HeartCheckIcon} size={20} className="text-primary" />
