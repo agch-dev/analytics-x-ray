@@ -6,7 +6,8 @@ import {
   DialogTitle,
 } from '@src/components/ui/dialog';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Mail01Icon } from '@hugeicons/core-free-icons';
+import { Mail01Icon, GithubIcon } from '@hugeicons/core-free-icons';
+import { getFeedbackMailtoLink } from '@src/lib/utils';
 
 interface FeedbackModalProps {
   open: boolean;
@@ -28,15 +29,28 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
         </DialogHeader>
         <div className="py-4">
           <p className="text-sm text-muted-foreground mb-4">
-            Please send your feedback to:
+            Choose how you'd like to send your feedback:
           </p>
-          <div className="flex items-center gap-2 p-3 bg-muted">
-            <HugeiconsIcon icon={Mail01Icon} size={16} className="text-muted-foreground" />
+          <div className="space-y-3">
             <a
-              href={`mailto:feedback@agch.dev?subject=${encodeURIComponent('Analytics x-ray - Feedback')}&body=${encodeURIComponent('Hi,\n\nI wanted to share some feedback about Analytics x-ray:\n\n\n\n---\n\n(Please include any relevant details about your feedback, suggestions, or issues you\'ve encountered)')}`}
-              className="text-sm font-mono text-primary hover:underline"
+              href={getFeedbackMailtoLink()}
+              className="flex items-center gap-2 p-3 bg-muted hover:bg-muted/80 rounded-md transition-colors"
             >
-              feedback@agch.dev
+              <HugeiconsIcon icon={Mail01Icon} size={16} className="text-muted-foreground" />
+              <span className="text-sm font-mono text-primary hover:underline">
+                feedback@agch.dev
+              </span>
+            </a>
+            <a
+              href="https://github.com/agch-dev/analytics-x-ray/issues/new"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 p-3 bg-muted hover:bg-muted/80 rounded-md transition-colors"
+            >
+              <HugeiconsIcon icon={GithubIcon} size={16} className="text-muted-foreground" />
+              <span className="text-sm font-mono text-primary hover:underline">
+                Create GitHub Issue
+              </span>
             </a>
           </div>
           <p className="text-xs text-muted-foreground mt-4">

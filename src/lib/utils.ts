@@ -220,3 +220,21 @@ export function domainsAreDifferent(
   return domain1 !== domain2;
 }
 
+/**
+ * Generate a mailto link for feedback emails
+ * @param email - The email address to send feedback to (default: feedback@agch.dev)
+ * @param subject - The email subject (default: 'Analytics x-ray - Feedback')
+ * @param body - The email body template (optional, uses default if not provided)
+ * @returns A mailto URL string
+ */
+export function getFeedbackMailtoLink(
+  email: string = 'feedback@agch.dev',
+  subject: string = 'Analytics x-ray - Feedback',
+  body?: string
+): string {
+  const defaultBody = 'Hi,\n\nI wanted to share some feedback about Analytics x-ray:\n\n\n\n---\n\n(Please include any relevant details about your feedback, suggestions, or issues you\'ve encountered)';
+  const emailBody = body ?? defaultBody;
+  
+  return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+}
+

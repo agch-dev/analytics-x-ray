@@ -6,9 +6,9 @@ import {
   DialogTitle,
 } from '@src/components/ui/dialog';
 import { buttonVariants } from '@src/components/ui/button';
-import { cn } from '@src/lib/utils';
+import { cn, getFeedbackMailtoLink } from '@src/lib/utils';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { HeartCheckIcon, Coffee01Icon } from '@hugeicons/core-free-icons';
+import { HeartCheckIcon, Coffee01Icon, Mail01Icon } from '@hugeicons/core-free-icons';
 
 interface SupportModalProps {
   open: boolean;
@@ -51,12 +51,24 @@ export function SupportModal({ open, onOpenChange }: SupportModalProps) {
               This is an open source project. You can contribute at:
             </p>
             <a
-              href="https://github.com/aguscha333/analytics-x-ray"
+              href="https://github.com/agch-dev/analytics-x-ray"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-primary hover:underline font-mono text-center block"
             >
-              github.com/aguscha333/analytics-x-ray
+              github.com/agch-dev/analytics-x-ray
+            </a>
+          </div>
+          <div className="mt-4 pt-4 border-t border-border">
+            <p className="text-xs text-muted-foreground text-center mb-2">
+              Would love to hear your feedback!
+            </p>
+            <a
+              href={getFeedbackMailtoLink()}
+              className="text-xs text-primary hover:underline font-mono text-center flex items-center justify-center gap-1.5"
+            >
+              <HugeiconsIcon icon={Mail01Icon} size={14} />
+              feedback@agch.dev
             </a>
           </div>
         </div>
