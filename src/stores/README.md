@@ -160,7 +160,7 @@ The `src/lib/storage.ts` module provides:
 ## Storage Keys
 
 - Global config: `analytics-xray-config`
-- Tab data: `tab_{tabId}_tab-{tabId}`
+- Tab data: `tab_{tabId}_store`
 
 Storage is automatically managed by Zustand's persist middleware.
 

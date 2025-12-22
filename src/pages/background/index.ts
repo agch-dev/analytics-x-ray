@@ -442,8 +442,8 @@ async function cleanupTabData(tabId: number): Promise<void> {
     delete storedTabUrls[tabId.toString()];
     await Browser.storage.local.set({ [tabUrlsKey]: storedTabUrls });
     
-    // Clean up Zustand persisted storage (tab_${tabId}_tab-${tabId})
-    const zustandKey = `tab_${tabId}_tab-${tabId}`;
+    // Clean up Zustand persisted storage (tab_${tabId}_store)
+    const zustandKey = `tab_${tabId}_store`;
     await Browser.storage.local.remove(zustandKey);
     
     log.debug(`✅ Cleaned up all data for tab ${tabId}`);

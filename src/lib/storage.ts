@@ -154,9 +154,9 @@ export const cleanupStaleTabs = async (maxAgeMs: number = 24 * 60 * 60 * 1000): 
     const staleTabIds = new Set<number>();
     const keysToRemove: string[] = [];
 
-    // Find Zustand storage keys (tab_${tabId}_tab-${tabId}) and check their lastUpdated
+    // Find Zustand storage keys (tab_${tabId}_store) and check their lastUpdated
     for (const key of Object.keys(allStorage)) {
-      const zustandMatch = key.match(/^tab_(\d+)_tab-\d+$/);
+      const zustandMatch = key.match(/^tab_(\d+)_store$/);
       if (zustandMatch) {
         const tabId = parseInt(zustandMatch[1], 10);
         

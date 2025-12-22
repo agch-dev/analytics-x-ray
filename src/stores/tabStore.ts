@@ -198,7 +198,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         },
       }),
       {
-        name: `tab-${tabId}`,
+        name: 'store', // Storage key will be: tab_${tabId}_store
         storage: createJSONStorage(() => createTabStorage(tabId)),
         version: 1,
         // Custom serialization for Set - convert to arrays for JSON storage
