@@ -6,9 +6,10 @@ import { SupportModal } from './SupportModal';
 
 interface FooterProps {
   tabId: number;
+  isListening?: boolean;
 }
 
-export function Footer({ tabId }: FooterProps) {
+export function Footer({ tabId, isListening = true }: FooterProps) {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   return (
@@ -28,8 +29,14 @@ export function Footer({ tabId }: FooterProps) {
           <div className="h-4 w-px bg-border" />
           <span>Tab {tabId}</span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Listening
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                isListening
+                  ? 'bg-emerald-500 animate-pulse'
+                  : 'bg-amber-500'
+              }`}
+            />
+            {isListening ? 'Listening' : 'Paused'}
           </span>
         </div>
       </footer>

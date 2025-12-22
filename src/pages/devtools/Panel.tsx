@@ -387,7 +387,7 @@ export default function Panel() {
         onClick={handleScrollToBottom}
       />
       
-      <Footer tabId={tabId} />
+      <Footer tabId={tabId} isListening={domainAllowed === true} />
       
       <FeedbackModal
         open={isFeedbackModalOpen}
