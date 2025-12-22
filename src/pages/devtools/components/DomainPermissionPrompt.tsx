@@ -285,7 +285,7 @@ export function DomainPermissionPrompt({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center p-6 border-r border-border overflow-y-auto">
+        <div className="flex-1 flex flex-col items-center justify-start p-6 border-r border-border overflow-y-auto">
           {/* Left column: Title, description */}
           <div className="max-w-md space-y-4 text-center w-full my-auto">
             {/* Title */}
@@ -317,7 +317,7 @@ export function DomainPermissionPrompt({
 
         <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-y-auto">
           {/* Right column: Subdomain option and actions */}
-          <div className="max-w-md w-full space-y-6 pt-4">
+          <div className="max-w-md w-full space-y-6 pt-4 my-auto">
             {/* Subdomain option */}
             <div className="flex items-center justify-between p-4 bg-card border border-border rounded-lg">
               <div className="space-y-0.5 flex-1">
@@ -361,7 +361,7 @@ export function DomainPermissionPrompt({
 
   // Vertical layout for normal case
   return (
-    <div className="flex flex-col items-center justify-center h-full p-4 pb-2 text-center overflow-y-auto">
+    <div className="flex flex-col items-center justify-start h-full p-4 pb-2 text-center overflow-y-auto">
       <div className="max-w-md space-y-6 mx-auto pt-4 my-auto">
         {/* Icon */}
         <div className="flex justify-center">
