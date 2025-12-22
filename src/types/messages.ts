@@ -13,7 +13,8 @@ export type MessageType =
   | 'CLEAR_EVENTS'
   | 'GET_EVENT_COUNT'
   | 'EVENTS_CAPTURED'
-  | 'RELOAD_DETECTED';
+  | 'RELOAD_DETECTED'
+  | 'GET_TAB_DOMAIN';
 
 // Base message interface
 export interface BaseMessage {
@@ -51,13 +52,19 @@ export interface ReloadDetectedMessage extends BaseMessage {
   timestamp: number;
 }
 
+export interface GetTabDomainMessage extends BaseMessage {
+  type: 'GET_TAB_DOMAIN';
+  tabId: number;
+}
+
 // Union of all messages
 export type ExtensionMessage =
   | GetEventsMessage
   | ClearEventsMessage
   | GetEventCountMessage
   | EventsCapturedMessage
-  | ReloadDetectedMessage;
+  | ReloadDetectedMessage
+  | GetTabDomainMessage;
 
 // Type guards
 export function isExtensionMessage(msg: unknown): msg is ExtensionMessage {
@@ -76,6 +83,7 @@ export function isExtensionMessage(msg: unknown): msg is ExtensionMessage {
     'GET_EVENT_COUNT',
     'EVENTS_CAPTURED',
     'RELOAD_DETECTED',
+    'GET_TAB_DOMAIN',
   ];
 
   return validTypes.includes(m.type as MessageType);
@@ -135,6 +143,16 @@ export function isReloadDetectedMessage(
     msg.type === 'RELOAD_DETECTED' &&
     typeof (msg as ReloadDetectedMessage).tabId === 'number' &&
     typeof (msg as ReloadDetectedMessage).timestamp === 'number'
+  );
+}
+
+export function isGetTabDomainMessage(
+  msg: unknown
+): msg is GetTabDomainMessage {
+  return (
+    isExtensionMessage(msg) &&
+    msg.type === 'GET_TAB_DOMAIN' &&
+    typeof (msg as GetTabDomainMessage).tabId === 'number'
   );
 }
 

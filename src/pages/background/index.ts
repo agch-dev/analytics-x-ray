@@ -16,12 +16,14 @@ import {
 } from '@src/lib/segment';
 import { createContextLogger } from '@src/lib/logger';
 import { logStorageSize, cleanupStaleTabs } from '@src/lib/storage';
+import { extractDomain, isDomainAllowed, isSpecialPage } from '@src/lib/domain';
 import type { EventsCapturedMessage, ReloadDetectedMessage } from '@src/types/messages';
 import {
   isExtensionMessage,
   isGetEventsMessage,
   isClearEventsMessage,
   isGetEventCountMessage,
+  isGetTabDomainMessage,
 } from '@src/types/messages';
 import { useConfigStore } from '@src/stores/configStore';
 
@@ -37,6 +39,15 @@ log.info('🚀 Background service worker loaded');
 // In-memory event storage (per tab)
 // Note: Service workers can be terminated, so we also persist to storage
 const tabEvents = new Map<number, SegmentEvent[]>();
+
+// In-memory domain tracking (per tab)
+// Maps tabId to { domain, isAllowed }
+// Updated via onUpdated listener for fast lookups
+interface TabDomainInfo {
+  domain: string;
+  isAllowed: boolean;
+}
+const tabDomains = new Map<number, TabDomainInfo>();
 
 /**
  * Get the current maxEvents limit from config store
@@ -72,6 +83,21 @@ function handleRequest(
 ): void {
   log.group(`🎯 Request intercepted (tabId: ${details.tabId})`, true);
   
+  // Early exit checks (before any expensive processing)
+  if (details.tabId < 0) {
+    log.debug('❌ Ignoring: Invalid tabId');
+    log.groupEnd();
+    return;
+  }
+  
+  // Check if domain is allowed (fast map lookup)
+  const tabDomainInfo = tabDomains.get(details.tabId);
+  if (!tabDomainInfo || !tabDomainInfo.isAllowed) {
+    log.debug(`❌ Ignoring: Domain not allowed (tabId: ${details.tabId}, domain: ${tabDomainInfo?.domain || 'unknown'})`);
+    log.groupEnd();
+    return;
+  }
+  
   // Only process POST requests with a body
   if (details.method !== 'POST') {
     log.debug('❌ Ignoring: Not a POST request');
@@ -80,11 +106,6 @@ function handleRequest(
   }
   if (!details.requestBody?.raw) {
     log.debug('❌ Ignoring: No request body');
-    log.groupEnd();
-    return;
-  }
-  if (details.tabId < 0) {
-    log.debug('❌ Ignoring: Invalid tabId');
     log.groupEnd();
     return;
   }
@@ -247,8 +268,48 @@ async function clearEventsForTab(tabId: number): Promise<void> {
 }
 
 /**
+ * Check if a domain is allowed and update tab domain map
+ */
+function updateTabDomainInfo(tabId: number, url: string): void {
+  const domain = extractDomain(url);
+  
+  // Handle special pages and invalid URLs
+  if (!domain || isSpecialPage(url)) {
+    tabDomains.set(tabId, { domain: '', isAllowed: false });
+    return;
+  }
+  
+  // Check against allowlist and denied list
+  const config = useConfigStore.getState();
+  const isDenied = config.deniedDomains.includes(domain);
+  const isAllowed = !isDenied && isDomainAllowed(domain, config.allowedDomains);
+  
+  tabDomains.set(tabId, { domain, isAllowed });
+  log.debug(`🌐 Updated domain info for tab ${tabId}: ${domain} (allowed: ${isAllowed}, denied: ${isDenied})`);
+}
+
+/**
+ * Re-evaluate all tabs when allowlist changes
+ */
+function reEvaluateAllTabs(): void {
+  log.info('🔄 Re-evaluating all tabs due to allowlist change...');
+  
+  // Get all open tabs and re-check their domains
+  Browser.tabs.query({}).then((tabs) => {
+    for (const tab of tabs) {
+      if (tab.id && tab.url) {
+        updateTabDomainInfo(tab.id, tab.url);
+      }
+    }
+    log.info(`✅ Re-evaluated ${tabs.length} tab(s)`);
+  }).catch((error) => {
+    log.error('❌ Failed to re-evaluate tabs:', error);
+  });
+}
+
+/**
  * Track page reloads by listening to tab updates
- * Detects when a tab reloads (status: 'loading' with same URL)
+ * Also tracks domain changes for allowlist checking
  */
 function setupReloadTracking() {
   // Track the last known URL for each tab to detect reloads
@@ -256,17 +317,24 @@ function setupReloadTracking() {
   const tabUrls = new Map<number, string>();
   
   Browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    // Only process when status changes to 'loading'
-    if (changeInfo.status !== 'loading') {
-      return;
-    }
-    
     // Need a valid tab ID and URL
     if (tabId < 0 || !tab.url) {
       return;
     }
     
     const currentUrl = tab.url;
+    
+    // Update domain tracking whenever URL changes (not just on loading)
+    // This ensures we catch domain changes even if status doesn't change to 'loading'
+    if (changeInfo.url || changeInfo.status === 'loading' || changeInfo.status === 'complete') {
+      updateTabDomainInfo(tabId, currentUrl);
+    }
+    
+    // Only process reload detection when status changes to 'loading'
+    if (changeInfo.status !== 'loading') {
+      return;
+    }
+    
     const previousUrl = tabUrls.get(tabId);
     
     // Normalize URLs for comparison (remove trailing slashes from path, but keep query/hash)
@@ -385,6 +453,28 @@ Browser.runtime.onMessage.addListener(
       return Promise.resolve(0);
     }
 
+    if (isGetTabDomainMessage(message)) {
+      const tabId = message.tabId ?? sender.tab?.id;
+      if (typeof tabId === 'number') {
+        const tabDomainInfo = tabDomains.get(tabId);
+        if (tabDomainInfo) {
+          log.debug(`🌐 Returning domain for tab ${tabId}: ${tabDomainInfo.domain}`);
+          return Promise.resolve(tabDomainInfo.domain);
+        }
+        // Try to get from tab if not in map
+        return Browser.tabs.get(tabId)
+          .then((tab) => {
+            if (tab.url) {
+              const domain = extractDomain(tab.url);
+              return domain || null;
+            }
+            return null;
+          })
+          .catch(() => null);
+      }
+      return Promise.resolve(null);
+    }
+
     // Unknown message type
     return false;
   }
@@ -424,6 +514,8 @@ async function cleanupTabData(tabId: number): Promise<void> {
  */
 Browser.tabs.onRemoved.addListener(async (tabId) => {
   log.debug(`🗑️ Tab ${tabId} closed, cleaning up...`);
+  // Remove from domain tracking map
+  tabDomains.delete(tabId);
   await cleanupTabData(tabId);
 });
 
@@ -494,6 +586,64 @@ function setupMaxEventsListener() {
 }
 
 /**
+ * Set up domain allowlist change listener
+ * Re-evaluates all tabs when allowlist is modified
+ */
+function setupDomainAllowlistListener() {
+  let previousAllowedDomains = useConfigStore.getState().allowedDomains;
+  let previousDeniedDomains = useConfigStore.getState().deniedDomains;
+  
+  useConfigStore.subscribe((state) => {
+    const currentAllowedDomains = state.allowedDomains;
+    const currentDeniedDomains = state.deniedDomains;
+    
+    // Check if allowlist changed
+    const allowlistChanged = 
+      currentAllowedDomains.length !== previousAllowedDomains.length ||
+      currentAllowedDomains.some((domain, index) => 
+        domain.domain !== previousAllowedDomains[index]?.domain ||
+        domain.allowSubdomains !== previousAllowedDomains[index]?.allowSubdomains
+      );
+    
+    // Check if denied list changed
+    const deniedListChanged = 
+      currentDeniedDomains.length !== previousDeniedDomains.length ||
+      currentDeniedDomains.some((domain, index) => 
+        domain !== previousDeniedDomains[index]
+      );
+    
+    if (allowlistChanged || deniedListChanged) {
+      log.info('📋 Domain allowlist or denied list changed, re-evaluating tabs...');
+      reEvaluateAllTabs();
+      previousAllowedDomains = currentAllowedDomains;
+      previousDeniedDomains = currentDeniedDomains;
+    }
+  });
+  
+  log.info('👂 Domain allowlist/denied list change listener registered');
+}
+
+/**
+ * Initialize domain tracking for all open tabs on startup
+ */
+async function initializeDomainTracking(): Promise<void> {
+  try {
+    const tabs = await Browser.tabs.query({});
+    log.info(`🌐 Initializing domain tracking for ${tabs.length} open tab(s)...`);
+    
+    for (const tab of tabs) {
+      if (tab.id && tab.url) {
+        updateTabDomainInfo(tab.id, tab.url);
+      }
+    }
+    
+    log.info('✅ Domain tracking initialized');
+  } catch (error) {
+    log.error('❌ Failed to initialize domain tracking:', error);
+  }
+}
+
+/**
  * Set up periodic cleanup of stale tabs
  * Runs cleanup every hour and on service worker startup
  * Cleans up tabs that haven't been updated in 24+ hours (if they're closed)
@@ -538,5 +688,7 @@ restoreEventsFromStorage().then(() => {
 setupWebRequestListener();
 setupReloadTracking();
 setupMaxEventsListener();
+setupDomainAllowlistListener();
 setupPeriodicCleanup();
+initializeDomainTracking();
 log.info('✅ Background script initialization complete');

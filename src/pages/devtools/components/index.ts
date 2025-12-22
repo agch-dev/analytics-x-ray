@@ -13,6 +13,8 @@ export { EmptyState } from './EmptyState';
 export { Footer } from './Footer';
 export { FilterPanel } from './FilterPanel';
 export { ScrollToBottomButton } from './ScrollToBottomButton';
+export { DomainPermissionPrompt } from './DomainPermissionPrompt';
+export { TrackingDisabledMessage } from './TrackingDisabledMessage';
 
 // Detail view components
 export {

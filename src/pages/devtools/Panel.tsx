@@ -1,14 +1,15 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
 import { getTabStore } from '@src/stores/tabStore';
-import { useConfigStore, selectPreferredEventDetailView, selectMaxEvents } from '@src/stores/configStore';
-import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, type EventListHandle } from './components';
+import { useConfigStore, selectPreferredEventDetailView, selectMaxEvents, selectAllowedDomains, selectDeniedDomains } from '@src/stores/configStore';
+import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, DomainPermissionPrompt, TrackingDisabledMessage, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
 import { useDebounce } from '@src/hooks';
 import { ErrorBoundary, EventListErrorState } from '@src/components';
+import { getTabDomain, isDomainAllowed, isSpecialPage } from '@src/lib/domain';
 
 
 const log = createContextLogger('panel');
@@ -21,12 +22,22 @@ export default function Panel() {
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   
+  // Domain tracking state
+  const [currentDomain, setCurrentDomain] = useState<string | null>(null);
+  const [domainAllowed, setDomainAllowed] = useState<boolean | null>(null);
+  const [domainCheckComplete, setDomainCheckComplete] = useState(false);
+  
   // Get preferred view mode from config store (used directly, not persisted per tab)
   const preferredViewMode = useConfigStore(selectPreferredEventDetailView);
   const setPreferredEventDetailView = useConfigStore((state) => state.setPreferredEventDetailView);
   
   // Get maxEvents from config store to pass to tab store
   const maxEvents = useConfigStore(selectMaxEvents);
+  
+  // Get allowed and denied domains from config store
+  const allowedDomains = useConfigStore(selectAllowedDomains);
+  const deniedDomains = useConfigStore(selectDeniedDomains);
+  const addDeniedDomain = useConfigStore((state) => state.addDeniedDomain);
   
   // Initialize tab store with current maxEvents from config
   // Note: The store will read maxEvents dynamically from config store on each addEvent,
@@ -98,6 +109,52 @@ export default function Panel() {
     // Update the global preference when user toggles view mode
     setPreferredEventDetailView(mode);
   }, [setPreferredEventDetailView]);
+  
+  // Check domain on mount and when allowlist/denylist changes
+  useEffect(() => {
+    const checkDomain = async () => {
+      try {
+        // Try to get domain from background script first (it has the cached domain info)
+        let domain: string | null = null;
+        try {
+          const response = await Browser.runtime.sendMessage({
+            type: 'GET_TAB_DOMAIN',
+            tabId,
+          });
+          if (response && typeof response === 'string') {
+            domain = response;
+          }
+        } catch (error) {
+          // Fallback to direct method
+          domain = await getTabDomain(tabId);
+        }
+        
+        setCurrentDomain(domain);
+        
+        if (!domain) {
+          // Special page or invalid URL
+          setDomainAllowed(false);
+          setDomainCheckComplete(true);
+          return;
+        }
+        
+        // Check if domain is explicitly denied
+        const isDenied = deniedDomains.includes(domain);
+        
+        // Check if domain is allowed
+        const allowed = isDomainAllowed(domain, allowedDomains);
+        
+        setDomainAllowed(allowed && !isDenied);
+        setDomainCheckComplete(true);
+      } catch (error) {
+        log.error('❌ [Panel] Failed to check domain:', error);
+        setDomainAllowed(false);
+        setDomainCheckComplete(true);
+      }
+    };
+    
+    checkDomain();
+  }, [tabId, allowedDomains, deniedDomains]);
   
   // Sync events with background script
   useEventSync({ tabId, addEvent });
@@ -187,8 +244,47 @@ export default function Panel() {
     toggleEventNameVisibility(eventName);
   };
 
+  const handleDomainAllowed = () => {
+    // Remove from denied list if it was there
+    if (currentDomain && deniedDomains.includes(currentDomain)) {
+      useConfigStore.getState().removeDeniedDomain(currentDomain);
+    }
+    setDomainAllowed(true);
+  };
+
+  const handleDomainDenied = () => {
+    // Add to denied list
+    if (currentDomain) {
+      addDeniedDomain(currentDomain);
+    }
+    setDomainAllowed(false);
+  };
+
+  // Show permission prompt if:
+  // 1. Domain check is complete
+  // 2. We have a valid domain
+  // 3. Domain is not in denied list
+  // 4. Domain is not allowed
+  const isDenied = currentDomain ? deniedDomains.includes(currentDomain) : false;
+  const shouldShowPrompt = 
+    domainCheckComplete &&
+    currentDomain !== null &&
+    currentDomain !== '' &&
+    !isDenied &&
+    domainAllowed === false;
+  
+  // Show disabled message if domain is in denied list
+  const showDisabledMessage = 
+    isDenied && 
+    currentDomain !== null;
+
+
   return (
     <div className="h-screen bg-background text-foreground flex flex-col">
+      {showDisabledMessage && currentDomain && (
+        <TrackingDisabledMessage domain={currentDomain} />
+      )}
+      
       <Header
         eventCount={filteredEvents.length}
         totalEventCount={events.length}
@@ -211,26 +307,34 @@ export default function Panel() {
         />
       )}
       
-      <ErrorBoundary
-        fallback={<EventListErrorState />}
-        resetKeys={[filteredEvents.length]}
-      >
-        <EventList
-          ref={eventListRef}
-          events={filteredEvents}
-          reloadTimestamps={reloadTimestamps}
-          selectedEventId={selectedEventId}
-          expandedEventIds={expandedEventIds}
-          hiddenEventNames={hiddenEventNames}
-          searchMatch={searchMatch}
-          viewMode={preferredViewMode}
-          onSelectEvent={setSelectedEvent}
-          onToggleExpand={toggleEventExpanded}
-          onToggleHide={toggleEventNameVisibility}
-          onScrollStateChange={setIsAtBottom}
-          onViewModeChange={handleViewModeChange}
+      {shouldShowPrompt && currentDomain ? (
+        <DomainPermissionPrompt
+          domain={currentDomain}
+          onAllowed={handleDomainAllowed}
+          onDenied={handleDomainDenied}
         />
-      </ErrorBoundary>
+      ) : (
+        <ErrorBoundary
+          fallback={<EventListErrorState />}
+          resetKeys={[filteredEvents.length]}
+        >
+          <EventList
+            ref={eventListRef}
+            events={filteredEvents}
+            reloadTimestamps={reloadTimestamps}
+            selectedEventId={selectedEventId}
+            expandedEventIds={expandedEventIds}
+            hiddenEventNames={hiddenEventNames}
+            searchMatch={searchMatch}
+            viewMode={preferredViewMode}
+            onSelectEvent={setSelectedEvent}
+            onToggleExpand={toggleEventExpanded}
+            onToggleHide={toggleEventNameVisibility}
+            onScrollStateChange={setIsAtBottom}
+            onViewModeChange={handleViewModeChange}
+          />
+        </ErrorBoundary>
+      )}
       
       <ScrollToBottomButton
         isVisible={!isAtBottom}
