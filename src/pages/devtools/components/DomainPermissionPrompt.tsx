@@ -93,7 +93,7 @@ export function DomainPermissionPrompt({
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-start p-6 border-r border-border overflow-y-auto">
+          <div className="flex-1 flex flex-col items-center justify-start p-6 pr-13 border-r border-border overflow-y-auto">
             {/* Left column: Title, description */}
             <div className="max-w-md space-y-4 text-center w-full my-auto">
               {/* Title */}
@@ -126,7 +126,7 @@ export function DomainPermissionPrompt({
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-y-auto">
+          <div className="flex-1 flex flex-col items-center justify-start p-6 pl-13 overflow-y-auto">
             {/* Right column: Options and actions */}
             <div className="max-w-md w-full space-y-3 pt-4 my-auto">
               {/* Two main options in a grid */}
@@ -285,7 +285,7 @@ export function DomainPermissionPrompt({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-start p-6 border-r border-border overflow-y-auto">
+        <div className="flex-1 flex flex-col items-center justify-start p-6 pr-12 border-r border-border overflow-y-auto">
           {/* Left column: Title, description */}
           <div className="max-w-md space-y-4 text-center w-full my-auto">
             {/* Title */}
@@ -315,7 +315,7 @@ export function DomainPermissionPrompt({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-y-auto">
+        <div className="flex-1 flex flex-col items-center justify-start p-6 pl-12 overflow-y-auto">
           {/* Right column: Subdomain option and actions */}
           <div className="max-w-md w-full space-y-6 pt-4 my-auto">
             {/* Subdomain option */}
@@ -336,18 +336,18 @@ export function DomainPermissionPrompt({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button
                 variant="outline"
                 onClick={handleDeny}
-                className="flex-1"
+                className="flex-1 min-w-[140px]"
               >
                 <HugeiconsIcon icon={Cancel01Icon} size={18} className="mr-2" />
                 Don't Scan
               </Button>
               <Button
                 onClick={handleAllow}
-                className="flex-1"
+                className="flex-1 min-w-[140px]"
               >
                 <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="mr-2" />
                 Allow Scanning
