@@ -33,7 +33,7 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
           <div className="flex items-center gap-2 p-3 bg-muted">
             <HugeiconsIcon icon={Mail01Icon} size={16} className="text-muted-foreground" />
             <a
-              href="mailto:feedback@agch.dev"
+              href={`mailto:feedback@agch.dev?subject=${encodeURIComponent('Analytics x-ray - Feedback')}&body=${encodeURIComponent('Hi,\n\nI wanted to share some feedback about Analytics x-ray:\n\n\n\n---\n\n(Please include any relevant details about your feedback, suggestions, or issues you\'ve encountered)')}`}
               className="text-sm font-mono text-primary hover:underline"
             >
               feedback@agch.dev
