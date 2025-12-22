@@ -136,6 +136,133 @@ export const cleanupTabStorage = async (): Promise<void> => {
 };
 
 /**
+ * Clean up stale tabs that haven't been updated in a specified time period
+ * Only cleans up tabs that are confirmed to be closed (not currently open)
+ * 
+ * @param maxAgeMs - Maximum age in milliseconds (default: 24 hours)
+ * @returns Number of tabs cleaned up
+ */
+export const cleanupStaleTabs = async (maxAgeMs: number = 24 * 60 * 60 * 1000): Promise<number> => {
+  try {
+    // Get all currently open tabs
+    const allTabs = await Browser.tabs.query({});
+    const activeTabIds = new Set(allTabs.map((tab) => tab.id).filter((id): id is number => id !== undefined));
+
+    // Get all storage to find tab data
+    const allStorage = await Browser.storage.local.get(null);
+    const now = Date.now();
+    const staleTabIds = new Set<number>();
+    const keysToRemove: string[] = [];
+
+    // Find Zustand storage keys (tab_${tabId}_tab-${tabId}) and check their lastUpdated
+    for (const key of Object.keys(allStorage)) {
+      const zustandMatch = key.match(/^tab_(\d+)_tab-\d+$/);
+      if (zustandMatch) {
+        const tabId = parseInt(zustandMatch[1], 10);
+        
+        // Skip if tab is still open
+        if (activeTabIds.has(tabId)) {
+          continue;
+        }
+
+        // Try to get lastUpdated from the stored state
+        try {
+          const storedValue = allStorage[key];
+          if (typeof storedValue === 'string') {
+            const parsed = JSON.parse(storedValue);
+            const lastUpdated = parsed?.state?.lastUpdated;
+            
+            if (typeof lastUpdated === 'number') {
+              const age = now - lastUpdated;
+              if (age > maxAgeMs) {
+                staleTabIds.add(tabId);
+                keysToRemove.push(key);
+              }
+            } else {
+              // If no lastUpdated, consider it stale if tab is closed
+              staleTabIds.add(tabId);
+              keysToRemove.push(key);
+            }
+          }
+        } catch {
+          // If parsing fails, skip this key
+          continue;
+        }
+      }
+    }
+
+    // Also check the 'events' storage object for tabs that might be stale
+    // This catches edge cases where Zustand storage might be missing but events exist
+    const eventsStorage = allStorage['events'];
+    if (eventsStorage && typeof eventsStorage === 'object') {
+      const events = eventsStorage as Record<string, unknown>;
+      for (const tabIdStr of Object.keys(events)) {
+        const tabId = parseInt(tabIdStr, 10);
+        if (isNaN(tabId)) continue;
+        
+        // Skip if tab is still open or already marked as stale
+        if (activeTabIds.has(tabId) || staleTabIds.has(tabId)) {
+          continue;
+        }
+
+        // If tab has events but no Zustand storage (edge case), check if we should clean it
+        // For now, we only clean tabs that have Zustand storage with valid lastUpdated
+        // Tabs without Zustand storage will be cleaned by the general cleanupTabStorage function
+      }
+    }
+
+    // Clean up all storage keys for stale tabs
+    for (const tabId of staleTabIds) {
+      // Remove events entry
+      if (eventsStorage && typeof eventsStorage === 'object') {
+        const events = eventsStorage as Record<string, unknown>;
+        delete events[tabId.toString()];
+      }
+      
+      // Remove reload timestamps
+      keysToRemove.push(`tab_${tabId}_reloads`);
+      
+      // Remove tab URL
+      const tabUrlsKey = 'tab_urls';
+      const tabUrls = allStorage[tabUrlsKey];
+      if (tabUrls && typeof tabUrls === 'object') {
+        const urls = tabUrls as Record<string, unknown>;
+        delete urls[tabId.toString()];
+      }
+    }
+
+    // Remove all identified keys
+    if (keysToRemove.length > 0) {
+      await Browser.storage.local.remove(keysToRemove);
+    }
+
+    // Update events storage if we modified it
+    if (eventsStorage && typeof eventsStorage === 'object') {
+      const events = eventsStorage as Record<string, unknown>;
+      await Browser.storage.local.set({ events });
+    }
+
+    // Update tab URLs if we modified it
+    const tabUrlsKey = 'tab_urls';
+    const tabUrls = allStorage[tabUrlsKey];
+    if (tabUrls && typeof tabUrls === 'object') {
+      const urls = tabUrls as Record<string, unknown>;
+      await Browser.storage.local.set({ [tabUrlsKey]: urls });
+    }
+
+    const cleanedCount = staleTabIds.size;
+    if (cleanedCount > 0) {
+      console.log(`🧹 Cleaned up ${cleanedCount} stale tab(s) (older than ${Math.round(maxAgeMs / (60 * 60 * 1000))} hours)`);
+    }
+    
+    return cleanedCount;
+  } catch (error) {
+    console.error('Failed to cleanup stale tabs:', error);
+    return 0;
+  }
+};
+
+/**
  * Storage size constants and utilities
  */
 const STORAGE_LIMIT_BYTES = 10 * 1024 * 1024; // 10 MB Chrome extension limit

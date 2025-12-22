@@ -15,7 +15,7 @@ import {
   type SegmentEvent,
 } from '@src/lib/segment';
 import { createContextLogger } from '@src/lib/logger';
-import { logStorageSize } from '@src/lib/storage';
+import { logStorageSize, cleanupStaleTabs } from '@src/lib/storage';
 import type { EventsCapturedMessage, ReloadDetectedMessage } from '@src/types/messages';
 import {
   isExtensionMessage,
@@ -417,18 +417,21 @@ Browser.runtime.onMessage.addListener(
 );
 
 /**
- * Clean up when a tab is closed
+ * Clean up all storage for a specific tab
+ * Removes events, reload timestamps, tab URLs, and Zustand persisted storage
  */
-Browser.tabs.onRemoved.addListener(async (tabId) => {
-  tabEvents.delete(tabId);
-
+async function cleanupTabData(tabId: number): Promise<void> {
   try {
+    // Clean up in-memory events
+    tabEvents.delete(tabId);
+
+    // Clean up events from storage
     const result = await Browser.storage.local.get('events');
     const events: StoredEvents = (result.events as StoredEvents) || {};
     delete events[tabId];
     await Browser.storage.local.set({ events });
     
-    // Also clean up reload timestamps
+    // Clean up reload timestamps
     const reloadsKey = `tab_${tabId}_reloads`;
     await Browser.storage.local.remove(reloadsKey);
     
@@ -438,9 +441,23 @@ Browser.tabs.onRemoved.addListener(async (tabId) => {
     const storedTabUrls = (tabUrlsResult[tabUrlsKey] as Record<string, string>) || {};
     delete storedTabUrls[tabId.toString()];
     await Browser.storage.local.set({ [tabUrlsKey]: storedTabUrls });
-  } catch {
-    // Ignore cleanup errors
+    
+    // Clean up Zustand persisted storage (tab_${tabId}_tab-${tabId})
+    const zustandKey = `tab_${tabId}_tab-${tabId}`;
+    await Browser.storage.local.remove(zustandKey);
+    
+    log.debug(`✅ Cleaned up all data for tab ${tabId}`);
+  } catch (error) {
+    log.error(`❌ Failed to cleanup tab ${tabId}:`, error);
   }
+}
+
+/**
+ * Clean up when a tab is closed
+ */
+Browser.tabs.onRemoved.addListener(async (tabId) => {
+  log.debug(`🗑️ Tab ${tabId} closed, cleaning up...`);
+  await cleanupTabData(tabId);
 });
 
 /**
@@ -509,6 +526,42 @@ function setupMaxEventsListener() {
   log.info('👂 Max events change listener registered');
 }
 
+/**
+ * Set up periodic cleanup of stale tabs
+ * Runs cleanup every hour and on service worker startup
+ * Cleans up tabs that haven't been updated in 24+ hours (if they're closed)
+ */
+function setupPeriodicCleanup() {
+  const CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+  const STALE_TAB_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+  // Run cleanup immediately on startup
+  cleanupStaleTabs(STALE_TAB_AGE_MS)
+    .then((count) => {
+      if (count > 0) {
+        log.info(`🧹 Startup cleanup: Removed ${count} stale tab(s)`);
+      }
+    })
+    .catch((error) => {
+      log.error('❌ Startup cleanup failed:', error);
+    });
+
+  // Set up periodic cleanup
+  setInterval(() => {
+    cleanupStaleTabs(STALE_TAB_AGE_MS)
+      .then((count) => {
+        if (count > 0) {
+          log.info(`🧹 Periodic cleanup: Removed ${count} stale tab(s)`);
+        }
+      })
+      .catch((error) => {
+        log.error('❌ Periodic cleanup failed:', error);
+      });
+  }, CLEANUP_INTERVAL_MS);
+
+  log.info(`🕐 Periodic cleanup scheduled (every ${CLEANUP_INTERVAL_MS / (60 * 1000)} minutes, cleaning tabs older than ${STALE_TAB_AGE_MS / (60 * 60 * 1000)} hours)`);
+}
+
 // Initialize
 log.info('🔧 Initializing background script...');
 restoreEventsFromStorage().then(() => {
@@ -518,4 +571,5 @@ restoreEventsFromStorage().then(() => {
 setupWebRequestListener();
 setupReloadTracking();
 setupMaxEventsListener();
+setupPeriodicCleanup();
 log.info('✅ Background script initialization complete');

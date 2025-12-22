@@ -41,6 +41,7 @@ export {
   createTabStorage,
   getCurrentTabId,
   cleanupTabStorage,
+  cleanupStaleTabs,
   getStorageSizeInfo,
   logStorageSize,
   type StorageAdapter,
