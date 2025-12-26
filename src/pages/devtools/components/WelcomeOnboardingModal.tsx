@@ -18,7 +18,7 @@ import {
   Layout01Icon,
   Search01Icon,
   PinIcon,
-  ReloadIcon,
+  Clock04Icon,
   CheckmarkCircle01Icon,
   Rocket01Icon,
 } from '@hugeicons/core-free-icons';
@@ -47,7 +47,7 @@ const features: Feature[] = [
     description: 'Pin important properties to the top of event details to verify things faster and keep key data visible.',
   },
   {
-    icon: ReloadIcon,
+    icon: Clock04Icon,
     title: 'Timeline View Improvements',
     description: 'Navigate through your analytics timeline with clear visual separators for page reloads and navigation events.',
   },
@@ -63,7 +63,7 @@ export function WelcomeOnboardingModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3 text-left">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-lg w-10 h-10 flex items-center justify-center">
               <HugeiconsIcon
                 icon={Rocket01Icon}
                 size={24}
@@ -96,7 +96,7 @@ export function WelcomeOnboardingModal({
                   key={index}
                   className="flex gap-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors"
                 >
-                  <div className="shrink-0 p-2 bg-primary/10 rounded-lg">
+                  <div className="shrink-0 p-2 bg-primary/10 rounded-lg w-10 h-10 flex items-center justify-center">
                     <HugeiconsIcon
                       icon={feature.icon}
                       size={20}
