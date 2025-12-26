@@ -4,9 +4,20 @@ import { Button } from '@src/components/ui/button';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Delete02Icon } from '@hugeicons/core-free-icons';
 
-export const DevDomainSection = () => {
+interface DevDomainSectionProps {
+  onClearDomains?: () => void;
+}
+
+export const DevDomainSection = ({ onClearDomains }: DevDomainSectionProps) => {
   const allowedDomains = useConfigStore(selectAllowedDomains);
-  const clearAllAllowedDomains = useConfigStore((state) => state.clearAllAllowedDomains);
+  
+  const handleClear = () => {
+    if (onClearDomains) {
+      onClearDomains();
+    } else {
+      useConfigStore.getState().clearAllAllowedDomains();
+    }
+  };
 
   return (
     <Card>
@@ -44,7 +55,7 @@ export const DevDomainSection = () => {
             </div>
             <Button
               variant="destructive"
-              onClick={clearAllAllowedDomains}
+              onClick={handleClear}
               className="w-full"
             >
               <HugeiconsIcon icon={Delete02Icon} size={18} className="mr-2" />

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Browser from 'webextension-polyfill';
 import { useConfigStore } from '@src/stores/configStore';
 import { createContextLogger } from '@src/lib/logger';
@@ -14,6 +14,9 @@ import {
 const log = createContextLogger('ui');
 
 export default function Options() {
+  // Track the last local update timestamp to skip rehydration from our own changes
+  const lastLocalUpdateRef = useRef<number>(0);
+  
   // Listen for storage changes to sync config updates from other extension contexts
   useEffect(() => {
     const handleStorageChange = (
@@ -25,26 +28,44 @@ export default function Options() {
       
       // Check if the config storage key changed
       const configKey = 'analytics-xray-config';
-      if (changes[configKey]) {
-        log.debug('Config storage changed, rehydrating store...');
+      const change = changes[configKey];
+      if (change) {
+        // Skip if this change happened very recently (within 500ms of our local update)
+        // This prevents rehydration from our own changes
+        const now = Date.now();
+        if (now - lastLocalUpdateRef.current < 500) {
+          log.debug('Skipping storage change rehydration (recent local update)');
+          return;
+        }
         
-        // Read the new config from storage and update the store
-        Browser.storage.local.get(configKey).then((result) => {
-          const storedValue = result[configKey];
-          if (storedValue && typeof storedValue === 'string') {
-            try {
-              const parsed = JSON.parse(storedValue);
-              const { state: newState } = parsed;
-              if (newState) {
+        // Use the newValue from the change event to avoid timing issues
+        const storedValue = change.newValue;
+        if (storedValue && typeof storedValue === 'string') {
+          try {
+            const parsed = JSON.parse(storedValue);
+            const { state: newState } = parsed;
+            if (newState) {
+              // Get current state to compare
+              const currentState = useConfigStore.getState();
+              
+              // Only update if the allowedDomains actually changed
+              // This prevents race conditions where the storage change listener
+              // might rehydrate with stale data after a local update
+              const currentDomains = JSON.stringify(currentState.allowedDomains || []);
+              const newDomains = JSON.stringify(newState.allowedDomains || []);
+              
+              if (currentDomains !== newDomains) {
                 // Update the store with the new state
                 useConfigStore.setState(newState);
                 log.debug('Config store rehydrated from storage');
+              } else {
+                log.debug('Storage change detected but state is already in sync');
               }
-            } catch (error) {
-              log.error('Failed to parse config from storage:', error);
             }
+          } catch (error) {
+            log.error('Failed to parse config from storage:', error);
           }
-        });
+        }
       }
     };
     
@@ -55,13 +76,33 @@ export default function Options() {
     };
   }, []);
 
+  // Wrapper to mark local updates before clearing domains
+  const handleClearDomains = () => {
+    // Mark the timestamp of our local update BEFORE clearing
+    // This ensures the flag is set before Zustand persist writes to storage
+    const timestamp = Date.now();
+    lastLocalUpdateRef.current = timestamp;
+    
+    // Clear the domains synchronously
+    useConfigStore.getState().clearAllAllowedDomains();
+    
+    // Also set a timeout to reset the flag after the storage write completes
+    // This ensures we don't block legitimate updates from other contexts
+    setTimeout(() => {
+      // Only reset if no new local update happened
+      if (lastLocalUpdateRef.current === timestamp) {
+        lastLocalUpdateRef.current = 0;
+      }
+    }, 1000);
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-2xl space-y-8">
         <OptionsHeader />
         <AppearanceSection />
         <EventCaptureSection />
-        {isDevMode() && <DevDomainSection />}
+        {isDevMode() && <DevDomainSection onClearDomains={handleClearDomains} />}
         <ResetButton />
       </div>
     </div>
