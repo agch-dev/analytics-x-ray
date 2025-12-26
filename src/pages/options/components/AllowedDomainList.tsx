@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Delete02Icon } from '@hugeicons/core-free-icons';
+import { Delete02Icon, ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@src/components/ui/button';
 import { Label } from '@src/components/ui/label';
 import { Switch } from '@src/components/ui/switch';
@@ -11,7 +12,13 @@ interface AllowedDomainListProps {
   onToggleSubdomains: (domain: string, currentValue: boolean) => void;
 }
 
+const MAX_VISIBLE_DOMAINS = 3;
+
 export const AllowedDomainList = ({ domains, onRemove, onToggleSubdomains }: AllowedDomainListProps) => {
+  const [showAll, setShowAll] = useState(false);
+  const hasMoreThanMax = domains.length > MAX_VISIBLE_DOMAINS;
+  const visibleDomains = hasMoreThanMax && !showAll ? domains.slice(0, MAX_VISIBLE_DOMAINS) : domains;
+
   if (domains.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -27,7 +34,7 @@ export const AllowedDomainList = ({ domains, onRemove, onToggleSubdomains }: All
     <div className="space-y-2">
       <Label>Allowed Domains</Label>
       <div className="space-y-2">
-        {domains.map((allowedDomain) => (
+        {visibleDomains.map((allowedDomain) => (
           <div
             key={allowedDomain.domain}
             className="p-3 bg-card border border-border rounded-lg space-y-3"
@@ -73,6 +80,26 @@ export const AllowedDomainList = ({ domains, onRemove, onToggleSubdomains }: All
           </div>
         ))}
       </div>
+      {hasMoreThanMax && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowAll(!showAll)}
+          className="w-full text-xs text-muted-foreground hover:text-foreground"
+        >
+          {showAll ? (
+            <>
+              <HugeiconsIcon icon={ArrowUp01Icon} size={16} className="mr-1" />
+              Show less
+            </>
+          ) : (
+            <>
+              <HugeiconsIcon icon={ArrowDown01Icon} size={16} className="mr-1" />
+              Show {domains.length - MAX_VISIBLE_DOMAINS} more
+            </>
+          )}
+        </Button>
+      )}
     </div>
   );
 };

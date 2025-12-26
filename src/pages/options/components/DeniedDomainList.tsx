@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Delete02Icon } from '@hugeicons/core-free-icons';
+import { Delete02Icon, ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@src/components/ui/button';
 import { Label } from '@src/components/ui/label';
 
@@ -8,7 +9,13 @@ interface DeniedDomainListProps {
   onRemove: (domain: string) => void;
 }
 
+const MAX_VISIBLE_DOMAINS = 3;
+
 export const DeniedDomainList = ({ domains, onRemove }: DeniedDomainListProps) => {
+  const [showAll, setShowAll] = useState(false);
+  const hasMoreThanMax = domains.length > MAX_VISIBLE_DOMAINS;
+  const visibleDomains = hasMoreThanMax && !showAll ? domains.slice(0, MAX_VISIBLE_DOMAINS) : domains;
+
   if (domains.length === 0) {
     return null;
   }
@@ -20,7 +27,7 @@ export const DeniedDomainList = ({ domains, onRemove }: DeniedDomainListProps) =
         Domains you've explicitly denied. Remove them to see the permission prompt again.
       </p>
       <div className="space-y-2">
-        {domains.map((domain) => (
+        {visibleDomains.map((domain) => (
           <div
             key={domain}
             className="flex items-center justify-between p-3 bg-muted/50 border border-border rounded-lg"
@@ -41,6 +48,26 @@ export const DeniedDomainList = ({ domains, onRemove }: DeniedDomainListProps) =
           </div>
         ))}
       </div>
+      {hasMoreThanMax && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowAll(!showAll)}
+          className="w-full text-xs text-muted-foreground hover:text-foreground"
+        >
+          {showAll ? (
+            <>
+              <HugeiconsIcon icon={ArrowUp01Icon} size={16} className="mr-1" />
+              Show less
+            </>
+          ) : (
+            <>
+              <HugeiconsIcon icon={ArrowDown01Icon} size={16} className="mr-1" />
+              Show {domains.length - MAX_VISIBLE_DOMAINS} more
+            </>
+          )}
+        </Button>
+      )}
     </div>
   );
 };
