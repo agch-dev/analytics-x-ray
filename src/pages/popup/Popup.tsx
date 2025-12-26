@@ -4,10 +4,23 @@ import { Button } from '@src/components/ui/button';
 import { Badge } from '@src/components/ui/badge';
 import { getFormattedVersion } from '@src/lib/version';
 import { Logo } from '@src/components/Logo';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Refresh01Icon } from '@hugeicons/core-free-icons';
+import { isDevMode } from '@src/lib/utils';
 
 export default function Popup() {
   const handleOpenOptions = () => {
     Browser.runtime.openOptionsPage();
+  };
+
+  const handleReloadExtension = () => {
+    // Use chrome.runtime.reload() directly as it's not in webextension-polyfill
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.reload) {
+      chrome.runtime.reload();
+    } else {
+      // Fallback: open extensions page
+      window.open('chrome://extensions/', '_blank');
+    }
   };
 
   return (
@@ -31,13 +44,25 @@ export default function Popup() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Quick Actions</h3>
-              <Button 
-                onClick={handleOpenOptions}
-                className="w-full"
-                variant="default"
-              >
-                Extension Settings
-              </Button>
+              <div className="space-y-2">
+                <Button 
+                  onClick={handleOpenOptions}
+                  className="w-full"
+                  variant="default"
+                >
+                  Extension Settings
+                </Button>
+                {isDevMode() && (
+                  <Button 
+                    onClick={handleReloadExtension}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <HugeiconsIcon icon={Refresh01Icon} size={18} className="mr-2" />
+                    Reload Extension
+                  </Button>
+                )}
+              </div>
             </div>
 
             <div className="pt-4 border-t border-border">
