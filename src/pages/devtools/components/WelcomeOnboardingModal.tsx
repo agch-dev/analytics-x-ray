@@ -34,29 +34,28 @@ const features: Feature[] = [
   {
     icon: Layout01Icon,
     title: 'Structured & JSON Views',
-    description: 'Switch between structured and raw JSON views to inspect events the way that works best for you.',
+    description: 'Provides a more readable Structured View that let\'s you easily inspect what is important to you. Still has the Raw JSON View available for those who prefer it. Set your preferred view in the extension settings.',
   },
   {
     icon: Search01Icon,
     title: 'Powerful Search & Filter',
-    description: 'Search across events, properties, and values. Filter by event type or hide specific events to focus on what matters.',
+    description: 'Search across events, properties, and values. Filter by event type or hide/mute specific events to focus on what matters.',
   },
   {
     icon: PinIcon,
     title: 'Property Pinning',
-    description: 'Pin important properties to the top of event details to verify things faster and keep key data visible.',
+    description: 'Pin important properties to the top of event details to verify things faster and keep key data visible. Do so by hovering over the property and clicking the pin icon.',
   },
   {
     icon: Clock04Icon,
     title: 'Timeline View Improvements',
-    description: 'Navigate through your analytics timeline with clear visual separators for page reloads and navigation events.',
+    description: 'Navigate through your analytics timeline with clear visual separators for page reloads and navigation events. So you can easily see what happened when.',
   },
 ];
 
 export function WelcomeOnboardingModal({
   open,
   onOpenChange,
-  onDismiss,
 }: OnboardingModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,39 +113,6 @@ export function WelcomeOnboardingModal({
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Quick Start Tips */}
-          <div className="pt-2 border-t border-border">
-            <h3 className="text-sm font-semibold text-foreground mb-3">
-              Quick Start
-            </h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary shrink-0">•</span>
-                <span>
-                  Navigate to any website that uses Segment analytics
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary shrink-0">•</span>
-                <span>
-                  Events will appear automatically as they're captured
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary shrink-0">•</span>
-                <span>
-                  Use the search bar to find specific events or properties
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary shrink-0">•</span>
-                <span>
-                  Click on any event to inspect its full payload and metadata
-                </span>
-              </li>
-            </ul>
           </div>
         </div>
 
