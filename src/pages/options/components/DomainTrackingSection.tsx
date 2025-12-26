@@ -1,18 +1,15 @@
 import { useState } from 'react';
-import { useConfigStore, selectAllowedDomains, selectDeniedDomains } from '@src/stores/configStore';
+import { useConfigStore, selectAllowedDomains } from '@src/stores/configStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { extractDomain, normalizeDomain, getBaseDomain } from '@src/lib/domain';
 import { AddDomainInput } from './AddDomainInput';
 import { AllowedDomainList } from './AllowedDomainList';
-import { DeniedDomainList } from './DeniedDomainList';
 
 export const DomainTrackingSection = () => {
   const allowedDomains = useConfigStore(selectAllowedDomains);
-  const deniedDomains = useConfigStore(selectDeniedDomains);
   const addAllowedDomain = useConfigStore((state) => state.addAllowedDomain);
   const removeAllowedDomain = useConfigStore((state) => state.removeAllowedDomain);
   const updateDomainSubdomainSetting = useConfigStore((state) => state.updateDomainSubdomainSetting);
-  const removeDeniedDomain = useConfigStore((state) => state.removeDeniedDomain);
 
   const [newDomainInput, setNewDomainInput] = useState('');
   const [newDomainError, setNewDomainError] = useState('');
@@ -103,11 +100,6 @@ export const DomainTrackingSection = () => {
             domains={allowedDomains}
             onRemove={handleRemoveDomain}
             onToggleSubdomains={handleToggleSubdomains}
-          />
-
-          <DeniedDomainList
-            domains={deniedDomains}
-            onRemove={removeDeniedDomain}
           />
         </div>
       </CardContent>

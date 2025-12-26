@@ -356,7 +356,6 @@ export default function Panel() {
         <DomainPermissionPrompt
           domain={currentDomain}
           onAllowed={handleDomainAllowed}
-          onDenied={handleDomainDenied}
           subdomainInfo={subdomainInfo}
         />
       ) : (

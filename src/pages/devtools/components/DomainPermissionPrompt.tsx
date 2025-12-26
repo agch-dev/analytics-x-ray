@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Shield01Icon, CheckmarkCircle02Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
+import { Shield01Icon, CheckmarkCircle02Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@src/components/ui/button';
 import { Switch } from '@src/components/ui/switch';
 import { Label } from '@src/components/ui/label';
@@ -9,12 +9,11 @@ import { createContextLogger } from '@src/lib/logger';
 import { normalizeDomain, getBaseDomain } from '@src/lib/domain';
 import { useHorizontalLayout } from '@src/hooks';
 
-const log = createContextLogger('domain-permission-prompt');
+const log = createContextLogger('panel');
 
 interface DomainPermissionPromptProps {
   domain: string;
   onAllowed: () => void;
-  onDenied: () => void;
   subdomainInfo?: {
     allowedDomain: { domain: string; allowSubdomains: boolean };
     baseDomain: string;
@@ -24,7 +23,6 @@ interface DomainPermissionPromptProps {
 export function DomainPermissionPrompt({
   domain,
   onAllowed,
-  onDenied,
   subdomainInfo,
 }: DomainPermissionPromptProps) {
   const [allowSubdomains, setAllowSubdomains] = useState(false);
@@ -67,11 +65,6 @@ export function DomainPermissionPrompt({
     log.info(`✅ User allowed tracking for specific subdomain: ${normalizedDomain} (base: ${subdomainInfo.baseDomain})`);
     addAllowedDomain(normalizedDomain, false);
     onAllowed();
-  };
-
-  const handleDeny = () => {
-    log.info(`❌ User denied tracking for domain: ${domain}`);
-    onDenied();
   };
 
   // Render subdomain case UI
@@ -158,19 +151,6 @@ export function DomainPermissionPrompt({
                   </p>
                 </div>
               </div>
-
-              {/* Cancel action */}
-              <div className="pt-1">
-                <Button
-                  variant="ghost"
-                  onClick={handleDeny}
-                  className="w-full text-muted-foreground hover:text-foreground"
-                  size="sm"
-                >
-                  <HugeiconsIcon icon={Cancel01Icon} size={16} className="mr-2" />
-                  Don't Scan
-                </Button>
-              </div>
             </div>
           </div>
         </div>
@@ -249,19 +229,6 @@ export function DomainPermissionPrompt({
               </p>
             </div>
           </div>
-
-          {/* Cancel action */}
-          <div className="pt-1">
-            <Button
-              variant="ghost"
-              onClick={handleDeny}
-              className="w-full text-muted-foreground hover:text-foreground"
-              size="sm"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} className="mr-2" />
-              Don't Scan
-            </Button>
-          </div>
         </div>
       </div>
     );
@@ -336,18 +303,10 @@ export function DomainPermissionPrompt({
             </div>
 
             {/* Actions */}
-            <div className="flex flex-wrap gap-3">
-              <Button
-                variant="outline"
-                onClick={handleDeny}
-                className="flex-1 min-w-[140px]"
-              >
-                <HugeiconsIcon icon={Cancel01Icon} size={18} className="mr-2" />
-                Don't Scan
-              </Button>
+            <div className="flex justify-center">
               <Button
                 onClick={handleAllow}
-                className="flex-1 min-w-[140px]"
+                className="min-w-[200px]"
               >
                 <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="mr-2" />
                 Allow Scanning
@@ -417,18 +376,10 @@ export function DomainPermissionPrompt({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-2">
-          <Button
-            variant="outline"
-            onClick={handleDeny}
-            className="flex-1"
-          >
-            <HugeiconsIcon icon={Cancel01Icon} size={18} className="mr-2" />
-            Don't Scan
-          </Button>
+        <div className="flex justify-center pt-2">
           <Button
             onClick={handleAllow}
-            className="flex-1"
+            className="min-w-[200px]"
           >
             <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="mr-2" />
             Allow Scanning
