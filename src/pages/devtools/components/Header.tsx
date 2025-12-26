@@ -39,9 +39,9 @@ export function Header({
     <header className="shrink-0 px-2 sm:px-4 py-2 sm:py-3 border-b border-border bg-card flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4">
       <div className="flex items-center justify-between gap-2 lg:justify-start lg:shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-            <Logo className="pointer-events-none" size={32} />
-            <h1 className="text-sm font-semibold text-foreground whitespace-nowrap">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Logo className="pointer-events-none" size={24} />
+            <h1 className="text-lg font-semibold text-foreground whitespace-nowrap">
               Analytics X-Ray
             </h1>
           </div>
