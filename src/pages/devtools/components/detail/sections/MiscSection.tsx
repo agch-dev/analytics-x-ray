@@ -26,6 +26,7 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
     if (event.anonymousId)
       identifiers.push({ key: 'anonymousId', value: event.anonymousId });
     if (event.userId) identifiers.push({ key: 'userId', value: event.userId });
+    if (event.groupId) identifiers.push({ key: 'groupId', value: event.groupId });
 
     if (identifiers.length > 0) {
       sections.push({
@@ -80,9 +81,12 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
     return null;
   }
 
-  // For alias events, expand the identifiers subsection by default
+  // For identify, group, and alias events, expand the identifiers subsection by default
   const defaultExpandedSubsections = useMemo(() => {
-    if (event.type === 'alias' && subsections.some((s) => s.key === 'identifiers')) {
+    if (
+      (event.type === 'identify' || event.type === 'group' || event.type === 'alias') &&
+      subsections.some((s) => s.key === 'identifiers')
+    ) {
       return ['identifiers'];
     }
     return [];

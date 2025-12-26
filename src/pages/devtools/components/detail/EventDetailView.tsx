@@ -33,8 +33,8 @@ export function EventDetailView({
       <div className="px-3 pb-3">
         {viewMode === 'structured' ? (
           <div className="space-y-3 pt-3">
-            {/* Show Traits section for identify events */}
-            {event.type === 'identify' && (
+            {/* Show Traits section for identify and group events */}
+            {(event.type === 'identify' || event.type === 'group') && (
               <TraitsSection event={event} searchQuery={searchQuery} />
             )}
             {/* Show Properties section only if there are properties */}

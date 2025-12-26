@@ -202,7 +202,7 @@ export function getEventName(event: SegmentBatchEvent): string {
     case 'identify':
       return event.userId ? `Identify: ${event.userId}` : 'Identify';
     case 'group':
-      return 'Group';
+      return event.groupId ? `Group: ${event.groupId}` : 'Group';
     case 'alias':
       return 'Alias';
     default:
@@ -232,6 +232,7 @@ export function normalizeEvent(
     traits: batchEvent.traits,
     anonymousId: batchEvent.anonymousId,
     userId: batchEvent.userId,
+    groupId: batchEvent.groupId,
     messageId,
     timestamp: batchEvent.timestamp || new Date().toISOString(),
     sentAt,

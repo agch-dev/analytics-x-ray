@@ -47,7 +47,7 @@ export const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
     label: 'Identify Events',
     color: 'border-l-purple-500',
     patterns: ['identify'],
-    eventTypes: ['identify'],
+    eventTypes: ['identify', 'group', 'alias'],
   },
   {
     id: 'view',
