@@ -25,13 +25,13 @@ export function SupportModal({ open, onOpenChange }: SupportModalProps) {
             Support Analytics X-Ray
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1.5">
-            This extension was created with love by a single developer from Uruguay 🇺🇾
+          If you find Analytics X-Ray useful, please consider supporting its development.
+          <br />
+          <br />
+          Your support helps keep this project alive and allows for continued improvements and new features.
           </DialogDescription>
         </DialogHeader>
         <div className="pt-2 pb-4">
-          <p className="text-sm text-muted-foreground mb-2">
-            If you find Analytics X-Ray useful, please consider supporting its development. Your support helps keep this project alive and allows for continued improvements and new features.
-          </p>
           <div>
             <a
               href="https://buymeacoffee.com/aguschaer"
@@ -44,7 +44,7 @@ export function SupportModal({ open, onOpenChange }: SupportModalProps) {
             </a>
           </div>
           <p className="text-xs text-muted-foreground mt-4 text-center">
-            Thank you for using Analytics X-Ray! ❤️
+            Thank you for using Analytics X-Ray! with ❤️ from Uruguay 🇺🇾
           </p>
           <div className="mt-4 pt-4 border-t border-border">
             <p className="text-xs text-muted-foreground text-center mb-2">
