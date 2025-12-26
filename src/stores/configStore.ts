@@ -72,6 +72,9 @@ export interface ExtensionConfig {
   
   // Pinned properties settings (keyed by profile, "default" is the default profile)
   pinnedProperties: PinnedPropertiesConfig;
+  
+  // Onboarding settings
+  dismissedOnboardingModals: string[]; // List of onboarding modal IDs that have been dismissed
 }
 
 interface ConfigStore extends ExtensionConfig {
@@ -93,6 +96,11 @@ interface ConfigStore extends ExtensionConfig {
   togglePin: (section: string, subsection: string | null, property: string, profile?: string) => void;
   isPinned: (section: string, subsection: string | null, property: string, profile?: string) => boolean;
   getPinnedProperties: (section: string, subsection: string | null, profile?: string) => string[];
+  
+  // Onboarding actions
+  dismissOnboardingModal: (modalId: string) => void;
+  isOnboardingModalDismissed: (modalId: string) => boolean;
+  resetOnboardingModals: () => void;
 }
 
 const defaultConfig: ExtensionConfig = {
@@ -104,6 +112,7 @@ const defaultConfig: ExtensionConfig = {
   pinnedProperties: {
     default: defaultPinnedProfile,
   },
+  dismissedOnboardingModals: [],
 };
 
 /**
@@ -351,11 +360,30 @@ export const useConfigStore = create<ConfigStore>()(
         const pinnedArr = getPinnedPath(currentProfile, section, subsection);
         return pinnedArr ?? [];
       },
+      
+      // Onboarding actions
+      dismissOnboardingModal: (modalId) => {
+        set((state) => {
+          if (!state.dismissedOnboardingModals.includes(modalId)) {
+            return {
+              dismissedOnboardingModals: [...state.dismissedOnboardingModals, modalId],
+            };
+          }
+          return state;
+        });
+      },
+      isOnboardingModalDismissed: (modalId) => {
+        const state = get();
+        return state.dismissedOnboardingModals.includes(modalId);
+      },
+      resetOnboardingModals: () => {
+        set({ dismissedOnboardingModals: [] });
+      },
     }),
       {
         name: 'analytics-xray-config',
         storage: createJSONStorage(() => createChromeStorage()),
-        version: 5,
+        version: 6,
         migrate: (persistedState, version) => {
           const state = persistedState as ExtensionConfig;
           if (version < 2) {
@@ -394,6 +422,13 @@ export const useConfigStore = create<ConfigStore>()(
               ...state,
               allowedDomains: defaultConfig.allowedDomains,
               deniedDomains: defaultConfig.deniedDomains,
+            };
+          }
+          if (version < 6) {
+            // Migration from v5 to v6: add dismissedOnboardingModals
+            return {
+              ...state,
+              dismissedOnboardingModals: defaultConfig.dismissedOnboardingModals,
             };
           }
           return state;

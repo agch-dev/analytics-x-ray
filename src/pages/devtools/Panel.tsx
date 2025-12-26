@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
 import { getTabStore } from '@src/stores/tabStore';
 import { useConfigStore, selectPreferredEventDetailView, selectMaxEvents, selectAllowedDomains, selectDeniedDomains } from '@src/stores/configStore';
-import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, DomainPermissionPrompt, TrackingDisabledMessage, FeedbackModal, type EventListHandle } from './components';
+import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, DomainPermissionPrompt, TrackingDisabledMessage, FeedbackModal, OnboardingSystem, WelcomeOnboardingModal, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
@@ -527,6 +527,12 @@ export default function Panel() {
       <FeedbackModal
         open={isFeedbackModalOpen}
         onOpenChange={setIsFeedbackModalOpen}
+      />
+      
+      <OnboardingSystem
+        modalId="welcome"
+        ModalComponent={WelcomeOnboardingModal}
+        delay={500}
       />
     </div>
   );
