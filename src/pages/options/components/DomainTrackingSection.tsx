@@ -80,7 +80,7 @@ export const DomainTrackingSection = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+        <div className="bg-muted rounded-lg p-4 space-y-2">
           <p className="text-sm font-medium text-foreground">Privacy Notice</p>
           <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
             <li>All data is stored locally on your device</li>

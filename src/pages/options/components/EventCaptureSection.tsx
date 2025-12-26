@@ -21,8 +21,8 @@ export const EventCaptureSection = () => {
     if (isNaN(value)) {
       setMaxEventsError('Please enter a valid number');
       setMaxEventsInput(maxEvents.toString());
-    } else if (value < 1 || value > 10000) {
-      setMaxEventsError('Value must be between 1 and 10,000');
+    } else if (value < 1 || value > 1000) {
+      setMaxEventsError('Value must be between 1 and 1000');
       setMaxEventsInput(maxEvents.toString());
     } else {
       setMaxEventsError('');
@@ -45,7 +45,7 @@ export const EventCaptureSection = () => {
             id="max-events"
             type="number"
             min="1"
-            max="10000"
+            max="1000"
             value={maxEventsInput}
             onChange={(e) => {
               setMaxEventsInput(e.target.value);
@@ -58,7 +58,7 @@ export const EventCaptureSection = () => {
             <p className="text-sm text-red-500">{maxEventsError}</p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Limit the number of events stored in memory (1-10,000)
+              Limit the number of events stored in memory per tab (1-1000)
             </p>
           )}
         </div>
