@@ -9,7 +9,7 @@ import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
 import { useDebounce } from '@src/hooks';
 import { ErrorBoundary, EventListErrorState } from '@src/components';
-import { getTabDomain, isDomainAllowed, isSpecialPage, normalizeDomain, isSubdomainOfAllowedDomain } from '@src/lib/domain';
+import { getTabDomain, isDomainAllowed, normalizeDomain, isSubdomainOfAllowedDomain, getBaseDomain } from '@src/lib/domain';
 import { isDomainChangedMessage } from '@src/types/messages';
 
 
@@ -41,6 +41,12 @@ export default function Panel() {
   const allowedDomains = useConfigStore(selectAllowedDomains);
   const deniedDomains = useConfigStore(selectDeniedDomains);
   const addDeniedDomain = useConfigStore((state) => state.addDeniedDomain);
+  const addAllowedDomain = useConfigStore((state) => state.addAllowedDomain);
+  
+  // Track which domain we've already auto-allowed to avoid duplicate additions
+  const autoAllowedDomainRef = useRef<string | null>(null);
+  // Track previous normalized domain to detect domain changes
+  const previousNormalizedDomainRef = useRef<string | null>(null);
   
   // Initialize tab store with current maxEvents from config
   // Note: The store will read maxEvents dynamically from config store on each addEvent,
@@ -137,30 +143,146 @@ export default function Panel() {
         // Special page or invalid URL
         setDomainAllowed(false);
         setDomainCheckComplete(true);
+        previousNormalizedDomainRef.current = null;
         return;
       }
       
       // Normalize domain for denied check
       const normalizedDomain = normalizeDomain(domain);
+      
+      // Reset auto-allowed ref if domain changed
+      if (previousNormalizedDomainRef.current && previousNormalizedDomainRef.current !== normalizedDomain) {
+        // Domain changed, reset auto-allowed tracking
+        autoAllowedDomainRef.current = null;
+      }
+      previousNormalizedDomainRef.current = normalizedDomain;
       const isDenied = deniedDomains.some((denied) => {
         const normalizedDenied = normalizeDomain(denied);
         return normalizedDenied === normalizedDomain || denied === domain;
       });
       
+      // Get latest allowed domains from store (always use fresh state)
+      const latestAllowedDomains = useConfigStore.getState().allowedDomains;
+      
       // Check if domain is allowed
-      const allowed = isDomainAllowed(domain, allowedDomains);
+      let allowed = isDomainAllowed(domain, latestAllowedDomains);
+      
+      // Auto-allow feature: automatically add domain to allowed list if not already there
+      // Only do this once per domain (tracked by ref)
+      if (!allowed && !isDenied && autoAllowedDomainRef.current !== normalizedDomain) {
+        // Determine if this is a subdomain (has more than 2 parts)
+        const baseDomain = getBaseDomain(normalizedDomain);
+        const isSubdomain = normalizedDomain !== baseDomain;
+        
+        // Check if domain or base domain is already in the allowed list
+        const existingEntry = latestAllowedDomains.find((d) => {
+          const existingNormalized = normalizeDomain(d.domain);
+          if (d.allowSubdomains) {
+            // If existing entry allows subdomains, check if current domain matches
+            return getBaseDomain(existingNormalized) === baseDomain;
+          }
+          // Check for exact match or base domain match
+          return existingNormalized === normalizedDomain || 
+                 (isSubdomain && existingNormalized === baseDomain);
+        });
+        
+        if (!existingEntry) {
+          // Domain is not in the list at all, add it
+          const domainToAdd = isSubdomain ? baseDomain : normalizedDomain;
+          const allowSubdomains = isSubdomain;
+          
+          log.info(`✨ Auto-allowing domain: ${domainToAdd} (subdomains: ${allowSubdomains})`);
+          addAllowedDomain(domainToAdd, allowSubdomains);
+          
+          // Mark this domain as auto-allowed
+          autoAllowedDomainRef.current = normalizedDomain;
+          
+          // Get the updated allowed domains after adding
+          const updatedAllowedDomains = useConfigStore.getState().allowedDomains;
+          log.info(`📋 Updated allowed domains:`, updatedAllowedDomains.map(d => `${d.domain} (subdomains: ${d.allowSubdomains})`));
+          
+          // Verify the domain should now be allowed
+          const shouldBeAllowed = isDomainAllowed(domain, updatedAllowedDomains);
+          log.info(`🔍 Domain ${domain} should be allowed: ${shouldBeAllowed}`);
+          
+          // Immediately trigger background script to re-evaluate this tab's domain
+          // This ensures the background script picks up the new allowed domain right away
+          // Use requestAnimationFrame to ensure store update has propagated
+          requestAnimationFrame(() => {
+            Browser.runtime.sendMessage({
+              type: 'RE_EVALUATE_TAB_DOMAIN',
+              tabId,
+            })
+            .then((result) => {
+              log.info(`✅ Domain re-evaluation triggered for tab ${tabId}, result:`, result);
+            })
+            .catch((error) => {
+              log.error('❌ Failed to trigger domain re-evaluation:', error);
+            });
+          });
+          
+          // Re-check if domain is now allowed using latest store state
+          allowed = isDomainAllowed(domain, updatedAllowedDomains);
+        } else if (isSubdomain && existingEntry.domain === baseDomain && !existingEntry.allowSubdomains) {
+          // Special case: base domain exists but subdomains are not allowed
+          // Update it to allow subdomains
+          log.info(`✨ Updating ${baseDomain} to allow subdomains (visited ${normalizedDomain})`);
+          addAllowedDomain(baseDomain, true); // This will update the existing entry
+          
+          // Mark this domain as auto-allowed
+          autoAllowedDomainRef.current = normalizedDomain;
+          
+          // Get the updated allowed domains after updating
+          const updatedAllowedDomains = useConfigStore.getState().allowedDomains;
+          log.info(`📋 Updated allowed domains:`, updatedAllowedDomains.map(d => `${d.domain} (subdomains: ${d.allowSubdomains})`));
+          
+          // Verify the domain should now be allowed
+          const shouldBeAllowed = isDomainAllowed(domain, updatedAllowedDomains);
+          log.info(`🔍 Domain ${domain} should be allowed: ${shouldBeAllowed}`);
+          
+          // Immediately trigger background script to re-evaluate this tab's domain
+          // This ensures the background script picks up the updated domain setting right away
+          // Use requestAnimationFrame to ensure store update has propagated
+          requestAnimationFrame(() => {
+            Browser.runtime.sendMessage({
+              type: 'RE_EVALUATE_TAB_DOMAIN',
+              tabId,
+            })
+            .then((result) => {
+              log.info(`✅ Domain re-evaluation triggered for tab ${tabId}, result:`, result);
+            })
+            .catch((error) => {
+              log.error('❌ Failed to trigger domain re-evaluation:', error);
+            });
+          });
+          
+          // Re-check if domain is now allowed using latest store state
+          allowed = isDomainAllowed(domain, updatedAllowedDomains);
+        } else {
+          // Domain is already in the list and properly configured, mark as auto-allowed to prevent future checks
+          autoAllowedDomainRef.current = normalizedDomain;
+          // Re-check with latest state
+          allowed = isDomainAllowed(domain, latestAllowedDomains);
+        }
+      }
       
       // Check if this is a subdomain of an allowed domain (but subdomains not enabled)
+      // Use latest allowed domains for this check too
       let subdomainMatch: { allowedDomain: { domain: string; allowSubdomains: boolean }; baseDomain: string } | null = null;
       if (!allowed && !isDenied) {
-        const match = isSubdomainOfAllowedDomain(domain, allowedDomains);
+        // Get fresh state again in case it was updated by auto-allow
+        const currentAllowedDomains = useConfigStore.getState().allowedDomains;
+        const match = isSubdomainOfAllowedDomain(domain, currentAllowedDomains);
         if (match) {
           subdomainMatch = match;
         }
       }
       
       setSubdomainInfo(subdomainMatch);
-      setDomainAllowed(allowed && !isDenied);
+      // If domain was auto-allowed, ensure it's marked as allowed
+      // (this handles the case where auto-allow happened but state hasn't updated yet)
+      const finalAllowed = allowed || (autoAllowedDomainRef.current === normalizedDomain && !isDenied);
+      setDomainAllowed(finalAllowed && !isDenied);
       setDomainCheckComplete(true);
     } catch (error) {
       log.error('❌ [Panel] Failed to check domain:', error);
@@ -192,13 +314,23 @@ export default function Panel() {
   }, [tabId, checkDomain]);
 
   // Also periodically check domain (fallback in case messages don't arrive)
+  // Only check if domain check is not complete or domain is not allowed yet
+  // This reduces unnecessary requests when domain is already allowed
   useEffect(() => {
+    // Skip periodic checks if domain is already allowed and check is complete
+    if (domainCheckComplete && domainAllowed === true) {
+      return;
+    }
+    
     const interval = setInterval(() => {
-      checkDomain();
-    }, 2000); // Check every 2 seconds
+      // Only check if we haven't completed the check or domain is not allowed
+      if (!domainCheckComplete || domainAllowed !== true) {
+        checkDomain();
+      }
+    }, 5000); // Check every 5 seconds (reduced frequency)
 
     return () => clearInterval(interval);
-  }, [checkDomain]);
+  }, [checkDomain, domainCheckComplete, domainAllowed]);
   
   // Sync events with background script
   useEventSync({ tabId, addEvent });
@@ -309,13 +441,17 @@ export default function Panel() {
   // 2. We have a valid domain
   // 3. Domain is not in denied list
   // 4. Domain is not allowed
+  // 5. Domain has not been auto-allowed (to prevent showing prompt after auto-allow)
   const isDenied = currentDomain ? deniedDomains.includes(currentDomain) : false;
+  const normalizedCurrentDomain = currentDomain ? normalizeDomain(currentDomain) : null;
+  const hasBeenAutoAllowed = normalizedCurrentDomain && autoAllowedDomainRef.current === normalizedCurrentDomain;
   const shouldShowPrompt = 
     domainCheckComplete &&
     currentDomain !== null &&
     currentDomain !== '' &&
     !isDenied &&
-    domainAllowed === false;
+    domainAllowed === false &&
+    !hasBeenAutoAllowed;
   
   // Show disabled message if domain is in denied list
   const showDisabledMessage = 

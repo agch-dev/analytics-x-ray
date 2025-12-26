@@ -24,6 +24,7 @@ import {
   isClearEventsMessage,
   isGetEventCountMessage,
   isGetTabDomainMessage,
+  isReEvaluateTabDomainMessage,
 } from '@src/types/messages';
 import { useConfigStore } from '@src/stores/configStore';
 
@@ -527,6 +528,31 @@ Browser.runtime.onMessage.addListener(
       return Promise.resolve(null);
     }
 
+    if (isReEvaluateTabDomainMessage(message)) {
+      const tabId = message.tabId ?? sender.tab?.id;
+      if (typeof tabId === 'number') {
+        log.info(`🔄 Re-evaluating domain for tab ${tabId} (requested by panel)`);
+        return Browser.tabs.get(tabId)
+          .then((tab) => {
+            if (tab.url) {
+              log.info(`📋 Current allowed domains before re-evaluation:`, useConfigStore.getState().allowedDomains.map(d => `${d.domain} (subdomains: ${d.allowSubdomains})`));
+              updateTabDomainInfo(tabId, tab.url);
+              const updatedInfo = tabDomains.get(tabId);
+              log.info(`✅ Re-evaluation complete for tab ${tabId}: domain=${updatedInfo?.domain}, allowed=${updatedInfo?.isAllowed}`);
+              return true;
+            }
+            log.warn(`⚠️ Tab ${tabId} has no URL`);
+            return false;
+          })
+          .catch((error) => {
+            log.error(`❌ Failed to re-evaluate tab ${tabId}:`, error);
+            return false;
+          });
+      }
+      log.warn(`⚠️ RE_EVALUATE_TAB_DOMAIN: No valid tabId`);
+      return Promise.resolve(false);
+    }
+
     // Unknown message type
     return false;
   }
@@ -696,6 +722,51 @@ async function initializeDomainTracking(): Promise<void> {
 }
 
 /**
+ * Set up storage change listener to sync config store updates from other contexts
+ * This ensures the background script picks up changes made in Panel/Options pages
+ */
+function setupStorageSyncListener() {
+  const handleStorageChange = (
+    changes: Browser.Storage.StorageAreaOnChangedChangesType,
+    areaName: string
+  ) => {
+    // Only listen to local storage changes
+    if (areaName !== 'local') return;
+    
+    // Check if the config storage key changed
+    const configKey = 'analytics-xray-config';
+    if (changes[configKey]) {
+      log.info('📋 Config storage changed, rehydrating store...');
+      
+      // Read the new config from storage and update the store
+      Browser.storage.local.get(configKey).then((result) => {
+        const storedValue = result[configKey];
+        if (storedValue && typeof storedValue === 'string') {
+          try {
+            const parsed = JSON.parse(storedValue);
+            const { state: newState } = parsed;
+            if (newState) {
+              // Update the store with the new state
+              useConfigStore.setState(newState);
+              log.info('✅ Config store rehydrated from storage');
+              log.debug('📋 Updated allowed domains:', newState.allowedDomains?.map((d: { domain: string; allowSubdomains: boolean }) => `${d.domain} (subdomains: ${d.allowSubdomains})`) || []);
+              
+              // Re-evaluate all tabs after store update
+              reEvaluateAllTabs();
+            }
+          } catch (error) {
+            log.error('❌ Failed to parse config from storage:', error);
+          }
+        }
+      });
+    }
+  };
+  
+  Browser.storage.onChanged.addListener(handleStorageChange);
+  log.info('👂 Storage sync listener registered');
+}
+
+/**
  * Set up periodic cleanup of stale tabs
  * Runs cleanup every hour and on service worker startup
  * Cleans up tabs that haven't been updated in 24+ hours (if they're closed)
@@ -741,6 +812,7 @@ setupWebRequestListener();
 setupReloadTracking();
 setupMaxEventsListener();
 setupDomainAllowlistListener();
+setupStorageSyncListener();
 setupPeriodicCleanup();
 initializeDomainTracking();
 log.info('✅ Background script initialization complete');

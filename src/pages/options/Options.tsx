@@ -2,11 +2,12 @@ import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';
 import { useConfigStore } from '@src/stores/configStore';
 import { createContextLogger } from '@src/lib/logger';
+import { isDevMode } from '@src/lib/utils';
 import {
   OptionsHeader,
   AppearanceSection,
   EventCaptureSection,
-  DomainTrackingSection,
+  DevDomainSection,
   ResetButton,
 } from './components';
 
@@ -60,7 +61,7 @@ export default function Options() {
         <OptionsHeader />
         <AppearanceSection />
         <EventCaptureSection />
-        <DomainTrackingSection />
+        {isDevMode() && <DevDomainSection />}
         <ResetButton />
       </div>
     </div>

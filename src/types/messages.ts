@@ -15,7 +15,8 @@ export type MessageType =
   | 'EVENTS_CAPTURED'
   | 'RELOAD_DETECTED'
   | 'GET_TAB_DOMAIN'
-  | 'DOMAIN_CHANGED';
+  | 'DOMAIN_CHANGED'
+  | 'RE_EVALUATE_TAB_DOMAIN';
 
 // Base message interface
 export interface BaseMessage {
@@ -64,6 +65,11 @@ export interface DomainChangedMessage extends BaseMessage {
   domain: string | null;
 }
 
+export interface ReEvaluateTabDomainMessage extends BaseMessage {
+  type: 'RE_EVALUATE_TAB_DOMAIN';
+  tabId: number;
+}
+
 // Union of all messages
 export type ExtensionMessage =
   | GetEventsMessage
@@ -72,7 +78,8 @@ export type ExtensionMessage =
   | EventsCapturedMessage
   | ReloadDetectedMessage
   | GetTabDomainMessage
-  | DomainChangedMessage;
+  | DomainChangedMessage
+  | ReEvaluateTabDomainMessage;
 
 // Type guards
 export function isExtensionMessage(msg: unknown): msg is ExtensionMessage {
@@ -93,6 +100,7 @@ export function isExtensionMessage(msg: unknown): msg is ExtensionMessage {
     'RELOAD_DETECTED',
     'GET_TAB_DOMAIN',
     'DOMAIN_CHANGED',
+    'RE_EVALUATE_TAB_DOMAIN',
   ];
 
   return validTypes.includes(m.type as MessageType);
@@ -172,6 +180,16 @@ export function isDomainChangedMessage(
     isExtensionMessage(msg) &&
     msg.type === 'DOMAIN_CHANGED' &&
     typeof (msg as DomainChangedMessage).tabId === 'number'
+  );
+}
+
+export function isReEvaluateTabDomainMessage(
+  msg: unknown
+): msg is ReEvaluateTabDomainMessage {
+  return (
+    isExtensionMessage(msg) &&
+    msg.type === 'RE_EVALUATE_TAB_DOMAIN' &&
+    typeof (msg as ReEvaluateTabDomainMessage).tabId === 'number'
   );
 }
 

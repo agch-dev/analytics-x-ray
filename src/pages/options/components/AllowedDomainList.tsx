@@ -48,7 +48,11 @@ export const AllowedDomainList = ({ domains, onRemove, onToggleSubdomains }: All
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onRemove(allowedDomain.domain)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onRemove(allowedDomain.domain);
+                }}
                 aria-label={`Remove ${allowedDomain.domain}`}
                 className="shrink-0"
               >

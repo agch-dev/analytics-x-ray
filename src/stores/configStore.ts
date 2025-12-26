@@ -84,6 +84,7 @@ interface ConfigStore extends ExtensionConfig {
   // Domain allowlist actions
   addAllowedDomain: (domain: string, allowSubdomains: boolean) => void;
   removeAllowedDomain: (domain: string) => void;
+  clearAllAllowedDomains: () => void;
   updateDomainSubdomainSetting: (domain: string, allowSubdomains: boolean) => void;
   addDeniedDomain: (domain: string) => void;
   removeDeniedDomain: (domain: string) => void;
@@ -199,9 +200,36 @@ export const useConfigStore = create<ConfigStore>()(
         });
       },
       removeAllowedDomain: (domain) => {
-        set((state) => ({
-          allowedDomains: state.allowedDomains.filter((d) => d.domain !== domain),
-        }));
+        set((state) => {
+          // Normalize the domain to match how it's stored
+          let normalizedDomain = domain.toLowerCase().trim();
+          if (normalizedDomain.startsWith('www.')) {
+            normalizedDomain = normalizedDomain.slice(4);
+          }
+          
+          // Filter out matching domain (compare both original and normalized)
+          // Keep domains that don't match the original domain or normalized versions
+          const filtered = state.allowedDomains.filter((d) => {
+            // Exact match check
+            if (d.domain === domain) {
+              return false;
+            }
+            
+            // Normalized match check
+            const storedNormalized = d.domain.toLowerCase().trim();
+            const storedWithoutWww = storedNormalized.startsWith('www.') 
+              ? storedNormalized.slice(4) 
+              : storedNormalized;
+            
+            // Remove if normalized versions match
+            return storedNormalized !== normalizedDomain && storedWithoutWww !== normalizedDomain;
+          });
+          
+          return { allowedDomains: filtered };
+        });
+      },
+      clearAllAllowedDomains: () => {
+        set({ allowedDomains: [] });
       },
       updateDomainSubdomainSetting: (domain, allowSubdomains) => {
         set((state) => {
