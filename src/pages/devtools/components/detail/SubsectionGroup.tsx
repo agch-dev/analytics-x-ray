@@ -35,6 +35,8 @@ interface SubsectionGroupProps {
   searchQuery?: string;
   /** Whether the section should be expanded by default */
   defaultExpanded?: boolean;
+  /** Array of subsection keys that should be expanded by default */
+  defaultExpandedSubsections?: string[];
   /** Message to show when there are no subsections */
   emptyMessage?: string;
 }
@@ -55,10 +57,11 @@ export function SubsectionGroup({
   subsections,
   searchQuery = '',
   defaultExpanded = true,
+  defaultExpandedSubsections = [],
   emptyMessage = 'No data',
 }: SubsectionGroupProps) {
   const [expandedSubsections, setExpandedSubsections] = useState<Set<string>>(
-    new Set()
+    () => new Set(defaultExpandedSubsections)
   );
 
   // Get pin functions from store

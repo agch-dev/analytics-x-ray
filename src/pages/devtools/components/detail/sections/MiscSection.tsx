@@ -80,6 +80,14 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
     return null;
   }
 
+  // For alias events, expand the identifiers subsection by default
+  const defaultExpandedSubsections = useMemo(() => {
+    if (event.type === 'alias' && subsections.some((s) => s.key === 'identifiers')) {
+      return ['identifiers'];
+    }
+    return [];
+  }, [event.type, subsections]);
+
   return (
     <SubsectionGroup
       title="Metadata"
@@ -88,6 +96,7 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
       subsections={subsections}
       searchQuery={searchQuery}
       defaultExpanded={true}
+      defaultExpandedSubsections={defaultExpandedSubsections}
     />
   );
 }
