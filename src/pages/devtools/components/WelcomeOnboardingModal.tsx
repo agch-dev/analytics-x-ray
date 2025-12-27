@@ -20,8 +20,8 @@ import {
   PinIcon,
   Clock04Icon,
   CheckmarkCircle01Icon,
-  Rocket01Icon,
 } from '@hugeicons/core-free-icons';
+import { Logo } from '@src/components/Logo';
 import type { OnboardingModalProps } from './OnboardingSystem';
 
 interface Feature {
@@ -63,11 +63,7 @@ export function WelcomeOnboardingModal({
         <DialogHeader className="space-y-3 text-left">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg w-10 h-10 flex items-center justify-center">
-              <HugeiconsIcon
-                icon={Rocket01Icon}
-                size={24}
-                className="text-primary"
-              />
+              <Logo size={24} />
             </div>
             <DialogTitle className="text-2xl">
               Welcome to Analytics X-Ray
