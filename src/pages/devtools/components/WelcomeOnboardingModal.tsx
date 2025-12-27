@@ -1,10 +1,3 @@
-/**
- * Welcome Onboarding Modal
- * 
- * Introduces users to Analytics X-Ray and highlights key features
- * that make the extension stand out.
- */
-
 import {
   Dialog,
   DialogContent,

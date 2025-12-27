@@ -2,14 +2,14 @@ import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
 import { getTabStore } from '@src/stores/tabStore';
 import { useConfigStore, selectPreferredEventDetailView, selectMaxEvents, selectAllowedDomains, selectDeniedDomains } from '@src/stores/configStore';
-import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, DomainPermissionPrompt, TrackingDisabledMessage, FeedbackModal, OnboardingSystem, WelcomeOnboardingModal, type EventListHandle } from './components';
+import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, FeedbackModal, OnboardingSystem, WelcomeOnboardingModal, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
 import { useDebounce } from '@src/hooks';
 import { ErrorBoundary, EventListErrorState } from '@src/components';
-import { getTabDomain, isDomainAllowed, normalizeDomain, isSubdomainOfAllowedDomain, getBaseDomain } from '@src/lib/domain';
+import { getTabDomain, isDomainAllowed, normalizeDomain, getBaseDomain } from '@src/lib/domain';
 import { isDomainChangedMessage } from '@src/types/messages';
 
 
@@ -28,7 +28,6 @@ export default function Panel() {
   const [currentDomain, setCurrentDomain] = useState<string | null>(null);
   const [domainAllowed, setDomainAllowed] = useState<boolean | null>(null);
   const [domainCheckComplete, setDomainCheckComplete] = useState(false);
-  const [subdomainInfo, setSubdomainInfo] = useState<{ allowedDomain: { domain: string; allowSubdomains: boolean }; baseDomain: string } | null>(null);
   
   // Get preferred view mode from config store (used directly, not persisted per tab)
   const preferredViewMode = useConfigStore(selectPreferredEventDetailView);
@@ -266,19 +265,6 @@ export default function Panel() {
         }
       }
       
-      // Check if this is a subdomain of an allowed domain (but subdomains not enabled)
-      // Use latest allowed domains for this check too
-      let subdomainMatch: { allowedDomain: { domain: string; allowSubdomains: boolean }; baseDomain: string } | null = null;
-      if (!allowed && !isDenied) {
-        // Get fresh state again in case it was updated by auto-allow
-        const currentAllowedDomains = useConfigStore.getState().allowedDomains;
-        const match = isSubdomainOfAllowedDomain(domain, currentAllowedDomains);
-        if (match) {
-          subdomainMatch = match;
-        }
-      }
-      
-      setSubdomainInfo(subdomainMatch);
       // If domain was auto-allowed, ensure it's marked as allowed
       // (this handles the case where auto-allow happened but state hasn't updated yet)
       const finalAllowed = allowed || (autoAllowedDomainRef.current === normalizedDomain && !isDenied);
@@ -420,51 +406,16 @@ export default function Panel() {
     toggleEventNameVisibility(eventName);
   };
 
-  const handleDomainAllowed = () => {
-    // Remove from denied list if it was there
-    if (currentDomain && deniedDomains.includes(currentDomain)) {
-      useConfigStore.getState().removeDeniedDomain(currentDomain);
-    }
-    setDomainAllowed(true);
-  };
-
-  const handleDomainDenied = () => {
-    // Add to denied list
-    if (currentDomain) {
-      addDeniedDomain(currentDomain);
-    }
-    setDomainAllowed(false);
-  };
-
-  // Show permission prompt if:
-  // 1. Domain check is complete
-  // 2. We have a valid domain
-  // 3. Domain is not in denied list
-  // 4. Domain is not allowed
-  // 5. Domain has not been auto-allowed (to prevent showing prompt after auto-allow)
-  const isDenied = currentDomain ? deniedDomains.includes(currentDomain) : false;
-  const normalizedCurrentDomain = currentDomain ? normalizeDomain(currentDomain) : null;
-  const hasBeenAutoAllowed = normalizedCurrentDomain && autoAllowedDomainRef.current === normalizedCurrentDomain;
-  const shouldShowPrompt = 
-    domainCheckComplete &&
-    currentDomain !== null &&
-    currentDomain !== '' &&
-    !isDenied &&
-    domainAllowed === false &&
-    !hasBeenAutoAllowed;
-  
-  // Show disabled message if domain is in denied list
-  const showDisabledMessage = 
-    isDenied && 
-    currentDomain !== null;
+  // Check if domain is denied
+  const isDenied = currentDomain ? deniedDomains.some((denied) => {
+    const normalizedDenied = normalizeDomain(denied);
+    const normalizedCurrent = normalizeDomain(currentDomain);
+    return normalizedDenied === normalizedCurrent || denied === currentDomain;
+  }) : false;
 
 
   return (
     <div className="h-screen bg-background text-foreground flex flex-col">
-      {showDisabledMessage && currentDomain && (
-        <TrackingDisabledMessage domain={currentDomain} />
-      )}
-      
       <Header
         eventCount={filteredEvents.length}
         totalEventCount={events.length}
@@ -488,34 +439,26 @@ export default function Panel() {
         />
       )}
       
-      {shouldShowPrompt && currentDomain ? (
-        <DomainPermissionPrompt
-          domain={currentDomain}
-          onAllowed={handleDomainAllowed}
-          subdomainInfo={subdomainInfo}
+      <ErrorBoundary
+        fallback={<EventListErrorState />}
+        resetKeys={[filteredEvents.length]}
+      >
+        <EventList
+          ref={eventListRef}
+          events={filteredEvents}
+          reloadTimestamps={reloadTimestamps}
+          selectedEventId={selectedEventId}
+          expandedEventIds={expandedEventIds}
+          hiddenEventNames={hiddenEventNames}
+          searchMatch={searchMatch}
+          viewMode={preferredViewMode}
+          onSelectEvent={setSelectedEvent}
+          onToggleExpand={toggleEventExpanded}
+          onToggleHide={toggleEventNameVisibility}
+          onScrollStateChange={setIsAtBottom}
+          onViewModeChange={handleViewModeChange}
         />
-      ) : (
-        <ErrorBoundary
-          fallback={<EventListErrorState />}
-          resetKeys={[filteredEvents.length]}
-        >
-          <EventList
-            ref={eventListRef}
-            events={filteredEvents}
-            reloadTimestamps={reloadTimestamps}
-            selectedEventId={selectedEventId}
-            expandedEventIds={expandedEventIds}
-            hiddenEventNames={hiddenEventNames}
-            searchMatch={searchMatch}
-            viewMode={preferredViewMode}
-            onSelectEvent={setSelectedEvent}
-            onToggleExpand={toggleEventExpanded}
-            onToggleHide={toggleEventNameVisibility}
-            onScrollStateChange={setIsAtBottom}
-            onViewModeChange={handleViewModeChange}
-          />
-        </ErrorBoundary>
-      )}
+      </ErrorBoundary>
       
       <ScrollToBottomButton
         isVisible={!isAtBottom}
