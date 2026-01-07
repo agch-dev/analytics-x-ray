@@ -32,6 +32,7 @@ function getPillColorClasses(borderColorClass: string): string {
     indigo: 'bg-indigo-500/20 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 dark:border-indigo-500/30',
     green: 'bg-green-500/20 dark:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30 dark:border-green-500/30',
     red: 'bg-red-500/20 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30 dark:border-red-500/30',
+    gray: 'bg-gray-500/20 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400 border border-gray-500/30 dark:border-gray-500/30',
   };
   
   return colorMap[color] || '';
@@ -84,7 +85,7 @@ export function FilterPanel({
         {/* Show All / Hide All button */}
         {hasHiddenEvents ? (
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             onClick={onShowAll}
             className="text-xs h-7"
@@ -93,7 +94,7 @@ export function FilterPanel({
           </Button>
         ) : (
           <Button
-            variant="outline"
+            variant="destructive"
             size="sm"
             onClick={onHideAll}
             className="text-xs h-7"

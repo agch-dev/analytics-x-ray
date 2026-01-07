@@ -40,7 +40,8 @@ export const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
     id: 'page',
     label: 'Page Events',
     color: 'border-l-emerald-500',
-    patterns: ['page'],
+    patterns: [],
+    eventTypes: ['page'],
   },
   {
     id: 'identify',
@@ -100,6 +101,12 @@ export const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
     color: 'border-l-red-500',
     patterns: ['error', 'fail', 'failed', 'exception', 'warning'],
   },
+  {
+    id: 'default',
+    label: 'Default',
+    color: 'border-l-gray-500',
+    patterns: [],
+  },
 ];
 
 /**
@@ -125,7 +132,8 @@ export function categorizeEvent(
     
     // Check pattern matches in event name
     for (const pattern of bucket.patterns) {
-      if (eventNameLower.includes(pattern.toLowerCase())) {
+      const patternLower = pattern.toLowerCase();
+      if (eventNameLower.includes(patternLower)) {
         return bucket.id;
       }
     }
