@@ -31,18 +31,6 @@ function getPrefixedSubsectionKey(sectionKey: 'context' | 'metadata', subsection
   return `${sectionKey}${subsectionKey.charAt(0).toUpperCase()}${subsectionKey.slice(1)}`;
 }
 
-/**
- * Maps prefixed config keys back to subsection keys
- */
-function getUnprefixedSubsectionKey(sectionKey: 'context' | 'metadata', prefixedKey: string): string {
-  const prefix = sectionKey;
-  if (prefixedKey.startsWith(prefix)) {
-    const rest = prefixedKey.slice(prefix.length);
-    return rest.charAt(0).toLowerCase() + rest.slice(1);
-  }
-  return prefixedKey;
-}
-
 export function SectionDefaultsModal({
   open,
   onOpenChange,
