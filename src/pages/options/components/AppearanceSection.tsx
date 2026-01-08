@@ -49,6 +49,11 @@ export const AppearanceSection = () => {
             Default view mode when expanding event details. You can still toggle between views for individual events.
           </p>
         </div>
+        <div className="pt-4 mt-4 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium">Tip:</span> You can customize the default open/collapsed state of sections and subsections directly from the section menu (⋮) in the event detail view.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
