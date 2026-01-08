@@ -1,14 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useConfigStore } from '@src/stores/configStore';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@src/components/ui/dialog';
-import { Button } from '@src/components/ui/button';
 import { Switch } from '@src/components/ui/switch';
 import { Label } from '@src/components/ui/label';
 import type { SubsectionDefinition } from './SubsectionGroup';
@@ -118,6 +116,7 @@ export function SectionDefaultsModal({
               id="section-default"
               checked={sectionDefaultExpanded}
               onCheckedChange={handleSectionToggle}
+              className="data-[state=unchecked]:bg-muted"
             />
           </div>
 
@@ -143,6 +142,7 @@ export function SectionDefaultsModal({
                       id={`subsection-${subsection.key}`}
                       checked={subsectionDefaults[subsection.key] ?? false}
                       onCheckedChange={(checked) => handleSubsectionToggle(subsection.key, checked)}
+                      className="data-[state=unchecked]:bg-muted"
                     />
                   </div>
                 ))}
@@ -167,6 +167,7 @@ export function SectionDefaultsModal({
                   id="special-context"
                   checked={specialDefaults.contextPageAlwaysOpenForPageEvents}
                   onCheckedChange={handleSpecialDefaultToggle}
+                  className="data-[state=unchecked]:bg-muted"
                 />
               </div>
             )}
@@ -185,17 +186,12 @@ export function SectionDefaultsModal({
                   id="special-metadata"
                   checked={specialDefaults.metadataIdentifiersAlwaysOpenForIdentityEvents}
                   onCheckedChange={handleSpecialDefaultToggle}
+                  className="data-[state=unchecked]:bg-muted"
                 />
               </div>
             )}
           </div>
         </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
