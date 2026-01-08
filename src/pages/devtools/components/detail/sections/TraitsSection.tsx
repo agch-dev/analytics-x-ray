@@ -18,6 +18,7 @@ export function TraitsSection({ event, searchQuery = '' }: TraitsSectionProps) {
       searchQuery={searchQuery}
       emptyMessage="No traits"
       renderWhenEmpty={true}
+      sectionKey="traits"
     />
   );
 }

@@ -18,6 +18,7 @@ export function PropertiesSection({ event, searchQuery = '' }: PropertiesSection
       searchQuery={searchQuery}
       emptyMessage="No properties"
       renderWhenEmpty={true}
+      sectionKey="properties"
     />
   );
 }

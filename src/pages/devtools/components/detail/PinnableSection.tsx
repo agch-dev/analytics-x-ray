@@ -1,5 +1,6 @@
 import { useMemo, useCallback, ReactNode } from 'react';
 import { usePinnedProperties, type PinSection } from '@src/hooks';
+import { useConfigStore } from '@src/stores/configStore';
 import { EventDetailSection } from './EventDetailSection';
 import { PropertyList, PinnedPropertyList, type PropertyEntry } from './primitives';
 
@@ -18,6 +19,8 @@ interface PinnableSectionProps {
   emptyMessage?: string;
   /** Whether to render at all when empty (false = don't render) */
   renderWhenEmpty?: boolean;
+  /** Section key for configuration */
+  sectionKey?: 'properties' | 'traits';
 }
 
 /**
@@ -32,10 +35,18 @@ export function PinnableSection({
   searchQuery = '',
   emptyMessage = `No ${title.toLowerCase()}`,
   renderWhenEmpty = true,
+  sectionKey,
 }: PinnableSectionProps) {
   const { togglePin, pinnedProperties } = usePinnedProperties({
     section: pinSection,
   });
+  
+  const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
+  
+  // Get default expanded state from config if sectionKey is provided
+  const defaultExpanded = sectionKey 
+    ? sectionDefaults.sections[sectionKey] 
+    : true;
 
   // Convert data object to sorted entries
   const entries = useMemo<PropertyEntry[]>(() => {
@@ -92,6 +103,9 @@ export function PinnableSection({
       badge={entries.length}
       pinnedContent={pinnedContent}
       pinnedCount={existingPinnedEntries.length}
+      defaultExpanded={defaultExpanded}
+      sectionKey={sectionKey}
+      hasSubsections={false}
     >
       <PropertyList
         entries={entries}

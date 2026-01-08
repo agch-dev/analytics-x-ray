@@ -7,6 +7,7 @@ import {
   Bookmark01Icon,
 } from '@hugeicons/core-free-icons';
 import type { SegmentEvent } from '@src/types/segment';
+import { useConfigStore } from '@src/stores/configStore';
 import { SubsectionGroup, type SubsectionDefinition } from '../SubsectionGroup';
 
 interface ContextSectionProps {
@@ -16,6 +17,7 @@ interface ContextSectionProps {
 
 export function ContextSection({ event, searchQuery = '' }: ContextSectionProps) {
   const context = event.context;
+  const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
 
   // Organize context into subsections
   const subsections = useMemo<SubsectionDefinition[]>(() => {
@@ -84,6 +86,22 @@ export function ContextSection({ event, searchQuery = '' }: ContextSectionProps)
     return sections;
   }, [context]);
 
+  // Get default expanded subsections from config (map prefixed keys to unprefixed)
+  const defaultExpandedSubsections = useMemo(() => {
+    const configSubsections = sectionDefaults.subsections.context;
+    const expanded: string[] = [];
+    
+    for (const subsection of subsections) {
+      const prefixedKey = `context${subsection.key.charAt(0).toUpperCase()}${subsection.key.slice(1)}`;
+      const isExpanded = configSubsections[prefixedKey as keyof typeof configSubsections] ?? false;
+      if (isExpanded) {
+        expanded.push(subsection.key);
+      }
+    }
+    
+    return expanded;
+  }, [sectionDefaults.subsections.context, subsections]);
+
   return (
     <SubsectionGroup
       title="Context"
@@ -91,8 +109,10 @@ export function ContextSection({ event, searchQuery = '' }: ContextSectionProps)
       pinSection="context"
       subsections={subsections}
       searchQuery={searchQuery}
-      defaultExpanded={true}
       emptyMessage="No context data"
+      sectionKey="context"
+      event={event}
+      defaultExpandedSubsections={defaultExpandedSubsections}
     />
   );
 }

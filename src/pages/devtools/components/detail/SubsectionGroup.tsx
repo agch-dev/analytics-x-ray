@@ -3,6 +3,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { PinIcon } from '@hugeicons/core-free-icons';
 import { useConfigStore } from '@src/stores/configStore';
 import type { PinSection, PinSubsection } from '@src/hooks';
+import type { SegmentEvent } from '@src/types/segment';
 import { EventDetailSection } from './EventDetailSection';
 import {
   CollapsibleSubsection,
@@ -39,6 +40,10 @@ interface SubsectionGroupProps {
   defaultExpandedSubsections?: string[];
   /** Message to show when there are no subsections */
   emptyMessage?: string;
+  /** Section key for configuration */
+  sectionKey?: 'context' | 'metadata';
+  /** Event for checking special defaults */
+  event?: SegmentEvent;
 }
 
 interface SubsectionWithPinInfo extends SubsectionDefinition {
@@ -50,18 +55,97 @@ interface SubsectionWithPinInfo extends SubsectionDefinition {
  * A section component that displays grouped subsections with pinning support.
  * Used by ContextSection and MiscSection which share this pattern.
  */
+/**
+ * Maps subsection keys to their prefixed config keys
+ * Handles special case where 'metadata' subsection key maps to 'metadataCaptureInfo' in config
+ */
+function getPrefixedSubsectionKey(sectionKey: 'context' | 'metadata', subsectionKey: string): string {
+  // Special case: 'metadata' subsection key maps to 'metadataCaptureInfo' in config
+  if (sectionKey === 'metadata' && subsectionKey === 'metadata') {
+    return 'metadataCaptureInfo';
+  }
+  return `${sectionKey}${subsectionKey.charAt(0).toUpperCase()}${subsectionKey.slice(1)}`;
+}
+
 export function SubsectionGroup({
   title,
   icon,
   pinSection,
   subsections,
   searchQuery = '',
-  defaultExpanded = true,
-  defaultExpandedSubsections = [],
+  defaultExpanded: propDefaultExpanded,
+  defaultExpandedSubsections: propDefaultExpandedSubsections = [],
   emptyMessage = 'No data',
+  sectionKey,
+  event,
 }: SubsectionGroupProps) {
+  const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
+  
+  // Get section default from config if sectionKey is provided
+  const configDefaultExpanded = sectionKey 
+    ? sectionDefaults.sections[sectionKey] 
+    : (propDefaultExpanded ?? true);
+  
+  // Start with config default, but may be overridden by special defaults
+  let defaultExpanded = configDefaultExpanded;
+  
+  // Get subsection defaults from config and map prefixed keys to unprefixed
+  const configDefaultExpandedSubsections = useMemo(() => {
+    if (!sectionKey) return [];
+    
+    const configSubsections = sectionDefaults.subsections[sectionKey];
+    const expanded: string[] = [];
+    
+    for (const subsection of subsections) {
+      const prefixedKey = getPrefixedSubsectionKey(sectionKey, subsection.key);
+      const isExpanded = configSubsections[prefixedKey as keyof typeof configSubsections] ?? false;
+      if (isExpanded) {
+        expanded.push(subsection.key);
+      }
+    }
+    
+    return expanded;
+  }, [sectionDefaults.subsections, sectionKey, subsections]);
+  
+  // Merge config defaults with prop defaults
+  const mergedDefaultExpandedSubsections = useMemo(() => {
+    const merged = new Set([...configDefaultExpandedSubsections, ...propDefaultExpandedSubsections]);
+    return Array.from(merged);
+  }, [configDefaultExpandedSubsections, propDefaultExpandedSubsections]);
+  
+  // Handle special defaults
+  const finalDefaultExpandedSubsections = useMemo(() => {
+    const final = new Set(mergedDefaultExpandedSubsections);
+    
+    if (sectionKey === 'context' && event) {
+      // Check if it's a page event and special default is enabled
+      if (
+        event.type === 'page' &&
+        sectionDefaults.specialDefaults.contextPageAlwaysOpenForPageEvents
+      ) {
+        final.add('page');
+        // Override section to be expanded
+        defaultExpanded = true;
+      }
+    }
+    
+    if (sectionKey === 'metadata' && event) {
+      // Check if it's an identify/alias/group event and special default is enabled
+      if (
+        (event.type === 'identify' || event.type === 'group' || event.type === 'alias') &&
+        sectionDefaults.specialDefaults.metadataIdentifiersAlwaysOpenForIdentityEvents
+      ) {
+        final.add('identifiers');
+        // Override section to be expanded
+        defaultExpanded = true;
+      }
+    }
+    
+    return Array.from(final);
+  }, [mergedDefaultExpandedSubsections, sectionKey, event, sectionDefaults.specialDefaults]);
+  
   const [expandedSubsections, setExpandedSubsections] = useState<Set<string>>(
-    () => new Set(defaultExpandedSubsections)
+    () => new Set(finalDefaultExpandedSubsections)
   );
 
   // Get pin functions from store
@@ -181,6 +265,9 @@ export function SubsectionGroup({
       defaultExpanded={defaultExpanded}
       pinnedContent={pinnedContent}
       pinnedCount={totalPinnedCount}
+      sectionKey={sectionKey}
+      hasSubsections={true}
+      subsections={subsections}
     >
       <div className="pt-1 space-y-2">
         {subsectionsWithPinInfo.map((subsection) => (

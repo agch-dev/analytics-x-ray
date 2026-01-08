@@ -7,6 +7,7 @@ import {
   PuzzleIcon,
 } from '@hugeicons/core-free-icons';
 import type { SegmentEvent } from '@src/types/segment';
+import { useConfigStore } from '@src/stores/configStore';
 import { SubsectionGroup, type SubsectionDefinition } from '../SubsectionGroup';
 
 interface MiscSectionProps {
@@ -15,6 +16,7 @@ interface MiscSectionProps {
 }
 
 export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
+  const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
   const subsections = useMemo<SubsectionDefinition[]>(() => {
     const sections: SubsectionDefinition[] = [];
 
@@ -81,16 +83,27 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
     return null;
   }
 
-  // For identify, group, and alias events, expand the identifiers subsection by default
+  // Get default expanded subsections from config (map prefixed keys to unprefixed)
   const defaultExpandedSubsections = useMemo(() => {
-    if (
-      (event.type === 'identify' || event.type === 'group' || event.type === 'alias') &&
-      subsections.some((s) => s.key === 'identifiers')
-    ) {
-      return ['identifiers'];
+    const configSubsections = sectionDefaults.subsections.metadata;
+    const expanded: string[] = [];
+    
+    for (const subsection of subsections) {
+      // Special case: 'metadata' subsection key maps to 'metadataCaptureInfo' in config
+      let prefixedKey: string;
+      if (subsection.key === 'metadata') {
+        prefixedKey = 'metadataCaptureInfo';
+      } else {
+        prefixedKey = `metadata${subsection.key.charAt(0).toUpperCase()}${subsection.key.slice(1)}`;
+      }
+      const isExpanded = configSubsections[prefixedKey as keyof typeof configSubsections] ?? false;
+      if (isExpanded) {
+        expanded.push(subsection.key);
+      }
     }
-    return [];
-  }, [event.type, subsections]);
+    
+    return expanded;
+  }, [sectionDefaults.subsections.metadata, subsections]);
 
   return (
     <SubsectionGroup
@@ -99,7 +112,8 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
       pinSection="metadata"
       subsections={subsections}
       searchQuery={searchQuery}
-      defaultExpanded={true}
+      sectionKey="metadata"
+      event={event}
       defaultExpandedSubsections={defaultExpandedSubsections}
     />
   );

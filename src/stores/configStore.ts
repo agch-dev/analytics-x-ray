@@ -58,6 +58,35 @@ export interface AllowedDomain {
   allowSubdomains: boolean;
 }
 
+export interface SectionDefaults {
+  // Section default expanded states
+  sections: {
+    properties: boolean;
+    traits: boolean;
+    context: boolean;
+    metadata: boolean;
+  };
+  // Subsection default expanded states (keys prefixed with section key)
+  subsections: {
+    context: {
+      contextPage: boolean;
+      contextLibrary: boolean;
+      contextOther: boolean;
+      contextBrowser: boolean;
+    };
+    metadata: {
+      metadataIdentifiers: boolean;
+      metadataCaptureInfo: boolean;
+      metadataIntegrations: boolean;
+    };
+  };
+  // Special behavior toggles
+  specialDefaults: {
+    contextPageAlwaysOpenForPageEvents: boolean;
+    metadataIdentifiersAlwaysOpenForIdentityEvents: boolean;
+  };
+}
+
 export interface ExtensionConfig {
   // Event capture settings
   maxEvents: number;
@@ -75,6 +104,9 @@ export interface ExtensionConfig {
   
   // Onboarding settings
   dismissedOnboardingModals: string[]; // List of onboarding modal IDs that have been dismissed
+  
+  // Section defaults configuration
+  sectionDefaults: SectionDefaults;
 }
 
 interface ConfigStore extends ExtensionConfig {
@@ -101,7 +133,39 @@ interface ConfigStore extends ExtensionConfig {
   dismissOnboardingModal: (modalId: string) => void;
   isOnboardingModalDismissed: (modalId: string) => boolean;
   resetOnboardingModals: () => void;
+  
+  // Section defaults actions
+  setSectionDefaultExpanded: (sectionKey: keyof SectionDefaults['sections'], expanded: boolean) => void;
+  setSubsectionDefaultExpanded: (sectionKey: 'context' | 'metadata', subsectionKey: string, expanded: boolean) => void;
+  setSpecialDefault: (key: keyof SectionDefaults['specialDefaults'], value: boolean) => void;
+  resetSectionDefaults: () => void;
 }
+
+const defaultSectionDefaults: SectionDefaults = {
+  sections: {
+    properties: true,
+    traits: true,
+    context: true,
+    metadata: true,
+  },
+  subsections: {
+    context: {
+      contextPage: false,
+      contextLibrary: false,
+      contextOther: false,
+      contextBrowser: false,
+    },
+    metadata: {
+      metadataIdentifiers: false,
+      metadataCaptureInfo: false,
+      metadataIntegrations: false,
+    },
+  },
+  specialDefaults: {
+    contextPageAlwaysOpenForPageEvents: true,
+    metadataIdentifiersAlwaysOpenForIdentityEvents: true,
+  },
+};
 
 const defaultConfig: ExtensionConfig = {
   maxEvents: 500,
@@ -113,6 +177,7 @@ const defaultConfig: ExtensionConfig = {
     default: defaultPinnedProfile,
   },
   dismissedOnboardingModals: [],
+  sectionDefaults: defaultSectionDefaults,
 };
 
 /**
@@ -379,11 +444,55 @@ export const useConfigStore = create<ConfigStore>()(
       resetOnboardingModals: () => {
         set({ dismissedOnboardingModals: [] });
       },
+      
+      // Section defaults actions
+      setSectionDefaultExpanded: (sectionKey, expanded) => {
+        set((state) => ({
+          sectionDefaults: {
+            ...state.sectionDefaults,
+            sections: {
+              ...state.sectionDefaults.sections,
+              [sectionKey]: expanded,
+            },
+          },
+        }));
+      },
+      
+      setSubsectionDefaultExpanded: (sectionKey, subsectionKey, expanded) => {
+        set((state) => ({
+          sectionDefaults: {
+            ...state.sectionDefaults,
+            subsections: {
+              ...state.sectionDefaults.subsections,
+              [sectionKey]: {
+                ...state.sectionDefaults.subsections[sectionKey],
+                [subsectionKey]: expanded,
+              },
+            },
+          },
+        }));
+      },
+      
+      setSpecialDefault: (key, value) => {
+        set((state) => ({
+          sectionDefaults: {
+            ...state.sectionDefaults,
+            specialDefaults: {
+              ...state.sectionDefaults.specialDefaults,
+              [key]: value,
+            },
+          },
+        }));
+      },
+      
+      resetSectionDefaults: () => {
+        set({ sectionDefaults: defaultSectionDefaults });
+      },
     }),
       {
         name: 'analytics-xray-config',
         storage: createJSONStorage(() => createChromeStorage()),
-        version: 6,
+        version: 7,
         migrate: (persistedState, version) => {
           const state = persistedState as ExtensionConfig;
           if (version < 2) {
@@ -429,6 +538,13 @@ export const useConfigStore = create<ConfigStore>()(
             return {
               ...state,
               dismissedOnboardingModals: defaultConfig.dismissedOnboardingModals,
+            };
+          }
+          if (version < 7) {
+            // Migration from v6 to v7: add sectionDefaults
+            return {
+              ...state,
+              sectionDefaults: defaultSectionDefaults,
             };
           }
           return state;
