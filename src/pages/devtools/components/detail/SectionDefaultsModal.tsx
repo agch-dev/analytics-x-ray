@@ -159,8 +159,7 @@ export function SectionDefaultsModal({
                     Page subsection always open for page events
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    When enabled, the page subsection will always be expanded for page events,
-                    even if the section is set to collapsed by default
+                    When enabled, the page subsection will always be expanded for page events
                   </p>
                 </div>
                 <Switch
@@ -179,7 +178,7 @@ export function SectionDefaultsModal({
                   </Label>
                   <p className="text-xs text-muted-foreground">
                     When enabled, the identifiers subsection will always be expanded for identify,
-                    alias, and group events, even if the section is set to collapsed by default
+                    alias, and group events
                   </p>
                 </div>
                 <Switch
