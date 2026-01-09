@@ -41,7 +41,7 @@ todos:
       - setup-vitest
   - id: test-event-buckets
     content: Add unit tests for eventBuckets.ts categorization
-    status: pending
+    status: completed
     dependencies:
       - setup-vitest
   - id: test-domain-utils
