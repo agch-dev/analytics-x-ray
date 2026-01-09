@@ -1,0 +1,293 @@
+---
+description: Testing patterns and requirements for analytics-x-ray test suite
+globs: **/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
+alwaysApply: false
+---
+
+# Testing Guidelines
+
+## CRITICAL: Always Use Existing Test Utilities
+
+**NEVER create mocks or test data from scratch.** Always use the utilities from `@src/test` which provide consistent, well-tested helpers for all testing needs.
+
+### Required Import Pattern
+
+```typescript
+// ✅ ALWAYS import from @src/test
+import {
+  createSegmentEvent,
+  createBatchEvent,
+  createBatchPayload,
+  createEventsByType,
+  setupMockChromeStorage,
+  createMockLogger,
+  mockDateNow,
+  createArrayBufferFromString,
+  waitFor,
+  waitForCondition,
+  createProviderUrl,
+  resetStore,
+} from '@src/test';
+```
+
+## Segment Event Testing
+
+### Creating Test Events
+
+```typescript
+// ✅ Use factory functions - NEVER create events manually
+import { createSegmentEvent, createBatchEvent, createBatchPayload } from '@src/test';
+
+it('should process track event', () => {
+  const event = createSegmentEvent({
+    type: 'track',
+    name: 'Button Clicked',
+    properties: { buttonId: 'submit' },
+  });
+  
+  // Use the event in your test
+  expect(processEvent(event)).toBeDefined();
+});
+
+// ✅ Create multiple events of different types
+import { createEventsByType } from '@src/test';
+
+it('should handle multiple event types', () => {
+  const events = createEventsByType(['track', 'page', 'identify']);
+  expect(events).toHaveLength(3);
+});
+
+// ✅ Create batch payloads
+import { createBatchPayload, createBatchEvent } from '@src/test';
+
+it('should process batch payload', () => {
+  const batchEvent = createBatchEvent({ type: 'track', event: 'Test' });
+  const payload = createBatchPayload([batchEvent]);
+  
+  const result = processBatchPayload(payload, 1, 'https://example.com', 'segment');
+  expect(result).toHaveLength(1);
+});
+```
+
+### ❌ NEVER Do This
+
+```typescript
+// ❌ NEVER create events manually
+const event = {
+  id: 'test-1',
+  type: 'track',
+  name: 'Test',
+  properties: {},
+  timestamp: Date.now(),
+  // ... manually creating all fields
+};
+
+// ❌ NEVER create batch events manually
+const batchEvent = {
+  type: 'track',
+  event: 'Test',
+  messageId: 'msg-1',
+  timestamp: new Date().toISOString(),
+  // ... manually creating all fields
+};
+```
+
+## Storage Mocking
+
+### Chrome Storage
+
+```typescript
+// ✅ ALWAYS use setupMockChromeStorage
+import { setupMockChromeStorage } from '@src/test';
+
+describe('Storage operations', () => {
+  let mockStorage: ReturnType<typeof setupMockChromeStorage>;
+  
+  beforeEach(() => {
+    mockStorage = setupMockChromeStorage({
+      'my-key': { value: 'test' },
+    });
+  });
+  
+  it('should read from storage', async () => {
+    const result = await mockStorage.get('my-key');
+    expect(result).toEqual({ 'my-key': { value: 'test' } });
+  });
+});
+```
+
+### ❌ NEVER Do This
+
+```typescript
+// ❌ NEVER mock chrome.storage manually
+global.chrome = {
+  storage: {
+    local: {
+      get: vi.fn(),
+      set: vi.fn(),
+      // ... manually creating all mocks
+    },
+  },
+};
+```
+
+## Logger Mocking
+
+```typescript
+// ✅ Use createMockLogger or mockLogger
+import { createMockLogger, mockLogger } from '@src/test';
+
+// Option 1: Create a mock logger instance
+it('should log debug messages', () => {
+  const logger = createMockLogger();
+  logger.debug('test');
+  expect(logger.debug).toHaveBeenCalledWith('test');
+});
+
+// Option 2: Mock the entire logger module
+vi.mock('@src/lib/logger', () => ({
+  createContextLogger: () => createMockLogger(),
+  logger: createMockLogger(),
+}));
+```
+
+## Time/Date Testing
+
+```typescript
+// ✅ Use time helpers from @src/test
+import { mockDateNow, mockNewDate, createFixedDate } from '@src/test';
+
+it('should handle dates correctly', () => {
+  const restore = mockDateNow(1704067200000);
+  // Test code that uses Date.now()
+  restore(); // Always restore
+});
+
+it('should use fixed date', () => {
+  const fixedDate = createFixedDate('2024-01-01T00:00:00Z');
+  expect(fixedDate.getFullYear()).toBe(2024);
+});
+```
+
+## ArrayBuffer Testing
+
+```typescript
+// ✅ Use createArrayBufferFromString for request body testing
+import { createArrayBufferFromString } from '@src/test';
+
+it('should decode request body', () => {
+  const buffer = createArrayBufferFromString('{"test": "data"}');
+  const decoded = decodeRequestBody(buffer);
+  expect(decoded).toEqual({ test: 'data' });
+});
+```
+
+## Async Testing
+
+```typescript
+// ✅ Use waitFor and waitForCondition
+import { waitFor, waitForCondition } from '@src/test';
+
+it('should wait for async operation', async () => {
+  await waitFor(100);
+  // Continue test
+});
+
+it('should wait for condition', async () => {
+  await waitForCondition(() => someCondition === true, 1000);
+  expect(someCondition).toBe(true);
+});
+```
+
+## Provider URL Testing
+
+```typescript
+// ✅ Use createProviderUrl for consistent test URLs
+import { createProviderUrl } from '@src/test';
+
+it('should use correct segment URL', () => {
+  const url = createProviderUrl('segment');
+  expect(url).toBe('https://api.segment.io/v1/batch');
+});
+```
+
+## Store Testing
+
+```typescript
+// ✅ Use resetStore to clean up Zustand stores
+import { resetStore } from '@src/test';
+import { useConfigStore } from '@src/stores';
+
+afterEach(() => {
+  resetStore(useConfigStore);
+});
+```
+
+## Test File Structure
+
+### Standard Test File Template
+
+```typescript
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import {
+  createSegmentEvent,
+  setupMockChromeStorage,
+  resetStore,
+} from '@src/test';
+import { useEventStore } from '@src/stores';
+import { functionToTest } from './module';
+
+describe('ModuleName', () => {
+  let mockStorage: ReturnType<typeof setupMockChromeStorage>;
+  
+  beforeEach(() => {
+    mockStorage = setupMockChromeStorage();
+    resetStore(useEventStore);
+  });
+  
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+  
+  it('should do something', () => {
+    const event = createSegmentEvent({ type: 'track' });
+    // Test implementation
+  });
+});
+```
+
+## Best Practices
+
+1. **Always use test utilities**: Check `@src/test/README.md` for available utilities before creating any mocks
+2. **Import from @src/test**: Use the centralized test utilities index
+3. **Clean up between tests**: Use `beforeEach`/`afterEach` to reset mocks and stores
+4. **Use realistic defaults**: The factories provide sensible defaults, override only when needed
+5. **Read the README**: Always check `src/test/README.md` for examples and available utilities
+
+## Common Mistakes to Avoid
+
+```typescript
+// ❌ Creating manual mocks
+const mockEvent = { id: '1', type: 'track', ... };
+
+// ❌ Manually mocking chrome APIs
+global.chrome = { storage: { local: { get: vi.fn() } } };
+
+// ❌ Creating test data inline
+const events = [
+  { id: '1', type: 'track', name: 'Event 1' },
+  { id: '2', type: 'page', name: 'Event 2' },
+];
+
+// ❌ Not using waitFor for async operations
+await new Promise(resolve => setTimeout(resolve, 100));
+
+// ✅ Instead, always use utilities
+import { createSegmentEvent, setupMockChromeStorage, waitFor } from '@src/test';
+```
+
+## Reference Documentation
+
+- **Test Utilities README**: `src/test/README.md` - Complete documentation of all available utilities
+- **Test Utilities Source**: `src/test/utils.ts` - Implementation details
+- **Test Setup**: `src/test/setup.ts` - Global test configuration

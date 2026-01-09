@@ -110,3 +110,22 @@ yarn build:firefox # Firefox
 - Use inline styles (prefer Tailwind)
 - Create memory leaks with unbound listeners
 - Trust page-injected data without validation
+- Create test mocks manually (always use `@src/test` utilities)
+
+## Testing
+
+**CRITICAL**: Always use the existing test utilities from `@src/test` when writing tests. Never create mocks or test data manually.
+
+- **Test Utilities**: `src/test/` - Shared utilities for all tests
+- **Test Utilities README**: `src/test/README.md` - Complete documentation
+- **Testing Guidelines**: See `.cursor/rules/testing.mdc` for detailed testing patterns
+
+Always import from `@src/test`:
+```typescript
+import {
+  createSegmentEvent,
+  createBatchPayload,
+  setupMockChromeStorage,
+  // ... other utilities
+} from '@src/test';
+```
