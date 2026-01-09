@@ -31,7 +31,7 @@ todos:
     status: completed
   - id: test-segment-parsing
     content: Add unit tests for segment.ts parsing logic (90%+ coverage)
-    status: pending
+    status: completed
     dependencies:
       - setup-vitest
   - id: test-search-logic

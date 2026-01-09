@@ -68,6 +68,10 @@ export function decodeRequestBody(
     const parts = raw
       .filter((part) => part.bytes instanceof ArrayBuffer)
       .map((part) => decoder.decode(part.bytes as ArrayBuffer));
+    
+    // Return null if no valid ArrayBuffer parts were found
+    if (parts.length === 0) return null;
+    
     return parts.join('');
   } catch (error) {
     log.error('Failed to decode request body', error);
@@ -156,6 +160,13 @@ function isSegmentPayload(payload: unknown): payload is SegmentBatchPayload {
   const firstEvent = p.batch[0] as Record<string, unknown>;
   if (typeof firstEvent.type !== 'string') {
     log.error('First event missing type field. Event:', firstEvent);
+    return false;
+  }
+  
+  // Validate event type is a valid Segment event type
+  const validTypes = ['track', 'page', 'screen', 'identify', 'group', 'alias'];
+  if (!validTypes.includes(firstEvent.type as string)) {
+    log.error('First event has invalid type. Event:', firstEvent);
     return false;
   }
   

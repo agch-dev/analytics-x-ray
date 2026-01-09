@@ -1,11 +1,16 @@
 import '@testing-library/jest-dom';
 import { afterEach, beforeAll, afterAll, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
 
-// Cleanup after each test
-afterEach(() => {
-  cleanup();
-});
+// Cleanup after each test (only for React component tests)
+// For pure unit tests, this is not needed
+try {
+  const { cleanup } = require('@testing-library/react');
+  afterEach(() => {
+    cleanup();
+  });
+} catch {
+  // @testing-library/react not available or not needed for pure unit tests
+}
 
 // Mock webextension-polyfill
 vi.mock('webextension-polyfill', () => ({
