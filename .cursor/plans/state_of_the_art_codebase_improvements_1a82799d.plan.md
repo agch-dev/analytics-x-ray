@@ -36,7 +36,7 @@ todos:
       - setup-vitest
   - id: test-search-logic
     content: Add unit tests for search.ts functionality
-    status: pending
+    status: completed
     dependencies:
       - setup-vitest
   - id: test-event-buckets
