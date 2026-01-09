@@ -46,7 +46,7 @@ todos:
       - setup-vitest
   - id: test-domain-utils
     content: Add unit tests for domain.ts utilities
-    status: pending
+    status: completed
     dependencies:
       - setup-vitest
   - id: test-stores

@@ -282,9 +282,62 @@ const events = [
 // ❌ Not using waitFor for async operations
 await new Promise(resolve => setTimeout(resolve, 100));
 
-// ✅ Instead, always use utilities
+// ❌ Running tests without --run flag (starts watch mode and hangs)
+vitest src/lib/search.test.ts
+yarn test src/lib/search.test.ts
+
+// ✅ Instead, always use utilities and --run flag
 import { createSegmentEvent, setupMockChromeStorage, waitFor } from '@src/test';
+vitest run src/lib/search.test.ts
+yarn test:run src/lib/search.test.ts
 ```
+
+## Running Tests
+
+### CRITICAL: Always Use `--run` Flag
+
+**NEVER run tests without the `--run` flag.** Vitest defaults to watch mode, which will hang and block execution.
+
+```bash
+# ✅ ALWAYS use --run flag
+vitest run
+vitest run src/lib/search.test.ts
+vitest run --reporter=verbose src/lib/segment.test.ts
+
+# ✅ Or use the npm script
+yarn test:run
+yarn test:run src/lib/search.test.ts
+
+# ❌ NEVER run without --run (starts watch mode and hangs)
+vitest
+vitest src/lib/search.test.ts
+yarn test
+```
+
+### Running Specific Test Files
+
+When running a specific test file, always include `--run`:
+
+```bash
+# ✅ Correct - runs once and exits
+vitest run src/lib/search.test.ts
+
+# ✅ Correct - with additional options
+vitest run --reporter=verbose src/lib/search.test.ts
+
+# ❌ Wrong - starts watch mode and hangs
+vitest src/lib/search.test.ts
+```
+
+### Available Test Scripts
+
+From `package.json`:
+- `yarn test` - Starts Vitest in watch mode (DO NOT USE for automated runs)
+- `yarn test:run` - Runs tests once and exits (USE THIS)
+- `yarn test:ui` - Opens Vitest UI (interactive)
+- `yarn test:coverage` - Runs tests with coverage report
+
+**Rule**: When running tests programmatically or in CI, always use `vitest run` or `yarn test:run`.
 
 ## Reference Documentation
 
