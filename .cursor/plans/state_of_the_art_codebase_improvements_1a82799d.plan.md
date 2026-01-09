@@ -13,7 +13,7 @@ todos:
     status: completed
   - id: refactor-panel
     content: Extract domain tracking logic from Panel (482 lines) into useDomainTracking hook
-    status: pending
+    status: completed
   - id: refactor-property-row
     content: Split PropertyRow (436 lines) into smaller focused components
     status: pending
