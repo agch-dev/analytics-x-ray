@@ -10,7 +10,7 @@ todos:
     status: completed
   - id: refactor-event-list
     content: Extract virtualization logic from EventList (490 lines) into custom hooks
-    status: pending
+    status: completed
   - id: refactor-panel
     content: Extract domain tracking logic from Panel (482 lines) into useDomainTracking hook
     status: pending
