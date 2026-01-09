@@ -48,6 +48,8 @@ export const EventRow = React.memo(function EventRow({
       <button
         onClick={() => onToggleExpand(event.id)}
         className="w-full text-left"
+        aria-label={isExpanded ? `Collapse ${event.name} event` : `Expand ${event.name} event`}
+        aria-expanded={isExpanded}
       >
         <EventRowHeader
           event={event}

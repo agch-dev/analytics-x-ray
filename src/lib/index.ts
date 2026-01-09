@@ -48,6 +48,14 @@ export {
   type StorageSizeInfo,
 } from './storage';
 
+// Storage Type Guards
+export {
+  isSegmentEventArray,
+  isStoredEvents,
+  isNumberArray,
+  isStorageResult,
+} from './storage';
+
 // Segment
 export {
   SEGMENT_ENDPOINTS,
@@ -93,3 +101,10 @@ export {
   type EventBucketConfig,
 } from './eventBuckets';
 
+// Domain Validation
+export {
+  validateDomainInput,
+  sanitizeSearchQuery,
+  isValidSearchQuery,
+  type DomainValidationResult,
+} from './domainValidation';

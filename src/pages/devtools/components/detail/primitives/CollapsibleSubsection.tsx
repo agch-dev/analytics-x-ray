@@ -65,6 +65,8 @@ export function CollapsibleSubsection({
           'hover:bg-muted/30 transition-colors rounded',
           'text-left'
         )}
+        aria-label={isExpanded ? `Collapse ${title} subsection` : `Expand ${title} subsection`}
+        aria-expanded={isExpanded}
       >
         <HugeiconsIcon
           icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon}

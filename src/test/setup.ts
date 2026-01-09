@@ -70,12 +70,12 @@ global.chrome = {
     query: vi.fn(),
     get: vi.fn(),
   },
-} as any;
+} as unknown as typeof chrome;
 
 // Suppress console errors in tests unless explicitly testing them
 const originalError = console.error;
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Warning: ReactDOM.render') ||

@@ -75,6 +75,8 @@ export function EventDetailSection({
           'hover:bg-muted/50 transition-colors',
           'text-left'
         )}
+        aria-label={isExpanded ? `Collapse ${title} section` : `Expand ${title} section`}
+        aria-expanded={isExpanded}
       >
         <HugeiconsIcon
           icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon}

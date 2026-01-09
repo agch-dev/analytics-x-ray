@@ -86,12 +86,14 @@ export function Header({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9 pr-9 h-8 text-xs"
+          aria-label="Search events, attributes, or values"
         />
         {searchQuery && (
           <button
             onClick={() => onSearchChange('')}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             title="Clear search"
+            aria-label="Clear search query"
           >
             <HugeiconsIcon icon={SearchRemoveIcon} size={14} />
           </button>

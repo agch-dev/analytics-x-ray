@@ -89,6 +89,7 @@ export function FilterPanel({
             size="sm"
             onClick={onShowAll}
             className="text-xs h-7"
+            aria-label="Show all hidden event names"
           >
             Show All
           </Button>
@@ -99,6 +100,7 @@ export function FilterPanel({
             onClick={onHideAll}
             className="text-xs h-7"
             disabled={uniqueEventNames.length === 0}
+            aria-label="Hide all event names"
           >
             Hide All
           </Button>
@@ -121,6 +123,8 @@ export function FilterPanel({
                 hasColor && pillColorClasses,
                 isHidden && "opacity-50 line-through"
               )}
+              aria-label={isHidden ? `Show ${eventName} events` : `Hide ${eventName} events`}
+              aria-pressed={isHidden}
             >
               {eventName}
             </Button>

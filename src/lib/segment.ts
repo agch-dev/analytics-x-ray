@@ -40,6 +40,15 @@ export const SEGMENT_ENDPOINTS = [
 
 /**
  * Detect which analytics provider a URL belongs to
+ * 
+ * @param url - The URL to check
+ * @returns The provider type: 'segment', 'rudderstack', 'dreamdata', or 'unknown'
+ * 
+ * @example
+ * ```ts
+ * detectProvider('https://api.segment.io/v1/batch'); // 'segment'
+ * detectProvider('https://hosted.rudderlabs.com/v1/batch'); // 'rudderstack'
+ * ```
  */
 export function detectProvider(url: string): SegmentProvider {
   if (url.includes('segment.io') || url.includes('segment.com')) {
@@ -57,6 +66,15 @@ export function detectProvider(url: string): SegmentProvider {
 /**
  * Decode the raw request body from webRequest API
  * The body comes as an array of UploadData objects where bytes can be unknown
+ * 
+ * @param raw - Array of UploadData objects from webRequest API
+ * @returns Decoded string or null if decoding fails
+ * 
+ * @example
+ * ```ts
+ * const body = decodeRequestBody([{ bytes: new TextEncoder().encode('{"test": "data"}') }]);
+ * // Returns: '{"test": "data"}'
+ * ```
  */
 export function decodeRequestBody(
   raw: Array<{ bytes?: unknown; file?: string }>
@@ -81,6 +99,16 @@ export function decodeRequestBody(
 
 /**
  * Parse a JSON string into a Segment batch payload
+ * Handles both batch format and single event format
+ * 
+ * @param jsonString - JSON string to parse
+ * @returns Parsed SegmentBatchPayload or null if parsing/validation fails
+ * 
+ * @example
+ * ```ts
+ * const payload = parseSegmentPayload('{"batch": [{"type": "track", "event": "Click"}]}');
+ * // Returns: { batch: [{ type: 'track', event: 'Click' }], sentAt: '...' }
+ * ```
  */
 export function parseSegmentPayload(
   jsonString: string
@@ -201,6 +229,17 @@ export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
 
 /**
  * Extract the display name for an event
+ * Formats the name based on event type
+ * 
+ * @param event - The batch event to extract name from
+ * @returns Formatted display name for the event
+ * 
+ * @example
+ * ```ts
+ * getEventName({ type: 'track', event: 'Button Clicked' }); // 'Button Clicked'
+ * getEventName({ type: 'page', name: 'Home' }); // 'Page: Home'
+ * getEventName({ type: 'identify', userId: 'user-123' }); // 'Identify: user-123'
+ * ```
  */
 export function getEventName(event: SegmentBatchEvent): string {
   switch (event.type) {
@@ -223,6 +262,25 @@ export function getEventName(event: SegmentBatchEvent): string {
 
 /**
  * Convert a batch event to our normalized SegmentEvent format
+ * Generates fallback messageId if missing
+ * 
+ * @param batchEvent - The batch event to normalize
+ * @param tabId - Tab ID where event was captured
+ * @param url - URL where event was fired
+ * @param sentAt - ISO timestamp when event was sent
+ * @param provider - Analytics provider (segment, rudderstack, etc.)
+ * @returns Normalized SegmentEvent object
+ * 
+ * @example
+ * ```ts
+ * const event = normalizeEvent(
+ *   { type: 'track', event: 'Click', messageId: 'msg-123' },
+ *   1,
+ *   'https://example.com',
+ *   '2024-01-01T00:00:00Z',
+ *   'segment'
+ * );
+ * ```
  */
 export function normalizeEvent(
   batchEvent: SegmentBatchEvent,
@@ -259,6 +317,23 @@ export function normalizeEvent(
 
 /**
  * Process a complete Segment batch and return normalized events
+ * Filters invalid events and normalizes each one
+ * 
+ * @param payload - The Segment batch payload
+ * @param tabId - Tab ID where events were captured
+ * @param url - URL where events were fired
+ * @param provider - Analytics provider
+ * @returns Array of normalized SegmentEvent objects
+ * 
+ * @example
+ * ```ts
+ * const events = processBatchPayload(
+ *   { batch: [{ type: 'track', event: 'Click' }], sentAt: '2024-01-01T00:00:00Z' },
+ *   1,
+ *   'https://example.com',
+ *   'segment'
+ * );
+ * ```
  */
 export function processBatchPayload(
   payload: SegmentBatchPayload,

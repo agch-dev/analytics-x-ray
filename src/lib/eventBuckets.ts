@@ -111,7 +111,13 @@ export const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
  * 
  * @param event - The Segment event to categorize
  * @param buckets - Optional custom bucket configurations (defaults to DEFAULT_EVENT_BUCKETS)
- * @returns The bucket ID for the event
+ * @returns The bucket ID for the event ('page', 'view', 'interaction', 'identify', 'navigation', 'conversion', 'error', or 'default')
+ * 
+ * @example
+ * ```ts
+ * categorizeEvent({ type: 'page', name: 'Home' }); // 'page'
+ * categorizeEvent({ type: 'track', event: 'Button Clicked' }); // 'interaction'
+ * ```
  */
 export function categorizeEvent(
   event: SegmentEvent,
@@ -142,8 +148,14 @@ export function categorizeEvent(
  * Get the bucket configuration for a given bucket ID
  * 
  * @param bucketId - The bucket ID to look up
- * @param buckets - Optional custom bucket configurations
+ * @param buckets - Optional custom bucket configurations (defaults to DEFAULT_EVENT_BUCKETS)
  * @returns The bucket configuration, or undefined if not found
+ * 
+ * @example
+ * ```ts
+ * const config = getBucketConfig('page');
+ * // Returns: { id: 'page', label: 'Page Events', color: 'border-l-emerald-500', ... }
+ * ```
  */
 export function getBucketConfig(
   bucketId: EventBucket,
@@ -156,8 +168,14 @@ export function getBucketConfig(
  * Get the color class for a bucket
  * 
  * @param bucketId - The bucket ID
- * @param buckets - Optional custom bucket configurations
- * @returns The Tailwind color class for the border-left, or empty string for default
+ * @param buckets - Optional custom bucket configurations (defaults to DEFAULT_EVENT_BUCKETS)
+ * @returns The Tailwind color class for the border-left (e.g., 'border-l-emerald-500'), or empty string for default
+ * 
+ * @example
+ * ```ts
+ * getBucketColor('page'); // 'border-l-emerald-500'
+ * getBucketColor('interaction'); // 'border-l-orange-500'
+ * ```
  */
 export function getBucketColor(
   bucketId: EventBucket,

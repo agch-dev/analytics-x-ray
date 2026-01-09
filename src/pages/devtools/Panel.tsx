@@ -8,6 +8,7 @@ import { useDomainTracking } from './hooks/useDomainTracking';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
+import { sanitizeSearchQuery, isValidSearchQuery } from '@src/lib/domainValidation';
 import { useDebounce } from '@src/hooks';
 import { ErrorBoundary, EventListErrorState } from '@src/components';
 
@@ -96,8 +97,39 @@ export default function Panel() {
   }, [searchQuery]);
   
   const handleSearchChange = useCallback((query: string) => {
-    setSearchInput(query); // Update immediately for display
+    // Sanitize and validate search query
+    const sanitized = sanitizeSearchQuery(query);
+    if (isValidSearchQuery(sanitized)) {
+      setSearchInput(sanitized); // Update immediately for display
+    } else {
+      // Query too long, truncate
+      setSearchInput(sanitized.slice(0, 500));
+    }
   }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd+K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[type="text"][aria-label*="Search"]') as HTMLInputElement;
+        searchInput?.focus();
+      }
+      
+      // Escape to clear search (when search input is focused)
+      if (e.key === 'Escape' && document.activeElement?.tagName === 'INPUT') {
+        const activeInput = document.activeElement as HTMLInputElement;
+        if (activeInput.getAttribute('aria-label')?.includes('Search')) {
+          handleSearchChange('');
+          activeInput.blur();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSearchChange]);
   
   const handleViewModeChange = useCallback((mode: 'json' | 'structured') => {
     // Update the global preference when user toggles view mode

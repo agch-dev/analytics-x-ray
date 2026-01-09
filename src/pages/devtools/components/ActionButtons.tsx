@@ -47,6 +47,8 @@ export function ActionButtons({
           isFilterPanelOpen && 'bg-accent'
         )}
         title="Filter"
+        aria-label={isFilterPanelOpen ? 'Close filter panel' : 'Open filter panel'}
+        aria-expanded={isFilterPanelOpen}
       >
         <HugeiconsIcon icon={FilterIcon} size={14} />
         {filteredEventNamesCount > 0 && (
@@ -64,6 +66,7 @@ export function ActionButtons({
         onClick={onClear}
         className="text-xs text-muted-foreground hover:text-destructive px-1.5 sm:px-2"
         title="Clear"
+        aria-label="Clear all events"
       >
         <HugeiconsIcon icon={Delete02Icon} size={14} />
       </Button>
@@ -75,6 +78,8 @@ export function ActionButtons({
             size="sm"
             className="text-xs text-muted-foreground hover:text-foreground px-1.5 sm:px-2"
             title="More options"
+            aria-label="More options menu"
+            aria-haspopup="true"
           >
             <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
           </Button>

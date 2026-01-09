@@ -28,3 +28,11 @@ export {
   logStorageSize,
   type StorageSizeInfo,
 } from './monitoring';
+
+// Type Guards
+export {
+  isSegmentEventArray,
+  isStoredEvents,
+  isNumberArray,
+  isStorageResult,
+} from './typeGuards';

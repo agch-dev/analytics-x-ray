@@ -21,6 +21,7 @@ export function ScrollToBottomButton({ isVisible, onClick }: ScrollToBottomButto
         size="lg"
         className="shadow-lg h-12 w-12 p-0"
         title="Scroll to latest"
+        aria-label="Scroll to bottom to view latest events"
       >
         <HugeiconsIcon icon={ArrowDown01Icon} size={20} />
       </Button>

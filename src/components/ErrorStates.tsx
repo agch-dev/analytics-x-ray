@@ -70,7 +70,7 @@ export function PanelErrorState({ onRetry }: { onRetry?: () => void }) {
     <div className="h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
       <ErrorStateBase
         title="Panel Error"
-        message="The DevTools panel encountered an error and couldn't load. Please reload the panel to continue."
+        message="The DevTools panel encountered an error and couldn't load. This may be due to corrupted data or a temporary issue. Try reloading the panel, or close and reopen DevTools if the problem persists."
         onRetry={handleRetry}
         retryLabel="Reload Panel"
       />
@@ -88,7 +88,7 @@ export function EventListErrorState({ onRetry }: { onRetry?: () => void }) {
     <div className="flex-1 flex items-center justify-center p-4">
       <ErrorStateBase
         title="Event List Error"
-        message="Failed to display events. The list may be corrupted or there was a rendering issue."
+        message="Failed to display events. The list may be corrupted or there was a rendering issue. Try clearing events or reloading the panel. If the problem persists, check the browser console for more details."
         onRetry={onRetry}
         retryLabel="Reload Events"
       />
@@ -109,11 +109,11 @@ export function EventDetailErrorState({ onRetry }: { onRetry?: () => void }) {
         <div className="flex-1">
           <p className="text-sm font-medium">Failed to display event details</p>
           <p className="text-xs text-muted-foreground mt-1">
-            The event data may be corrupted or in an unexpected format.
+            The event data may be corrupted or in an unexpected format. Try switching to JSON view or collapsing and re-expanding this event. If the issue persists, the event may contain invalid data.
           </p>
         </div>
         {onRetry && (
-          <Button onClick={onRetry} variant="ghost" size="sm">
+          <Button onClick={onRetry} variant="ghost" size="sm" title="Retry loading event details">
             <HugeiconsIcon icon={Refresh01Icon} size={16} />
           </Button>
         )}

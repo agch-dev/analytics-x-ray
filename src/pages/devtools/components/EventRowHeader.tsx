@@ -112,6 +112,8 @@ export const EventRowHeader = React.memo(function EventRowHeader({
                 : "text-muted-foreground hover:text-foreground"
             )}
             title="Structured view"
+            aria-label="Switch to structured view"
+            aria-pressed={viewMode === 'structured'}
           >
             <HugeiconsIcon 
               icon={TextIcon} 
@@ -130,6 +132,8 @@ export const EventRowHeader = React.memo(function EventRowHeader({
                 : "text-muted-foreground hover:text-foreground"
             )}
             title="JSON view"
+            aria-label="Switch to JSON view"
+            aria-pressed={viewMode === 'json'}
           >
             <HugeiconsIcon 
               icon={CodeIcon} 
@@ -151,6 +155,8 @@ export const EventRowHeader = React.memo(function EventRowHeader({
             isHidden && "opacity-50"
           )}
           title={isHidden ? "Show this event name" : "Hide this event name"}
+          aria-label={isHidden ? `Show ${event.name} events` : `Hide ${event.name} events`}
+          aria-pressed={isHidden}
         >
           <HugeiconsIcon 
             icon={ViewOffSlashIcon} 

@@ -3,6 +3,7 @@ import { useDomainStore, selectAllowedDomains } from '@src/stores/domainStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { extractDomain, normalizeDomain, getBaseDomain } from '@src/lib/domain';
 import { AddDomainInput } from './AddDomainInput';
+import { validateDomainInput } from '@src/lib/domainValidation';
 import { AllowedDomainList } from './AllowedDomainList';
 
 export const DomainTrackingSection = () => {
@@ -21,22 +22,15 @@ export const DomainTrackingSection = () => {
       return;
     }
 
-    // Try to extract domain from URL if user pasted a full URL
-    let domain = extractDomain(trimmed);
-    if (!domain) {
-      // If extraction failed, try using the input as-is (might be just a domain)
-      // Basic validation: should be a valid domain format
-      const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
-      if (domainRegex.test(trimmed)) {
-        domain = trimmed.toLowerCase();
-      } else {
-        setNewDomainError('Please enter a valid domain (e.g., example.com)');
-        return;
-      }
+    // Validate domain input
+    const validation = validateDomainInput(trimmed);
+    if (!validation.isValid || !validation.normalizedDomain) {
+      setNewDomainError(validation.error || 'Invalid domain');
+      return;
     }
 
     // Normalize domain: strip www. and subdomains if allowSubdomains is true
-    let normalizedDomain = normalizeDomain(domain);
+    let normalizedDomain = validation.normalizedDomain;
     if (allowSubdomains) {
       // If allowing subdomains, store only the base domain
       normalizedDomain = getBaseDomain(normalizedDomain);

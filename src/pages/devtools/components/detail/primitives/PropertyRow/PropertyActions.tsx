@@ -34,6 +34,8 @@ export const PropertyActions = React.memo(function PropertyActions({
           }}
           className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-muted rounded"
           title={useJsonView ? 'Switch to structured view' : 'Switch to JSON view'}
+          aria-label={useJsonView ? 'Switch to structured view' : 'Switch to JSON view'}
+          aria-pressed={useJsonView}
         >
           <HugeiconsIcon
             icon={useJsonView ? TextIcon : CodeIcon}
@@ -48,6 +50,7 @@ export const PropertyActions = React.memo(function PropertyActions({
         onClick={onCopy}
         className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-muted rounded"
         title="Copy value"
+        aria-label={copied ? 'Value copied to clipboard' : 'Copy value to clipboard'}
       >
         <HugeiconsIcon
           icon={copied ? Tick01Icon : Copy01Icon}

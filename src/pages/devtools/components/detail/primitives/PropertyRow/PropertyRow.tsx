@@ -146,6 +146,8 @@ export const PropertyRow = React.memo(
                   : 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-amber-500'
               )}
               title={isPinned ? 'Unpin property' : 'Pin property'}
+              aria-label={isPinned ? `Unpin ${label} property` : `Pin ${label} property`}
+              aria-pressed={isPinned}
             >
               <HugeiconsIcon
                 icon={PinIcon}
@@ -162,6 +164,8 @@ export const PropertyRow = React.memo(
             <button
               onClick={toggleExpand}
               className="shrink-0 mt-0.5 p-0.5 hover:bg-muted rounded"
+              aria-label={state.isExpanded ? `Collapse ${label}` : `Expand ${label}`}
+              aria-expanded={state.isExpanded}
             >
               <HugeiconsIcon
                 icon={state.isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
@@ -227,6 +231,8 @@ export const PropertyRow = React.memo(
                         <button
                           onClick={() => toggleChunk(chunkIndex)}
                           className="w-full text-left py-1 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors flex items-center gap-1"
+                          aria-label={isVisible ? `Hide items ${chunk.start} to ${chunk.end - 1}` : `Show items ${chunk.start} to ${chunk.end - 1}`}
+                          aria-expanded={isVisible}
                         >
                           <HugeiconsIcon
                             icon={isVisible ? ArrowDown01Icon : ArrowRight01Icon}
@@ -264,6 +270,7 @@ export const PropertyRow = React.memo(
                         <button
                           onClick={showAllChunks}
                           className="mt-2 py-1 px-2 text-xs text-blue-500 hover:text-blue-400 hover:bg-blue-500/10 rounded transition-colors"
+                          aria-label={`Show all ${value.length} items`}
                         >
                           Show all items ({value.length} total)
                         </button>
