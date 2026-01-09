@@ -28,7 +28,7 @@ todos:
     status: completed
   - id: setup-vitest
     content: Set up Vitest testing framework with configuration and test scripts
-    status: pending
+    status: completed
   - id: test-segment-parsing
     content: Add unit tests for segment.ts parsing logic (90%+ coverage)
     status: pending
