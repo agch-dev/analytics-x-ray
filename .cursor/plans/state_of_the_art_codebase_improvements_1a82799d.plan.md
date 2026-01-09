@@ -51,7 +51,7 @@ todos:
       - setup-vitest
   - id: test-stores
     content: Add unit tests for configStore and tabStore
-    status: pending
+    status: completed
     dependencies:
       - setup-vitest
   - id: test-components
