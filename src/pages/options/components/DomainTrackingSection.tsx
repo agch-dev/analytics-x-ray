@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { useConfigStore, selectAllowedDomains } from '@src/stores/configStore';
+import { useDomainStore, selectAllowedDomains } from '@src/stores/domainStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { extractDomain, normalizeDomain, getBaseDomain } from '@src/lib/domain';
 import { AddDomainInput } from './AddDomainInput';
 import { AllowedDomainList } from './AllowedDomainList';
 
 export const DomainTrackingSection = () => {
-  const allowedDomains = useConfigStore(selectAllowedDomains);
-  const addAllowedDomain = useConfigStore((state) => state.addAllowedDomain);
-  const removeAllowedDomain = useConfigStore((state) => state.removeAllowedDomain);
-  const updateDomainSubdomainSetting = useConfigStore((state) => state.updateDomainSubdomainSetting);
+  const allowedDomains = useDomainStore(selectAllowedDomains);
+  const addAllowedDomain = useDomainStore((state) => state.addAllowedDomain);
+  const removeAllowedDomain = useDomainStore((state) => state.removeAllowedDomain);
+  const updateDomainSubdomainSetting = useDomainStore((state) => state.updateDomainSubdomainSetting);
 
   const [newDomainInput, setNewDomainInput] = useState('');
   const [newDomainError, setNewDomainError] = useState('');

@@ -5,5 +5,6 @@
  */
 
 export * from './configStore';
+export * from './domainStore';
 export * from './tabStore';
 

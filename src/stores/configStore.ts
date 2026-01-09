@@ -53,11 +53,6 @@ const defaultPinnedProfile: PinnedPropertiesProfile = {
   },
 };
 
-export interface AllowedDomain {
-  domain: string;        // e.g., "example.com"
-  allowSubdomains: boolean;
-}
-
 export interface SectionDefaults {
   // Section default expanded states
   sections: {
@@ -95,10 +90,6 @@ export interface ExtensionConfig {
   theme: 'light' | 'dark' | 'auto';
   preferredEventDetailView: 'json' | 'structured'; // Preferred view mode for event details
   
-  // Domain tracking settings
-  allowedDomains: AllowedDomain[];
-  deniedDomains: string[]; // List of domains user has explicitly denied
-  
   // Pinned properties settings (keyed by profile, "default" is the default profile)
   pinnedProperties: PinnedPropertiesConfig;
   
@@ -115,14 +106,6 @@ interface ConfigStore extends ExtensionConfig {
   setTheme: (theme: ExtensionConfig['theme']) => void;
   setPreferredEventDetailView: (view: ExtensionConfig['preferredEventDetailView']) => void;
   reset: () => void;
-  
-  // Domain allowlist actions
-  addAllowedDomain: (domain: string, allowSubdomains: boolean) => void;
-  removeAllowedDomain: (domain: string) => void;
-  clearAllAllowedDomains: () => void;
-  updateDomainSubdomainSetting: (domain: string, allowSubdomains: boolean) => void;
-  addDeniedDomain: (domain: string) => void;
-  removeDeniedDomain: (domain: string) => void;
   
   // Pin actions
   togglePin: (section: string, subsection: string | null, property: string, profile?: string) => void;
@@ -171,8 +154,6 @@ const defaultConfig: ExtensionConfig = {
   maxEvents: 500,
   theme: 'auto',
   preferredEventDetailView: 'structured',
-  allowedDomains: [],
-  deniedDomains: [],
   pinnedProperties: {
     default: defaultPinnedProfile,
   },
@@ -220,141 +201,7 @@ export const useConfigStore = create<ConfigStore>()(
         preferredEventDetailView: defaultConfig.preferredEventDetailView,
         // Preserve pinnedProperties - they're internal state not shown in Options
         pinnedProperties: state.pinnedProperties,
-        // Preserve allowedDomains and deniedDomains - user may want to keep their settings
-        allowedDomains: state.allowedDomains,
-        deniedDomains: state.deniedDomains,
       })),
-
-      // Domain allowlist actions
-      addAllowedDomain: (domain, allowSubdomains) => {
-        set((state) => {
-          // Import domain utilities (dynamic import to avoid circular dependency)
-          // Note: Domain normalization should be done by the caller, but we'll handle it here too
-          let normalizedDomain = domain.toLowerCase().trim();
-          
-          // Remove www. prefix if present
-          if (normalizedDomain.startsWith('www.')) {
-            normalizedDomain = normalizedDomain.slice(4);
-          }
-          
-          // If allowing subdomains, get base domain (strip subdomains)
-          if (allowSubdomains && normalizedDomain.split('.').length > 2) {
-            const parts = normalizedDomain.split('.');
-            normalizedDomain = parts.slice(-2).join('.');
-          }
-          
-          // Remove from denied list if it's there (check both original and normalized)
-          const updatedDenied = state.deniedDomains.filter((d) => {
-            const normalizedDenied = d.toLowerCase().startsWith('www.') ? d.slice(4) : d.toLowerCase();
-            return normalizedDenied !== normalizedDomain && d !== domain;
-          });
-          
-          // Check if domain already exists in allowed list (compare normalized)
-          const existingIndex = state.allowedDomains.findIndex((d) => {
-            const existingNormalized = d.domain.toLowerCase().startsWith('www.') 
-              ? d.domain.toLowerCase().slice(4) 
-              : d.domain.toLowerCase();
-            return existingNormalized === normalizedDomain || d.domain === normalizedDomain;
-          });
-          
-          if (existingIndex >= 0) {
-            // Update existing entry
-            const updated = [...state.allowedDomains];
-            updated[existingIndex] = { domain: normalizedDomain, allowSubdomains };
-            return { 
-              allowedDomains: updated,
-              deniedDomains: updatedDenied,
-            };
-          }
-          // Add new domain
-          return {
-            allowedDomains: [...state.allowedDomains, { domain: normalizedDomain, allowSubdomains }],
-            deniedDomains: updatedDenied,
-          };
-        });
-      },
-      removeAllowedDomain: (domain) => {
-        set((state) => {
-          // Normalize the domain to match how it's stored
-          let normalizedDomain = domain.toLowerCase().trim();
-          if (normalizedDomain.startsWith('www.')) {
-            normalizedDomain = normalizedDomain.slice(4);
-          }
-          
-          // Filter out matching domain (compare both original and normalized)
-          // Keep domains that don't match the original domain or normalized versions
-          const filtered = state.allowedDomains.filter((d) => {
-            // Exact match check
-            if (d.domain === domain) {
-              return false;
-            }
-            
-            // Normalized match check
-            const storedNormalized = d.domain.toLowerCase().trim();
-            const storedWithoutWww = storedNormalized.startsWith('www.') 
-              ? storedNormalized.slice(4) 
-              : storedNormalized;
-            
-            // Remove if normalized versions match
-            return storedNormalized !== normalizedDomain && storedWithoutWww !== normalizedDomain;
-          });
-          
-          return { allowedDomains: filtered };
-        });
-      },
-      clearAllAllowedDomains: () => {
-        set({ allowedDomains: [] });
-      },
-      updateDomainSubdomainSetting: (domain, allowSubdomains) => {
-        set((state) => {
-          const existingIndex = state.allowedDomains.findIndex((d) => d.domain === domain);
-          if (existingIndex >= 0) {
-            const updated = [...state.allowedDomains];
-            updated[existingIndex] = { ...updated[existingIndex], allowSubdomains };
-            return { allowedDomains: updated };
-          }
-          return state;
-        });
-      },
-      addDeniedDomain: (domain) => {
-        set((state) => {
-          // Normalize domain (strip www.)
-          let normalizedDomain = domain.toLowerCase().trim();
-          if (normalizedDomain.startsWith('www.')) {
-            normalizedDomain = normalizedDomain.slice(4);
-          }
-          
-          // Remove from allowed if it was there (check both original and normalized)
-          const updatedAllowed = state.allowedDomains.filter((d) => {
-            const allowedNormalized = d.domain.toLowerCase().startsWith('www.') 
-              ? d.domain.toLowerCase().slice(4) 
-              : d.domain.toLowerCase();
-            return allowedNormalized !== normalizedDomain && d.domain !== domain && d.domain !== normalizedDomain;
-          });
-          
-          // Add to denied if not already there (check both original and normalized)
-          const alreadyDenied = state.deniedDomains.some((d) => {
-            const deniedNormalized = d.toLowerCase().startsWith('www.') 
-              ? d.toLowerCase().slice(4) 
-              : d.toLowerCase();
-            return deniedNormalized === normalizedDomain || d === domain || d === normalizedDomain;
-          });
-          
-          const updatedDenied = alreadyDenied
-            ? state.deniedDomains
-            : [...state.deniedDomains, normalizedDomain];
-          
-          return {
-            allowedDomains: updatedAllowed,
-            deniedDomains: updatedDenied,
-          };
-        });
-      },
-      removeDeniedDomain: (domain) => {
-        set((state) => ({
-          deniedDomains: state.deniedDomains.filter((d) => d !== domain),
-        }));
-      },
 
       togglePin: (section, subsection, property, profile = 'default') => {
         set((state) => {
@@ -526,12 +373,9 @@ export const useConfigStore = create<ConfigStore>()(
             };
           }
           if (version < 5) {
-            // Migration from v4 to v5: add allowedDomains and deniedDomains
-            return {
-              ...state,
-              allowedDomains: defaultConfig.allowedDomains,
-              deniedDomains: defaultConfig.deniedDomains,
-            };
+            // Migration from v4 to v5: allowedDomains moved to domainStore
+            // No longer part of configStore, so we just skip this migration
+            return state;
           }
           if (version < 6) {
             // Migration from v5 to v6: add dismissedOnboardingModals
@@ -557,8 +401,6 @@ export const useConfigStore = create<ConfigStore>()(
 export const selectMaxEvents = (state: ConfigStore) => state.maxEvents;
 export const selectTheme = (state: ConfigStore) => state.theme;
 export const selectPreferredEventDetailView = (state: ConfigStore) => state.preferredEventDetailView;
-export const selectAllowedDomains = (state: ConfigStore) => state.allowedDomains;
-export const selectDeniedDomains = (state: ConfigStore) => state.deniedDomains;
 export const selectPinnedProperties = (state: ConfigStore) => state.pinnedProperties;
 export const selectTogglePin = (state: ConfigStore) => state.togglePin;
 export const selectIsPinned = (state: ConfigStore) => state.isPinned;

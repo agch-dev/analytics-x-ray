@@ -4,6 +4,7 @@ import Browser from 'webextension-polyfill';
 import Panel from '@src/pages/devtools/Panel';
 import { useTheme } from '@src/hooks/useTheme';
 import { useConfigStore } from '@src/stores/configStore';
+import { useDomainStore } from '@src/stores/domainStore';
 import { createContextLogger } from '@src/lib/logger';
 import { ErrorBoundary, PanelErrorState } from '@src/components';
 import '@assets/styles/tailwind.css';
@@ -13,7 +14,7 @@ const log = createContextLogger('devtools');
 function PanelWrapper() {
   useTheme();
   
-  // Listen for storage changes to sync config updates from other extension contexts
+  // Listen for storage changes to sync config and domain updates from other extension contexts
   useEffect(() => {
     const handleStorageChange = (
       changes: Browser.Storage.StorageAreaOnChangedChangesType,
@@ -41,6 +42,30 @@ function PanelWrapper() {
               }
             } catch (error) {
               log.error('Failed to parse config from storage:', error);
+            }
+          }
+        });
+      }
+      
+      // Check if the domain storage key changed
+      const domainKey = 'analytics-xray-domain';
+      if (changes[domainKey]) {
+        log.debug('Domain storage changed, rehydrating store...');
+        
+        // Read the new domain config from storage and update the store
+        Browser.storage.local.get(domainKey).then((result) => {
+          const storedValue = result[domainKey];
+          if (storedValue && typeof storedValue === 'string') {
+            try {
+              const parsed = JSON.parse(storedValue);
+              const { state: newState } = parsed;
+              if (newState) {
+                // Update the store with the new state
+                useDomainStore.setState(newState);
+                log.debug('Domain store rehydrated from storage');
+              }
+            } catch (error) {
+              log.error('Failed to parse domain storage:', error);
             }
           }
         });

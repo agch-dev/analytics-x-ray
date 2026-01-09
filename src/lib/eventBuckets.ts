@@ -54,7 +54,7 @@ export const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
     id: 'view',
     label: 'View Events',
     color: 'border-l-cyan-500',
-    patterns: ['view', 'viewed'],
+    patterns: ['view', 'viewed', 'seen'],
   },
   {
     id: 'interaction',
@@ -62,16 +62,12 @@ export const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
     color: 'border-l-orange-500',
     patterns: [
       'click',
-      'toggled',
       'toggle',
       'select',
-      'selected',
-      'submit',
       'submit',
       'press',
-      'pressed',
       'interact',
-      'interaction',
+      'scroll',
     ],
   },
   {

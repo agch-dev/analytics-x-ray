@@ -1,4 +1,4 @@
-import { useConfigStore, selectAllowedDomains } from '@src/stores/configStore';
+import { useDomainStore, selectAllowedDomains } from '@src/stores/domainStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { Button } from '@src/components/ui/button';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -9,13 +9,13 @@ interface DevDomainSectionProps {
 }
 
 export const DevDomainSection = ({ onClearDomains }: DevDomainSectionProps) => {
-  const allowedDomains = useConfigStore(selectAllowedDomains);
+  const allowedDomains = useDomainStore(selectAllowedDomains);
   
   const handleClear = () => {
     if (onClearDomains) {
       onClearDomains();
     } else {
-      useConfigStore.getState().clearAllAllowedDomains();
+      useDomainStore.getState().clearAllAllowedDomains();
     }
   };
 

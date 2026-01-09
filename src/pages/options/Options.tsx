@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import Browser from 'webextension-polyfill';
 import { useConfigStore } from '@src/stores/configStore';
+import { useDomainStore } from '@src/stores/domainStore';
 import { createContextLogger } from '@src/lib/logger';
 import { isDevMode } from '@src/lib/utils';
 import {
@@ -45,22 +46,9 @@ export default function Options() {
             const parsed = JSON.parse(storedValue);
             const { state: newState } = parsed;
             if (newState) {
-              // Get current state to compare
-              const currentState = useConfigStore.getState();
-              
-              // Only update if the allowedDomains actually changed
-              // This prevents race conditions where the storage change listener
-              // might rehydrate with stale data after a local update
-              const currentDomains = JSON.stringify(currentState.allowedDomains || []);
-              const newDomains = JSON.stringify(newState.allowedDomains || []);
-              
-              if (currentDomains !== newDomains) {
-                // Update the store with the new state
-                useConfigStore.setState(newState);
-                log.debug('Config store rehydrated from storage');
-              } else {
-                log.debug('Storage change detected but state is already in sync');
-              }
+              // Update the store with the new state
+              useConfigStore.setState(newState);
+              log.debug('Config store rehydrated from storage');
             }
           } catch (error) {
             log.error('Failed to parse config from storage:', error);
@@ -83,8 +71,8 @@ export default function Options() {
     const timestamp = Date.now();
     lastLocalUpdateRef.current = timestamp;
     
-    // Clear the domains synchronously
-    useConfigStore.getState().clearAllAllowedDomains();
+    // Clear the domains synchronously (using domainStore)
+    useDomainStore.getState().clearAllAllowedDomains();
     
     // Also set a timeout to reset the flag after the storage write completes
     // This ensures we don't block legitimate updates from other contexts
