@@ -18,11 +18,9 @@ function SettingsPanel() {
   // ✅ Good: Use selector to avoid unnecessary re-renders
   const maxEvents = useConfigStore((state) => state.maxEvents);
   const theme = useConfigStore((state) => state.theme);
-  const throttleMs = useConfigStore((state) => state.throttleMs);
   
   const setMaxEvents = useConfigStore((state) => state.setMaxEvents);
   const setTheme = useConfigStore((state) => state.setTheme);
-  const setThrottleMs = useConfigStore((state) => state.setThrottleMs);
 
   return (
     <div>
@@ -41,14 +39,6 @@ function SettingsPanel() {
           <option value="light">Light</option>
           <option value="dark">Dark</option>
         </select>
-      </label>
-      <label>
-        Throttle (ms):
-        <input
-          type="number"
-          value={throttleMs}
-          onChange={(e) => setThrottleMs(parseInt(e.target.value, 10))}
-        />
       </label>
     </div>
   );

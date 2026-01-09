@@ -25,7 +25,7 @@ todos:
     status: completed
   - id: remove-throttle-setting
     content: Remove unused throttleMs setting or implement actual throttling
-    status: pending
+    status: completed
   - id: setup-vitest
     content: Set up Vitest testing framework with configuration and test scripts
     status: pending

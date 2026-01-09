@@ -10,7 +10,6 @@ Stores global extension settings that persist across all tabs and sessions.
 **Available Properties:**
 - `maxEvents` (number) - Maximum number of events to store (1-10000)
 - `theme` ('light' | 'dark' | 'auto') - UI theme preference
-- `throttleMs` (number) - Throttle interval for high-frequency events (0-5000ms)
 
 **Note:** Event capture is always enabled automatically.
 
@@ -39,7 +38,6 @@ import { useConfigStore } from '@src/stores';
 
 const maxEvents = useConfigStore.getState().maxEvents;
 useConfigStore.getState().setMaxEvents(1000);
-useConfigStore.getState().setThrottleMs(200);
 ```
 
 ### `tabStore.ts` - Per-Tab Data
