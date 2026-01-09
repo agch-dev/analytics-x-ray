@@ -6,7 +6,7 @@
  */
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-export type LogContext = 'background' | 'panel' | 'popup' | 'content' | 'devtools' | 'storage' | 'ui';
+export type LogContext = 'background' | 'panel' | 'popup' | 'devtools' | 'storage' | 'ui';
 
 interface LoggerConfig {
   enabled: boolean;
@@ -25,7 +25,6 @@ const CONTEXT_COLORS: Record<LogContext, string> = {
   background: '#ff6b6b',
   panel: '#4ecdc4',
   popup: '#45b7d1',
-  content: '#96ceb4',
   devtools: '#dfe6e9',
   storage: '#fdcb6e',
   ui: '#a29bfe',

@@ -9,7 +9,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "contentStyle.css",
         "icons-dev/icon128.png",
         "icons-dev/icon32.png"
       ],

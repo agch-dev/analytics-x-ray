@@ -22,7 +22,7 @@ todos:
     status: completed
   - id: remove-content-script
     content: Remove or repurpose content script placeholder
-    status: pending
+    status: completed
   - id: remove-throttle-setting
     content: Remove unused throttleMs setting or implement actual throttling
     status: pending
