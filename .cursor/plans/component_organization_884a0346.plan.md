@@ -50,9 +50,6 @@ export { usePinnedProperties, sortWithPinnedFirst } from './usePinnedProperties'
 export { useTheme } from './useTheme';
 // After performance plan: export { useDebounce } from './useDebounce';
 ```
-
-
-
 ```typescript
 // src/lib/index.ts
 export { cn, isDevMode, copyToClipboard, normalizeEventNameForFilter } from './utils';
@@ -61,9 +58,6 @@ export { parseSearchQuery, eventMatchesSearch, highlightText } from './search';
 export { getJsonViewTheme, getValueTypeColor } from './jsonViewTheme';
 // ... other exports
 ```
-
-
-
 ```typescript
 // src/components/index.ts
 export { Logo } from './Logo';
@@ -121,8 +115,6 @@ src/pages/devtools/components/detail/
 └── index.ts                     # Barrel export
 ```
 
-
-
 ### Updated Barrel Exports
 
 ```typescript
@@ -138,9 +130,6 @@ export * from './sections';
 // Re-export primitives for direct use if needed
 export * from './primitives';
 ```
-
-
-
 ```typescript
 // src/pages/devtools/components/detail/sections/index.ts
 export { PropertiesSection } from './PropertiesSection';
@@ -148,9 +137,6 @@ export { TraitsSection } from './TraitsSection';
 export { ContextSection } from './ContextSection';
 export { MiscSection } from './MiscSection';
 ```
-
-
-
 ```typescript
 // src/pages/devtools/components/detail/primitives/index.ts
 export { PropertyRow } from './PropertyRow';

@@ -42,8 +42,6 @@ export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
 const messageId = batchEvent.messageId || `generated_${Date.now()}_${Math.random()}`;
 ```
 
-
-
 ### The Bug
 
 Events without `messageId` are filtered out by `isValidBatchEvent` BEFORE they reach `normalizeEvent`, so the fallback generation never happens.Some Segment implementations (especially custom ones) may not include `messageId`.
@@ -88,8 +86,6 @@ if (isDuplicate) {
   return state;
 }
 ```
-
-
 
 ### Issues
 

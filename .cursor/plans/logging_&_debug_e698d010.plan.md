@@ -44,8 +44,6 @@ Every user sees logs like:
 [analytics-x-ray] [storage] 📊 Storage Usage: 1.2 MB / 10 MB (12%)
 ```
 
-
-
 ### Solution
 
 Tie logger config to build mode using `__DEV_MODE__`:
@@ -91,8 +89,6 @@ log.info('✅ Captured ${events.length} event(s)');
 log.error('❌ Failed to persist events:', error);
 ```
 
-
-
 ### Considerations
 
 **Pros of emojis:**
@@ -123,8 +119,6 @@ log.error('[ERR] Failed to persist events:', error);
 log.info('Background service worker loaded');
 // Output: [analytics-x-ray] [background] INFO: Background service worker loaded
 ```
-
-
 
 ### Recommendation
 

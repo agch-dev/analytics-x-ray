@@ -51,8 +51,6 @@ interface EventsCapturedMessage {
 }
 ```
 
-
-
 ### Solution
 
 Create a centralized message types file:
@@ -132,8 +130,6 @@ const msg = message as ExtensionMessage;
 ```typescript
 const msg = message as EventsCapturedMessage;
 ```
-
-
 
 ### Solution
 

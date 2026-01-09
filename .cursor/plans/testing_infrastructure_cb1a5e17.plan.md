@@ -43,8 +43,6 @@ The project has no test infrastructure. Critical logic in event parsing, search,
 yarn add -D vitest @vitest/coverage-v8 jsdom
 ```
 
-
-
 ### Configuration
 
 ```typescript
@@ -75,8 +73,6 @@ export default defineConfig({
   },
 });
 ```
-
-
 
 ### Package.json Scripts
 
@@ -179,8 +175,6 @@ describe('parseSegmentPayload', () => {
 });
 ```
 
-
-
 ### High Priority: Search Logic
 
 [`src/lib/search.ts`](src/lib/search.ts) - Search and highlighting:
@@ -248,8 +242,6 @@ describe('highlightText', () => {
   });
 });
 ```
-
-
 
 ### Medium Priority: Store Tests
 

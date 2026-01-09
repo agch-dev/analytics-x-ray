@@ -111,8 +111,6 @@ export interface ExtensionMessage<T = unknown> {
 }
 ```
 
-
-
 ### Type Assertions Could Be Type Guards
 
 Several places use `as` type assertions that could be safer with type guards:
@@ -252,8 +250,6 @@ const config: LoggerConfig = {
   enabledContexts: 'all',
 };
 ```
-
-
 
 ### Emoji-Heavy Logging
 

@@ -16,7 +16,7 @@ todos:
     status: completed
   - id: refactor-property-row
     content: Split PropertyRow (436 lines) into smaller focused components
-    status: pending
+    status: completed
   - id: refactor-storage
     content: Split storage.ts (401 lines) into focused modules by concern
     status: pending
