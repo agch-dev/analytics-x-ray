@@ -19,7 +19,7 @@ todos:
     status: completed
   - id: refactor-storage
     content: Split storage.ts (401 lines) into focused modules by concern
-    status: pending
+    status: completed
   - id: remove-content-script
     content: Remove or repurpose content script placeholder
     status: pending
