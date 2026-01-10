@@ -27,7 +27,8 @@ function getMaxEvents(): number {
     return useConfigStore.getState().maxEvents;
   } catch (error) {
     log.debug(
-      '⚠️ Could not read maxEvents from config store, using default: 500'
+      '⚠️ Could not read maxEvents from config store, using default: 500',
+      error
     );
     return 500;
   }
