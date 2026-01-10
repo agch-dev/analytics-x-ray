@@ -25,7 +25,7 @@ function ErrorStateBase({
   message = 'An unexpected error occurred. Please try again.',
   onRetry,
   retryLabel = 'Try again',
-}: ErrorStateProps) {
+}: Readonly<ErrorStateProps>) {
   return (
     <div className="flex h-full flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -60,7 +60,9 @@ function ErrorStateBase({
  *
  * Used when the entire panel crashes or fails to render
  */
-export function PanelErrorState({ onRetry }: { onRetry?: () => void }) {
+export function PanelErrorState({
+  onRetry,
+}: Readonly<{ onRetry?: () => void }>) {
   const handleRetry = () => {
     // Reload the page/panel
     if (onRetry) {
@@ -93,7 +95,9 @@ export function PanelErrorState({ onRetry }: { onRetry?: () => void }) {
  *
  * Used when the event list fails to render but the panel is still functional
  */
-export function EventListErrorState({ onRetry }: { onRetry?: () => void }) {
+export function EventListErrorState({
+  onRetry,
+}: Readonly<{ onRetry?: () => void }>) {
   return (
     <div className="flex flex-1 items-center justify-center p-4">
       <ErrorStateBase
@@ -111,7 +115,9 @@ export function EventListErrorState({ onRetry }: { onRetry?: () => void }) {
  *
  * Used when event details fail to render
  */
-export function EventDetailErrorState({ onRetry }: { onRetry?: () => void }) {
+export function EventDetailErrorState({
+  onRetry,
+}: Readonly<{ onRetry?: () => void }>) {
   return (
     <div className="border-t border-border bg-background/50 p-4">
       <div className="flex items-center gap-3 text-destructive">

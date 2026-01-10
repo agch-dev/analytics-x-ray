@@ -8,7 +8,7 @@ interface LogoProps {
   size?: number;
 }
 
-export function Logo({ className = '', size = 32 }: LogoProps) {
+export function Logo({ className = '', size = 32 }: Readonly<LogoProps>) {
   const iconSrc = isDevMode() ? iconDev : iconProd;
 
   return (

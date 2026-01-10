@@ -14,7 +14,7 @@ export function HighlightedText({
   text,
   searchQuery,
   className,
-}: HighlightedTextProps) {
+}: Readonly<HighlightedTextProps>) {
   if (!searchQuery) {
     return <span className={className}>{text}</span>;
   }

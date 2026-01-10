@@ -35,7 +35,7 @@ export function PropertyList({
   onTogglePin,
   showPinButtons = true,
   emptyMessage,
-}: PropertyListProps) {
+}: Readonly<PropertyListProps>) {
   // Separate pinned and unpinned for display
   const { pinned, unpinned } = useMemo(() => {
     return sortWithPinnedFirst(entries, pinnedProperties);
@@ -112,7 +112,7 @@ export function PinnedPropertyList({
   entries,
   searchQuery = '',
   onTogglePin,
-}: PinnedPropertyListProps) {
+}: Readonly<PinnedPropertyListProps>) {
   if (entries.length === 0) return null;
 
   return (

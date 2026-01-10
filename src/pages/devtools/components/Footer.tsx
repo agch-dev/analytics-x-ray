@@ -11,7 +11,7 @@ interface FooterProps {
   isListening?: boolean;
 }
 
-export function Footer({ tabId, isListening = true }: FooterProps) {
+export function Footer({ tabId, isListening = true }: Readonly<FooterProps>) {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   return (

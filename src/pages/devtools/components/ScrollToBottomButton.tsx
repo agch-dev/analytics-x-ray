@@ -12,7 +12,7 @@ interface ScrollToBottomButtonProps {
 export function ScrollToBottomButton({
   isVisible,
   onClick,
-}: ScrollToBottomButtonProps) {
+}: Readonly<ScrollToBottomButtonProps>) {
   return (
     <div
       className={cn(

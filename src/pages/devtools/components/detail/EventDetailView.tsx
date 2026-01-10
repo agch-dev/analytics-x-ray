@@ -22,7 +22,7 @@ export function EventDetailView({
   event,
   viewMode,
   searchQuery = '',
-}: EventDetailViewProps) {
+}: Readonly<EventDetailViewProps>) {
   // Get filtered event for JSON view (without rawPayload)
   const displayEvent = useMemo(() => {
     const { rawPayload: _rawPayload, ...rest } = event;
@@ -40,7 +40,7 @@ export function EventDetailView({
               <TraitsSection event={event} searchQuery={searchQuery} />
             )}
             {/* Show Properties section only if there are properties */}
-            {Object.keys(event.properties).length > 0 && (
+            {event.properties && Object.keys(event.properties).length > 0 && (
               <PropertiesSection event={event} searchQuery={searchQuery} />
             )}
             <ContextSection event={event} searchQuery={searchQuery} />

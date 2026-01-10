@@ -44,6 +44,7 @@ export function copyToClipboard(text: string): boolean {
 
   let success = false;
   try {
+    // eslint-disable-next-line sonarjs/deprecation -- Required fallback for DevTools panels where Clipboard API is blocked
     success = document.execCommand('copy');
   } catch (err) {
     console.error('Failed to copy text:', err);
@@ -84,7 +85,8 @@ export function extractPathFromUrl(url: string): string {
     return urlObj.pathname + urlObj.search + urlObj.hash;
   } catch {
     // If URL parsing fails, try to extract path manually
-    const match = url.match(/^https?:\/\/[^/]+(\/.*)?$/);
+    const regex = /^https?:\/\/[^/]+(\/.*)?$/;
+    const match = regex.exec(url);
     return match && match[1] ? match[1] : '/';
   }
 }

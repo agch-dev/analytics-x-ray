@@ -42,7 +42,7 @@ export function PinnableSection({
   emptyMessage = `No ${title.toLowerCase()}`,
   renderWhenEmpty = true,
   sectionKey,
-}: PinnableSectionProps) {
+}: Readonly<PinnableSectionProps>) {
   const { togglePin, pinnedProperties } = usePinnedProperties({
     section: pinSection,
   });

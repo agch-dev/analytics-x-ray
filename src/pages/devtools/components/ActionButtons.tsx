@@ -35,7 +35,7 @@ export function ActionButtons({
   onOpenSettings,
   onOpenFeedback,
   className,
-}: ActionButtonsProps) {
+}: Readonly<ActionButtonsProps>) {
   return (
     <div
       className={cn(

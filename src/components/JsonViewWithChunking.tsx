@@ -19,7 +19,7 @@ interface JsonViewWithChunkingProps {
 export function JsonViewWithChunking({
   value,
   ...jsonViewProps
-}: JsonViewWithChunkingProps) {
+}: Readonly<JsonViewWithChunkingProps>) {
   // If it's a large array, use ChunkedArrayView
   if (shouldChunkArray(value)) {
     return (

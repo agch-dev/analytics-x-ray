@@ -5,7 +5,7 @@ interface EmptyStateProps {
   searchQuery?: string;
 }
 
-export function EmptyState({ searchQuery }: EmptyStateProps) {
+export function EmptyState({ searchQuery }: Readonly<EmptyStateProps>) {
   const hasSearchQuery = Boolean(searchQuery?.trim());
 
   return (

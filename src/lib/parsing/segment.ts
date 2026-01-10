@@ -301,7 +301,8 @@ export function normalizeEvent(
   // Generate one if not present (though all Segment events should have messageId)
   const messageId =
     batchEvent.messageId ||
-    `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // eslint-disable-next-line sonarjs/pseudo-random -- Safe: Used only for generating unique fallback IDs, not for security
+    `generated_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
   return {
     id: messageId,

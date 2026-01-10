@@ -42,7 +42,7 @@ export function SectionDefaultsModal({
   sectionKey,
   sectionTitle,
   subsections,
-}: SectionDefaultsModalProps) {
+}: Readonly<SectionDefaultsModalProps>) {
   const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
   const setSectionDefaultExpanded = useConfigStore(
     (state) => state.setSectionDefaultExpanded

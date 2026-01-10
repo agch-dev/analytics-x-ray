@@ -17,7 +17,10 @@ interface MiscSectionProps {
   searchQuery?: string;
 }
 
-export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
+export function MiscSection({
+  event,
+  searchQuery = '',
+}: Readonly<MiscSectionProps>) {
   const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
   const subsections = useMemo<SubsectionDefinition[]>(() => {
     const sections: SubsectionDefinition[] = [];
@@ -65,7 +68,12 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
     }
 
     // Integrations
-    if (event.integrations && Object.keys(event.integrations).length > 0) {
+    if (
+      event.integrations &&
+      typeof event.integrations === 'object' &&
+      !Array.isArray(event.integrations) &&
+      Object.keys(event.integrations).length > 0
+    ) {
       const integrationEntries = Object.entries(event.integrations)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([key, value]) => ({ key, value }));
@@ -118,7 +126,7 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
       subsections={subsections}
       searchQuery={searchQuery}
       sectionKey="metadata"
-      event={event}
+      segmentEvent={event}
       defaultExpandedSubsections={defaultExpandedSubsections}
     />
   );

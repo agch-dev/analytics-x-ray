@@ -13,13 +13,13 @@ interface PropertiesSectionProps {
 export function PropertiesSection({
   event,
   searchQuery = '',
-}: PropertiesSectionProps) {
+}: Readonly<PropertiesSectionProps>) {
   return (
     <PinnableSection
       title="Properties"
       icon={<HugeiconsIcon icon={Tag01Icon} size={14} />}
       pinSection="properties"
-      data={event.properties}
+      data={event.properties || {}}
       searchQuery={searchQuery}
       emptyMessage="No properties"
       renderWhenEmpty={true}

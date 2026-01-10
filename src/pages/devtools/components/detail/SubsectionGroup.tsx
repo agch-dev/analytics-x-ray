@@ -42,8 +42,8 @@ interface SubsectionGroupProps {
   emptyMessage?: string;
   /** Section key for configuration */
   sectionKey?: 'context' | 'metadata';
-  /** Event for checking special defaults */
-  event?: SegmentEvent;
+  /** Segment event for checking special defaults */
+  segmentEvent?: SegmentEvent;
 }
 
 interface SubsectionWithPinInfo extends SubsectionDefinition {
@@ -80,8 +80,8 @@ export function SubsectionGroup({
   defaultExpandedSubsections: propDefaultExpandedSubsections = [],
   emptyMessage = 'No data',
   sectionKey,
-  event,
-}: SubsectionGroupProps) {
+  segmentEvent,
+}: Readonly<SubsectionGroupProps>) {
   const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
 
   // Get section default from config if sectionKey is provided
@@ -124,20 +124,20 @@ export function SubsectionGroup({
     let expanded = configDefaultExpanded;
 
     // Check special defaults that might override
-    if (sectionKey === 'context' && event) {
+    if (sectionKey === 'context' && segmentEvent) {
       if (
-        event.type === 'page' &&
+        segmentEvent.type === 'page' &&
         sectionDefaults.specialDefaults.contextPageAlwaysOpenForPageEvents
       ) {
         expanded = true;
       }
     }
 
-    if (sectionKey === 'metadata' && event) {
+    if (sectionKey === 'metadata' && segmentEvent) {
       if (
-        (event.type === 'identify' ||
-          event.type === 'group' ||
-          event.type === 'alias') &&
+        (segmentEvent.type === 'identify' ||
+          segmentEvent.type === 'group' ||
+          segmentEvent.type === 'alias') &&
         sectionDefaults.specialDefaults
           .metadataIdentifiersAlwaysOpenForIdentityEvents
       ) {
@@ -149,7 +149,7 @@ export function SubsectionGroup({
   }, [
     configDefaultExpanded,
     sectionKey,
-    event,
+    segmentEvent,
     sectionDefaults.specialDefaults,
   ]);
 
@@ -157,22 +157,22 @@ export function SubsectionGroup({
   const finalDefaultExpandedSubsections = useMemo(() => {
     const final = new Set(mergedDefaultExpandedSubsections);
 
-    if (sectionKey === 'context' && event) {
+    if (sectionKey === 'context' && segmentEvent) {
       // Check if it's a page event and special default is enabled
       if (
-        event.type === 'page' &&
+        segmentEvent.type === 'page' &&
         sectionDefaults.specialDefaults.contextPageAlwaysOpenForPageEvents
       ) {
         final.add('page');
       }
     }
 
-    if (sectionKey === 'metadata' && event) {
+    if (sectionKey === 'metadata' && segmentEvent) {
       // Check if it's an identify/alias/group event and special default is enabled
       if (
-        (event.type === 'identify' ||
-          event.type === 'group' ||
-          event.type === 'alias') &&
+        (segmentEvent.type === 'identify' ||
+          segmentEvent.type === 'group' ||
+          segmentEvent.type === 'alias') &&
         sectionDefaults.specialDefaults
           .metadataIdentifiersAlwaysOpenForIdentityEvents
       ) {
@@ -184,7 +184,7 @@ export function SubsectionGroup({
   }, [
     mergedDefaultExpandedSubsections,
     sectionKey,
-    event,
+    segmentEvent,
     sectionDefaults.specialDefaults,
   ]);
 
@@ -237,23 +237,28 @@ export function SubsectionGroup({
 
   // Calculate pinned info for each subsection
   const subsectionsWithPinInfo = useMemo<SubsectionWithPinInfo[]>(() => {
-    return subsections.map((subsection) => {
-      const pinnedProps = getSubsectionPinnedProperties(subsection.key);
-      const entryKeys = subsection.entries.map((e) => e.key);
-      const existingPinnedKeys = pinnedProps.filter((key) =>
-        entryKeys.includes(key)
-      );
-      return {
-        ...subsection,
-        pinnedKeys: existingPinnedKeys,
-        hasPinnedProperties: existingPinnedKeys.length > 0,
-      };
-    });
+    return subsections
+      .filter((subsection) => subsection && subsection.entries)
+      .map((subsection) => {
+        const pinnedProps = getSubsectionPinnedProperties(subsection.key);
+        const entryKeys = (subsection.entries || []).map((e) => e.key);
+        const existingPinnedKeys = pinnedProps.filter((key) =>
+          entryKeys.includes(key)
+        );
+        return {
+          ...subsection,
+          pinnedKeys: existingPinnedKeys,
+          hasPinnedProperties: existingPinnedKeys.length > 0,
+        };
+      });
   }, [subsections, getSubsectionPinnedProperties]);
 
   // Total property count
   const totalProperties = useMemo(() => {
-    return subsections.reduce((acc, sub) => acc + sub.entries.length, 0);
+    return subsections.reduce(
+      (acc, sub) => acc + (sub?.entries?.length || 0),
+      0
+    );
   }, [subsections]);
 
   // Total pinned count across all subsections

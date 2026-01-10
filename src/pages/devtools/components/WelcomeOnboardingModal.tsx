@@ -55,7 +55,7 @@ const features: Feature[] = [
 export function WelcomeOnboardingModal({
   open,
   onOpenChange,
-}: OnboardingModalProps) {
+}: Readonly<OnboardingModalProps>) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">

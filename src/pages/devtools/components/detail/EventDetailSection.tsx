@@ -49,7 +49,7 @@ export function EventDetailSection({
   sectionKey,
   hasSubsections = false,
   subsections = [],
-}: EventDetailSectionProps) {
+}: Readonly<EventDetailSectionProps>) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

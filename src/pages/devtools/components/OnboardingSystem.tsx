@@ -53,7 +53,7 @@ export function OnboardingSystem({
   ModalComponent,
   delay = 0,
   forceShow = false,
-}: OnboardingSystemProps) {
+}: Readonly<OnboardingSystemProps>) {
   const { isDismissed, dismiss } = useOnboarding(modalId);
   const [isOpen, setIsOpen] = useState(false);
 

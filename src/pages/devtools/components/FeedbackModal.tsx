@@ -15,7 +15,10 @@ interface FeedbackModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
+export function FeedbackModal({
+  open,
+  onOpenChange,
+}: Readonly<FeedbackModalProps>) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">

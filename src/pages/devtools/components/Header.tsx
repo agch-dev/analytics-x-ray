@@ -34,7 +34,7 @@ export function Header({
   onClear,
   onToggleFilterPanel,
   onOpenFeedback,
-}: HeaderProps) {
+}: Readonly<HeaderProps>) {
   // Check if we're at the max events limit (showing truncation indicator)
   const isAtMaxEvents = totalEventCount >= maxEvents;
   const handleOpenSettings = () => {

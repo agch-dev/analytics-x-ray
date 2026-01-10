@@ -10,7 +10,10 @@ interface TraitsSectionProps {
   searchQuery?: string;
 }
 
-export function TraitsSection({ event, searchQuery = '' }: TraitsSectionProps) {
+export function TraitsSection({
+  event,
+  searchQuery = '',
+}: Readonly<TraitsSectionProps>) {
   return (
     <PinnableSection
       title="Traits"

@@ -39,7 +39,7 @@ export function ChunkedArrayView({
   enableClipboard = true,
   onChunkToggle,
   initialVisibleChunks = new Set([0]),
-}: ChunkedArrayViewProps) {
+}: Readonly<ChunkedArrayViewProps>) {
   const [visibleChunks, setVisibleChunks] =
     useState<Set<number>>(initialVisibleChunks);
 

@@ -6,6 +6,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import betterTailwindcss from 'eslint-plugin-better-tailwindcss';
+import sonarjs from 'eslint-plugin-sonarjs';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
@@ -84,6 +85,7 @@ export default [
       import: importPlugin,
       'jsx-a11y': jsxA11y,
       'better-tailwindcss': betterTailwindcss,
+      sonarjs,
     },
     rules: {
       // TypeScript rules
@@ -172,6 +174,13 @@ export default [
 
       // Tailwind CSS rules
       ...betterTailwindcss.configs.recommended.rules,
+
+      // SonarJS rules
+      ...sonarjs.configs.recommended.rules,
+
+      // Disable false-positive SonarJS rules
+      'sonarjs/assertions-in-tests': 'off', // Vitest expect() assertions are not detected
+      'sonarjs/no-unused-vars': 'off', // TypeScript ESLint already handles this
     },
     settings: {
       react: {

@@ -36,7 +36,7 @@ export function ThemedJsonView({
   collapsed = false,
   enableClipboard = true,
   shouldExpandNodeInitially,
-}: ThemedJsonViewProps) {
+}: Readonly<ThemedJsonViewProps>) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // Custom copy handler

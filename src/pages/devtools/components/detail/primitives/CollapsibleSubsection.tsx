@@ -46,7 +46,7 @@ export function CollapsibleSubsection({
   onToggleExpand,
   onTogglePin,
   searchQuery = '',
-}: CollapsibleSubsectionProps) {
+}: Readonly<CollapsibleSubsectionProps>) {
   const entryCount = entries.length;
 
   // Sort entries: pinned first
@@ -177,7 +177,7 @@ export function SubsectionHeader({
   title,
   icon,
   pinnedCount,
-}: SubsectionHeaderProps) {
+}: Readonly<SubsectionHeaderProps>) {
   return (
     <div
       className={`
