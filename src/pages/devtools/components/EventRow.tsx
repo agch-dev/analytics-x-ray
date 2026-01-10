@@ -44,9 +44,17 @@ export const EventRow = React.memo(function EventRow({
       )}
     >
       {/* Row header - clickable */}
-      <button
+      <div
         onClick={() => onToggleExpand(event.id)}
-        className="w-full text-left"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onToggleExpand(event.id);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        className="w-full cursor-pointer text-left"
         aria-label={
           isExpanded
             ? `Collapse ${event.name} event`
@@ -63,7 +71,7 @@ export const EventRow = React.memo(function EventRow({
           onToggleHide={onToggleHide}
           onViewModeChange={onViewModeChange}
         />
-      </button>
+      </div>
 
       {/* Expanded detail view */}
       {isExpanded && (
