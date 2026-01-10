@@ -7,9 +7,9 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
-import { useDomainStore, selectAllowedDomains } from '@src/stores/domainStore';
+import { useDomainStore, selectAllowedDomains } from '@src/stores';
 import { getTabDomain, isDomainAllowed, normalizeDomain } from '@src/lib/domain';
-import { isDomainChangedMessage } from '@src/types/messages';
+import { isDomainChangedMessage } from '@src/types';
 import { createContextLogger } from '@src/lib/logger';
 
 const log = createContextLogger('panel');

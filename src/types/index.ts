@@ -12,9 +12,9 @@ export type {
   SegmentBatchEvent,
   SegmentBatchPayload,
   SegmentEvent,
-} from '@src/lib/parsing/segment';
+} from './segment';
 
-export { EVENT_TYPE_COLORS, EVENT_TYPE_LABELS } from '@src/lib/parsing/segment';
+export { EVENT_TYPE_COLORS, EVENT_TYPE_LABELS } from './segment';
 
 // Extension message types
 export type {
@@ -24,6 +24,10 @@ export type {
   ClearEventsMessage,
   GetEventCountMessage,
   EventsCapturedMessage,
+  ReloadDetectedMessage,
+  GetTabDomainMessage,
+  DomainChangedMessage,
+  ReEvaluateTabDomainMessage,
   ExtensionMessage,
 } from './messages';
 
@@ -33,5 +37,9 @@ export {
   isClearEventsMessage,
   isGetEventCountMessage,
   isEventsCapturedMessage,
+  isReloadDetectedMessage,
+  isGetTabDomainMessage,
+  isDomainChangedMessage,
+  isReEvaluateTabDomainMessage,
 } from './messages';
 

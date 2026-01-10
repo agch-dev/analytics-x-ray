@@ -1,4 +1,4 @@
-import { useConfigStore, selectTheme, selectPreferredEventDetailView } from '@src/stores/configStore';
+import { useConfigStore, selectTheme, selectPreferredEventDetailView } from '@src/stores';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { Label } from '@src/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@src/components/ui/select';

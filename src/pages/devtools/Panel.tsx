@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
-import { getTabStore } from '@src/stores/tabStore';
-import { useConfigStore, selectPreferredEventDetailView, selectMaxEvents } from '@src/stores/configStore';
+import { getTabStore, useConfigStore, selectPreferredEventDetailView, selectMaxEvents } from '@src/stores';
 import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, FeedbackModal, OnboardingSystem, WelcomeOnboardingModal, type EventListHandle } from './components';
 import { useEventSync } from './hooks/useEventSync';
 import { useDomainTracking } from './hooks/useDomainTracking';

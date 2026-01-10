@@ -6,7 +6,7 @@
 
 import Browser from 'webextension-polyfill';
 import { createContextLogger } from '@src/lib/logger';
-import type { ReloadDetectedMessage } from '@src/types/messages';
+import type { ReloadDetectedMessage } from '@src/types';
 import { updateTabDomainInfo } from '../utils/domainTracking';
 
 const log = createContextLogger('background');

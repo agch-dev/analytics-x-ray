@@ -10,8 +10,8 @@
 import Browser from 'webextension-polyfill';
 import { extractDomain, isDomainAllowed, isSpecialPage, normalizeDomain } from '@src/lib/domain';
 import { createContextLogger } from '@src/lib/logger';
-import type { DomainChangedMessage } from '@src/types/messages';
-import { useDomainStore } from '@src/stores/domainStore';
+import type { DomainChangedMessage } from '@src/types';
+import { useDomainStore } from '@src/stores';
 
 const log = createContextLogger('background');
 

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import type { Virtualizer } from '@tanstack/react-virtual';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import type { ListItem } from './types';
 import { ROW_HEADER_HEIGHT, STICKY_SHOW_THRESHOLD, STICKY_HIDE_THRESHOLD } from './types';
 

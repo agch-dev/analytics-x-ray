@@ -7,7 +7,7 @@ import {
   type EventBucketConfig,
 } from './eventBuckets';
 import { createSegmentEvent } from '@src/test';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 
 describe('eventBuckets.ts', () => {
   describe('categorizeEvent', () => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 import { Button } from '@src/components/ui/button';
 
 export const ResetButton = () => {

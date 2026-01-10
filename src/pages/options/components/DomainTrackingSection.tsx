@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDomainStore, selectAllowedDomains } from '@src/stores/domainStore';
+import { useDomainStore, selectAllowedDomains } from '@src/stores';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { extractDomain, normalizeDomain, getBaseDomain } from '@src/lib/domain';
 import { AddDomainInput } from './AddDomainInput';

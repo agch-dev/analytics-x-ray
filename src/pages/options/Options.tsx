@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Browser from 'webextension-polyfill';
-import { useConfigStore } from '@src/stores/configStore';
-import { useDomainStore } from '@src/stores/domainStore';
+import { useConfigStore, useDomainStore } from '@src/stores';
 import { createContextLogger } from '@src/lib/logger';
 import { isDevMode } from '@src/lib/utils';
 import {

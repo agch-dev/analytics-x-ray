@@ -13,7 +13,7 @@ import type {
   SegmentEventType,
   SegmentProvider,
   SegmentContext,
-} from '@src/types/segment';
+} from '@src/types';
 
 // ============================================================================
 // Segment Event Factories

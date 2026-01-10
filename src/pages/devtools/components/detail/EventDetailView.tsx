@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import { ThemedJsonView } from '@src/components';
 import {
   PropertiesSection,

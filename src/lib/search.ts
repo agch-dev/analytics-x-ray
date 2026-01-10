@@ -1,4 +1,4 @@
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 
 export interface SearchMatch {
   query: string;

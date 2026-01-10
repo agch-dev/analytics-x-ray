@@ -3,7 +3,7 @@
  * Uses built-in themes from the library based on config store
  */
 
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 import { vscodeTheme } from '@uiw/react-json-view/vscode';
 import { lightTheme } from '@uiw/react-json-view/light';
 

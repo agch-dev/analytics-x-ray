@@ -6,7 +6,7 @@
  */
 
 import { useCallback } from 'react';
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 
 export type PinSection = 'properties' | 'traits' | 'context' | 'metadata';
 export type ContextSubsection = 'page' | 'library' | 'other' | 'browser';

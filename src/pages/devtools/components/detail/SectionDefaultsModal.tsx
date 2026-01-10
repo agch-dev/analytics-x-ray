@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 import {
   Dialog,
   DialogContent,

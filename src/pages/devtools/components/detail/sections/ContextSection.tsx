@@ -6,8 +6,8 @@ import {
   Settings01Icon,
   Bookmark01Icon,
 } from '@hugeicons/core-free-icons';
-import type { SegmentEvent } from '@src/types/segment';
-import { useConfigStore } from '@src/stores/configStore';
+import type { SegmentEvent } from '@src/types';
+import { useConfigStore } from '@src/stores';
 import { SubsectionGroup, type SubsectionDefinition } from '../SubsectionGroup';
 
 interface ContextSectionProps {

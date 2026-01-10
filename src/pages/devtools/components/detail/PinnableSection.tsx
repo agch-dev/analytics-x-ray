@@ -1,6 +1,6 @@
 import { useMemo, useCallback, ReactNode } from 'react';
 import { usePinnedProperties, type PinSection } from '@src/hooks';
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 import { EventDetailSection } from './EventDetailSection';
 import { PropertyList, PinnedPropertyList, type PropertyEntry } from './primitives';
 

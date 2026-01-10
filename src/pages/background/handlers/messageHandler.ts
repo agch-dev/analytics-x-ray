@@ -13,7 +13,7 @@ import {
   isGetEventCountMessage,
   isGetTabDomainMessage,
   isReEvaluateTabDomainMessage,
-} from '@src/types/messages';
+} from '@src/types';
 import { tabEvents, getEventsForTab, clearEventsForTab } from '../utils/eventStorage';
 import { getTabDomain, handleReEvaluateTabDomain } from './domainHandler';
 

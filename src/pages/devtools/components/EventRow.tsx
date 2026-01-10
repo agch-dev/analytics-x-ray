@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@src/lib/utils';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import type { SearchMatch } from '@src/lib/search';
 import { EventRowHeader } from './EventRowHeader';
 import { EventDetailView } from './detail';

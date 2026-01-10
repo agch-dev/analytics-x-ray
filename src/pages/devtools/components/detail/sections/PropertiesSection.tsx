@@ -1,6 +1,6 @@
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Tag01Icon } from '@hugeicons/core-free-icons';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import { PinnableSection } from '../PinnableSection';
 
 interface PropertiesSectionProps {

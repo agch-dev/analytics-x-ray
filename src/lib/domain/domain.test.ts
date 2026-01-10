@@ -10,7 +10,7 @@ import {
   getTabDomain,
   isSpecialPage,
 } from './index';
-import type { AllowedDomain } from '@src/stores/domainStore';
+import type { AllowedDomain } from '@src/stores';
 
 // Mock webextension-polyfill
 vi.mock('webextension-polyfill', () => ({

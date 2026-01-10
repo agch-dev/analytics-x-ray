@@ -5,7 +5,7 @@
  */
 
 import Browser from 'webextension-polyfill';
-import type { AllowedDomain } from '@src/stores/domainStore';
+import type { AllowedDomain } from '@src/stores';
 
 /**
  * Extract domain from a URL

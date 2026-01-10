@@ -1,4 +1,4 @@
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 
 /**
  * Union type for list items (events or dividers)

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import { useVirtualizer, type Virtualizer } from '@tanstack/react-virtual';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import { urlsAreDifferent } from '@src/lib/utils';
 import { ROW_HEADER_HEIGHT, ROW_GAP, DIVIDER_HEIGHT, type ListItem } from './types';
 

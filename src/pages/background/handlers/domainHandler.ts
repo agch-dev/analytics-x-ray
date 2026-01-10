@@ -7,7 +7,7 @@
 import Browser from 'webextension-polyfill';
 import { createContextLogger } from '@src/lib/logger';
 import { extractDomain } from '@src/lib/domain';
-import { useDomainStore } from '@src/stores/domainStore';
+import { useDomainStore } from '@src/stores';
 import { updateTabDomainInfo, reEvaluateAllTabs, tabDomains } from '../utils/domainTracking';
 
 const log = createContextLogger('background');

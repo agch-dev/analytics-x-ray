@@ -1,4 +1,4 @@
-import { useDomainStore, selectAllowedDomains } from '@src/stores/domainStore';
+import { useDomainStore, selectAllowedDomains } from '@src/stores';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { Button } from '@src/components/ui/button';
 import { HugeiconsIcon } from '@hugeicons/react';

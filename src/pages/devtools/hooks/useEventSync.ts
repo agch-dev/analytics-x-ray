@@ -9,10 +9,10 @@
 
 import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import { createContextLogger } from '@src/lib/logger';
-import { isEventsCapturedMessage, isReloadDetectedMessage } from '@src/types/messages';
-import { syncReloadTimestamps } from '@src/stores/tabStore';
+import { isEventsCapturedMessage, isReloadDetectedMessage } from '@src/types';
+import { syncReloadTimestamps } from '@src/stores';
 
 const log = createContextLogger('panel');
 

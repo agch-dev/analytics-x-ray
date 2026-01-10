@@ -5,7 +5,7 @@
  * Designed to be easily configurable in the future via user settings.
  */
 
-import type { SegmentEvent, SegmentEventType } from '@src/types/segment';
+import type { SegmentEvent, SegmentEventType } from '@src/types';
 
 /**
  * Event bucket categories for visual color coding

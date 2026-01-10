@@ -4,7 +4,7 @@
  * Manages onboarding modal state and dismissal tracking.
  */
 
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 
 /**
  * Hook to manage onboarding modal state

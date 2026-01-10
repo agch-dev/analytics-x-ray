@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@src/components/ui/dropdown-menu';
 import { Button } from '@src/components/ui/button';
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 import { SectionDefaultsModal } from './SectionDefaultsModal';
 import type { SubsectionDefinition } from './SubsectionGroup';
 

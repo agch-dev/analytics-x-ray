@@ -4,7 +4,7 @@ import { Delete02Icon, ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-fr
 import { Button } from '@src/components/ui/button';
 import { Label } from '@src/components/ui/label';
 import { Switch } from '@src/components/ui/switch';
-import type { AllowedDomain } from '@src/stores/domainStore';
+import type { AllowedDomain } from '@src/stores';
 
 interface AllowedDomainListProps {
   domains: AllowedDomain[];

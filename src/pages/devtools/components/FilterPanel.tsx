@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { cn, normalizeEventNameForFilter } from '@src/lib/utils';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import { Button } from '@src/components/ui/button';
 import { categorizeEvent, getBucketColor } from '@src/lib/eventBuckets';
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useConfigStore, selectTheme } from '@src/stores/configStore';
+import { useConfigStore, selectTheme } from '@src/stores';
 
 /**
  * Hook to apply theme from config store to document root

@@ -1,5 +1,5 @@
 import { useRef, forwardRef, useImperativeHandle, useState, useCallback } from 'react';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
 import type { SearchMatch } from '@src/lib/search';
 import { EventRow } from '../EventRow';

@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Route01Icon, ReloadIcon, ArrowRight01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { getEventDomain, getEventUrl, domainsAreDifferent, extractPathFromUrl } from '@src/lib/utils';
 import { PropertyRow } from './detail/primitives/PropertyRow';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 
 export interface UrlDividerProps {
   event: SegmentEvent; // The event after which the divider appears

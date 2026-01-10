@@ -4,7 +4,7 @@
  * Type guards for validating storage data structures
  */
 
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 
 /**
  * Type guard to check if a value is a valid SegmentEvent array

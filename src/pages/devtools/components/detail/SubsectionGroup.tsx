@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback, ReactNode } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PinIcon } from '@hugeicons/core-free-icons';
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 import type { PinSection, PinSubsection } from '@src/hooks';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import { EventDetailSection } from './EventDetailSection';
 import {
   CollapsibleSubsection,

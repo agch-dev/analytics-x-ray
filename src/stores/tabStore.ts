@@ -12,10 +12,10 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { createTabStorage, logStorageSize } from '@src/lib/storage';
-import type { SegmentEvent } from '@src/types/segment';
+import type { SegmentEvent } from '@src/types';
 import { createContextLogger } from '@src/lib/logger';
 import Browser from 'webextension-polyfill';
-import { useConfigStore } from '@src/stores/configStore';
+import { useConfigStore } from '@src/stores';
 
 const log = createContextLogger('storage');
 
