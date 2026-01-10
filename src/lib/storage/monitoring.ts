@@ -1,6 +1,6 @@
 /**
  * Storage Size Monitoring Utilities
- * 
+ *
  * Provides functions for monitoring and reporting storage usage.
  */
 
@@ -48,10 +48,10 @@ export interface StorageSizeInfo {
 export const getStorageSizeInfo = async (): Promise<StorageSizeInfo> => {
   try {
     const allStorage = await Browser.storage.local.get(null);
-    
+
     const breakdown: StorageSizeInfo['breakdown'] = [];
     let totalBytes = 0;
-    
+
     for (const [key, value] of Object.entries(allStorage)) {
       const serialized = JSON.stringify(value);
       const bytes = new Blob([serialized]).size;
@@ -63,17 +63,17 @@ export const getStorageSizeInfo = async (): Promise<StorageSizeInfo> => {
         percent: 0, // Will calculate after total
       });
     }
-    
+
     // Calculate percentages
     for (const item of breakdown) {
       item.percent = totalBytes > 0 ? (item.bytes / totalBytes) * 100 : 0;
     }
-    
+
     // Sort by size descending
     breakdown.sort((a, b) => b.bytes - a.bytes);
-    
+
     const usagePercent = (totalBytes / STORAGE_LIMIT_BYTES) * 100;
-    
+
     return {
       totalBytes,
       totalFormatted: formatBytes(totalBytes),
@@ -104,24 +104,29 @@ export const getStorageSizeInfo = async (): Promise<StorageSizeInfo> => {
  * Call this periodically or when debugging storage issues
  * Only logs in development mode to avoid cluttering production console
  */
-export const logStorageSize = async (context: string = 'storage'): Promise<StorageSizeInfo> => {
+export const logStorageSize = async (
+  context: string = 'storage'
+): Promise<StorageSizeInfo> => {
   const info = await getStorageSizeInfo();
-  
+
   // Only log in development mode
   if (!__DEV_MODE__) {
     return info;
   }
-  
+
   const prefix = '[analytics-x-ray]';
   const contextTag = `[${context}]`;
-  
+
   // Determine log level based on usage
-  const logFn = info.isOverLimit 
-    ? console.error 
-    : info.isNearLimit 
-      ? console.warn 
-      : console.log;
-  
+  let logFn: typeof console.log;
+  if (info.isOverLimit) {
+    logFn = console.error;
+  } else if (info.isNearLimit) {
+    logFn = console.warn;
+  } else {
+    logFn = console.log;
+  }
+
   // Header
   logFn(
     `%c${prefix} ${contextTag}%c 📊 Storage Usage: ${info.totalFormatted} / ${info.limitFormatted} (${info.usagePercent.toFixed(1)}%)`,
@@ -130,31 +135,39 @@ export const logStorageSize = async (context: string = 'storage'): Promise<Stora
     info.isNearLimit ? '⚠️ NEAR LIMIT' : '',
     info.isOverLimit ? '🚨 OVER LIMIT' : ''
   );
-  
+
   // Only show breakdown if there's significant usage or near limit
   if (info.usagePercent > 10 || info.isNearLimit) {
-    console.group(`%c${prefix} ${contextTag}%c Storage breakdown:`, 
-      'color: #fdcb6e; font-weight: bold', 
+    console.group(
+      `%c${prefix} ${contextTag}%c Storage breakdown:`,
+      'color: #fdcb6e; font-weight: bold',
       'color: inherit'
     );
-    
+
     // Show top 10 keys by size
     const topKeys = info.breakdown.slice(0, 10);
     for (const item of topKeys) {
-      const bar = '█'.repeat(Math.ceil(item.percent / 5)) + '░'.repeat(20 - Math.ceil(item.percent / 5));
+      const bar =
+        '█'.repeat(Math.ceil(item.percent / 5)) +
+        '░'.repeat(20 - Math.ceil(item.percent / 5));
       console.log(
         `  ${bar} ${item.formatted.padStart(10)} (${item.percent.toFixed(1)}%) - ${item.key}`
       );
     }
-    
+
     if (info.breakdown.length > 10) {
       const remaining = info.breakdown.slice(10);
-      const remainingBytes = remaining.reduce((sum, item) => sum + item.bytes, 0);
-      console.log(`  ... and ${remaining.length} more keys (${formatBytes(remainingBytes)} total)`);
+      const remainingBytes = remaining.reduce(
+        (sum, item) => sum + item.bytes,
+        0
+      );
+      console.log(
+        `  ... and ${remaining.length} more keys (${formatBytes(remainingBytes)} total)`
+      );
     }
-    
+
     console.groupEnd();
   }
-  
+
   return info;
 };
