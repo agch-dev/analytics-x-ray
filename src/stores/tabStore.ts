@@ -18,6 +18,7 @@ import {
   createTabStorage,
   logStorageSize,
   isNumberArray,
+  formatTimestamp,
 } from '@src/lib';
 import { useConfigStore } from '@src/stores';
 import type { SegmentEvent } from '@src/types';
@@ -129,10 +130,12 @@ function processAddEvent(
     logStorageSize('storage');
   }
 
+  const now = Date.now();
   return {
     ...state,
     events,
-    lastUpdated: Date.now(),
+    lastUpdated: now,
+    lastUpdatedFormatted: formatTimestamp(now),
   };
 }
 
@@ -148,6 +151,7 @@ interface TabState {
 
   // Tab metadata
   lastUpdated: number;
+  lastUpdatedFormatted: string; // Human-readable format of lastUpdated
 
   // Reload tracking
   reloadTimestamps: number[]; // Timestamps of page reloads for this tab
@@ -167,15 +171,21 @@ interface TabStore extends TabState {
   reset: () => void;
 }
 
-const defaultTabState: TabState = {
-  events: [],
-  selectedEventId: null,
-  expandedEventIds: new Set(),
-  hiddenEventNames: new Set(),
-  searchQuery: '',
-  lastUpdated: Date.now(),
-  reloadTimestamps: [],
+const getDefaultTabState = (): TabState => {
+  const now = Date.now();
+  return {
+    events: [],
+    selectedEventId: null,
+    expandedEventIds: new Set(),
+    hiddenEventNames: new Set(),
+    searchQuery: '',
+    lastUpdated: now,
+    lastUpdatedFormatted: formatTimestamp(now),
+    reloadTimestamps: [],
+  };
 };
+
+const defaultTabState: TabState = getDefaultTabState();
 
 /**
  * Creates a tab-specific store instance
@@ -214,6 +224,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             log.error(`  ⚠️ Failed to clear reload timestamps:`, error);
           }
 
+          const now = Date.now();
           set({
             events: [],
             selectedEventId: null,
@@ -221,7 +232,8 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             hiddenEventNames: new Set<string>(),
             searchQuery: '',
             reloadTimestamps: [],
-            lastUpdated: Date.now(),
+            lastUpdated: now,
+            lastUpdatedFormatted: formatTimestamp(now),
           });
           log.debug(`  ✅ Store cleared, events count: 0`);
         },
@@ -275,7 +287,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         },
 
         reset: () => {
-          set(defaultTabState);
+          set(getDefaultTabState());
         },
       }),
       {
@@ -299,11 +311,22 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             : [];
 
           if (!persisted) {
+            // Recalculate lastUpdatedFormatted from lastUpdated
+            const lastUpdated = currentState.lastUpdated;
             return {
               ...currentState,
               reloadTimestamps,
+              lastUpdatedFormatted: formatTimestamp(lastUpdated),
             };
           }
+
+          // Recalculate lastUpdatedFormatted from lastUpdated if missing or if lastUpdated changed
+          const lastUpdated = persisted.lastUpdated ?? currentState.lastUpdated;
+          const lastUpdatedFormatted =
+            persisted.lastUpdatedFormatted &&
+            persisted.lastUpdated === lastUpdated
+              ? persisted.lastUpdatedFormatted
+              : formatTimestamp(lastUpdated);
 
           return {
             ...currentState,
@@ -313,6 +336,9 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             hiddenEventNames: normalizeToSet(persisted.hiddenEventNames),
             // Use reload timestamps from persisted state
             reloadTimestamps,
+            // Ensure lastUpdatedFormatted is always in sync with lastUpdated
+            lastUpdated,
+            lastUpdatedFormatted,
           };
         },
       }

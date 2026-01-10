@@ -15,6 +15,7 @@ export {
   urlsAreDifferent,
   domainsAreDifferent,
   normalizeEventNameForFilter,
+  formatTimestamp,
 } from './utils';
 
 // Logger

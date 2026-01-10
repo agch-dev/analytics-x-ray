@@ -194,3 +194,23 @@ export function getFeedbackMailtoLink(
 
   return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
 }
+
+/**
+ * Format a timestamp in a human-readable format
+ * @param timestamp - The timestamp in milliseconds (from Date.now())
+ * @returns A human-readable date and time string (e.g., "Jan 15, 2024, 14:30:45.123")
+ */
+export function formatTimestamp(timestamp: number): string {
+  const date = new Date(timestamp);
+  return (
+    date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }) + `.${date.getMilliseconds().toString().padStart(3, '0')}`
+  );
+}
