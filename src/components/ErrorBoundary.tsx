@@ -77,11 +77,9 @@ export class ErrorBoundary extends Component<
     });
   };
 
+  // Both fallback and children props are typed as ReactNode, so both branches return the same type
+  // eslint-disable-next-line sonarjs/function-return-type
   render(): ReactNode {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
-
-    return this.props.children;
+    return this.state.hasError ? this.props.fallback : this.props.children;
   }
 }
