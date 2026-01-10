@@ -1,22 +1,36 @@
-import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import { useVirtualizer, type Virtualizer } from '@tanstack/react-virtual';
-import type { SegmentEvent } from '@src/types';
+import {
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+  useState,
+  type RefObject,
+} from 'react';
+
 import { urlsAreDifferent } from '@src/lib/utils';
-import { ROW_HEADER_HEIGHT, ROW_GAP, DIVIDER_HEIGHT, type ListItem } from './types';
+import type { SegmentEvent } from '@src/types';
+
+import {
+  ROW_HEADER_HEIGHT,
+  ROW_GAP,
+  DIVIDER_HEIGHT,
+  type ListItem,
+} from './types';
 
 interface UseVirtualizationParams {
   events: SegmentEvent[];
   reloadTimestamps: number[];
   expandedEventIds: Set<string>;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
+  scrollContainerRef: RefObject<HTMLDivElement>;
   onScrollStateChange?: (isAtBottom: boolean) => void;
 }
 
 interface UseVirtualizationReturn {
   listItems: ListItem[];
   virtualizer: Virtualizer<HTMLDivElement, Element>;
-  itemRefs: React.MutableRefObject<Map<number, HTMLDivElement>>;
-  shouldAutoScrollRef: React.MutableRefObject<boolean>;
+  itemRefs: { current: Map<number, HTMLDivElement> };
+  shouldAutoScrollRef: { current: boolean };
   isAtBottom: boolean;
   handleScroll: () => void;
   scrollToBottom: () => void;
@@ -66,7 +80,10 @@ export function useVirtualization({
       if (previousEvent && !hasPathChange) {
         // Check if any reload timestamp falls between these two events
         for (const reloadTs of reloadTimestamps) {
-          if (reloadTs > previousEvent.capturedAt && reloadTs <= event.capturedAt) {
+          if (
+            reloadTs > previousEvent.capturedAt &&
+            reloadTs <= event.capturedAt
+          ) {
             needsDivider = true;
             isReload = true;
             reloadTimestamp = reloadTs;
@@ -109,7 +126,9 @@ export function useVirtualization({
       }
 
       // Base height + expanded height (rough estimate for JSON viewer) + gap
-      const baseHeight = expandedEventIds.has(item.event.id) ? 400 : ROW_HEADER_HEIGHT;
+      const baseHeight = expandedEventIds.has(item.event.id)
+        ? 400
+        : ROW_HEADER_HEIGHT;
       return baseHeight + ROW_GAP;
     },
     [listItems, expandedEventIds]
@@ -123,7 +142,9 @@ export function useVirtualization({
     overscan: 5, // Render 5 extra items above and below viewport
     // Measure actual element height for accurate positioning
     measureElement: (element) => {
-      return element?.getBoundingClientRect().height ?? ROW_HEADER_HEIGHT + ROW_GAP;
+      return (
+        element?.getBoundingClientRect().height ?? ROW_HEADER_HEIGHT + ROW_GAP
+      );
     },
   });
 
