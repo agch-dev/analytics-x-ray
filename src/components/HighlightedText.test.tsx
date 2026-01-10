@@ -26,7 +26,7 @@ describe('HighlightedText', () => {
       render(<HighlightedText text="Hello World" className="font-bold" />);
 
       const span = screen.getByText('Hello World');
-      expect(span).toHaveClass('custom-class');
+      expect(span).toHaveClass('font-bold');
     });
   });
 

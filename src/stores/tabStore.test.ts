@@ -65,6 +65,13 @@ describe('tabStore', () => {
   const tabId = 1;
   let store: ReturnType<typeof createTabStore>;
 
+  // Helper to call clearEvents which is async but typed as void
+  const clearEventsAsync = async (
+    storeInstance: ReturnType<typeof createTabStore>
+  ): Promise<void> => {
+    await (storeInstance.getState().clearEvents() as unknown as Promise<void>);
+  };
+
   beforeEach(() => {
     // Clear registry
     removeTabStore(tabId);
@@ -169,22 +176,21 @@ describe('tabStore', () => {
       );
     });
 
-    it('should update lastUpdated timestamp when adding events', () => {
+    it('should update lastUpdated timestamp when adding events', async () => {
       const initialTime = store.getState().lastUpdated;
 
       // Wait a bit to ensure timestamp difference
-      return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          const event = createSegmentEvent({
-            id: 'event-1',
-            messageId: 'msg-1',
-          });
-          store.getState().addEvent(event);
-
-          expect(store.getState().lastUpdated).toBeGreaterThan(initialTime);
-          resolve();
-        }, 10);
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 10);
       });
+
+      const event = createSegmentEvent({
+        id: 'event-1',
+        messageId: 'msg-1',
+      });
+      store.getState().addEvent(event);
+
+      expect(store.getState().lastUpdated).toBeGreaterThan(initialTime);
     });
   });
 
@@ -197,7 +203,7 @@ describe('tabStore', () => {
       events.forEach((event) => store.getState().addEvent(event));
       expect(store.getState().events).toHaveLength(3);
 
-      await (store.getState().clearEvents() as unknown as Promise<void>);
+      await clearEventsAsync(store);
 
       expect(store.getState().events).toHaveLength(0);
     });
@@ -207,7 +213,7 @@ describe('tabStore', () => {
       store.getState().addEvent(event);
       store.getState().setSelectedEvent('event-1');
 
-      await (store.getState().clearEvents() as unknown as Promise<void>);
+      await clearEventsAsync(store);
 
       expect(store.getState().selectedEventId).toBeNull();
     });
@@ -217,7 +223,7 @@ describe('tabStore', () => {
       store.getState().addEvent(event);
       store.getState().toggleEventExpanded('event-1');
 
-      await (store.getState().clearEvents() as unknown as Promise<void>);
+      await clearEventsAsync(store);
 
       expect(store.getState().expandedEventIds.size).toBe(0);
     });
@@ -225,7 +231,7 @@ describe('tabStore', () => {
     it('should reset hiddenEventNames', async () => {
       store.getState().toggleEventNameVisibility('Test Event');
 
-      await (store.getState().clearEvents() as unknown as Promise<void>);
+      await clearEventsAsync(store);
 
       expect(store.getState().hiddenEventNames.size).toBe(0);
     });
@@ -233,7 +239,7 @@ describe('tabStore', () => {
     it('should reset searchQuery', async () => {
       store.getState().setSearchQuery('test query');
 
-      await (store.getState().clearEvents() as unknown as Promise<void>);
+      await clearEventsAsync(store);
 
       expect(store.getState().searchQuery).toBe('');
     });
@@ -242,7 +248,7 @@ describe('tabStore', () => {
       const reloadsKey = `tab_${tabId}_reloads`;
       mockStorage.local.remove.mockResolvedValue(undefined);
 
-      await (store.getState().clearEvents() as unknown as Promise<void>);
+      await clearEventsAsync(store);
 
       expect(mockStorage.local.remove).toHaveBeenCalledWith(reloadsKey);
     });
@@ -250,7 +256,7 @@ describe('tabStore', () => {
     it('should reset reloadTimestamps', async () => {
       store.getState().addReloadTimestamp(Date.now());
 
-      await (store.getState().clearEvents() as unknown as Promise<void>);
+      await clearEventsAsync(store);
 
       expect(store.getState().reloadTimestamps).toEqual([]);
     });
@@ -258,13 +264,14 @@ describe('tabStore', () => {
     it('should update lastUpdated timestamp', async () => {
       const initialTime = store.getState().lastUpdated;
 
-      return new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          await (store.getState().clearEvents() as unknown as Promise<void>);
-          expect(store.getState().lastUpdated).toBeGreaterThan(initialTime);
-          resolve();
-        }, 10);
+      // Wait a bit to ensure timestamp difference
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 10);
       });
+
+      await clearEventsAsync(store);
+
+      expect(store.getState().lastUpdated).toBeGreaterThan(initialTime);
     });
   });
 
@@ -616,31 +623,34 @@ describe('tabStore', () => {
       };
 
       // Simulate the merge function logic (from tabStore.ts lines 205-242)
-      const persisted = persistedState as
+      const persisted = persistedState as unknown as
         | Partial<typeof currentState>
         | undefined;
       const reloadTimestamps = Array.isArray(persisted?.reloadTimestamps)
         ? persisted.reloadTimestamps
         : [];
 
+      // Extract nested ternary operations to avoid complexity
+      let expandedEventIdsArray: string[] = [];
+      if (Array.isArray(persisted?.expandedEventIds)) {
+        expandedEventIdsArray = persisted.expandedEventIds;
+      } else if (persisted?.expandedEventIds instanceof Set) {
+        expandedEventIdsArray = Array.from(persisted.expandedEventIds);
+      }
+
+      let hiddenEventNamesArray: string[] = [];
+      if (Array.isArray(persisted?.hiddenEventNames)) {
+        hiddenEventNamesArray = persisted.hiddenEventNames;
+      } else if (persisted?.hiddenEventNames instanceof Set) {
+        hiddenEventNamesArray = Array.from(persisted.hiddenEventNames);
+      }
+
       const mergedState = {
         ...currentState,
         ...persisted,
         // Ensure Sets are properly reconstructed from persisted arrays
-        expandedEventIds: new Set(
-          Array.isArray(persisted?.expandedEventIds)
-            ? persisted.expandedEventIds
-            : persisted?.expandedEventIds instanceof Set
-              ? persisted.expandedEventIds
-              : []
-        ),
-        hiddenEventNames: new Set(
-          Array.isArray(persisted?.hiddenEventNames)
-            ? persisted.hiddenEventNames
-            : persisted?.hiddenEventNames instanceof Set
-              ? persisted.hiddenEventNames
-              : []
-        ),
+        expandedEventIds: new Set(expandedEventIdsArray),
+        hiddenEventNames: new Set(hiddenEventNamesArray),
         reloadTimestamps,
       };
 
@@ -674,7 +684,7 @@ describe('tabStore', () => {
         expandedEventIds: [],
         hiddenEventNames: [],
       };
-      const emptyPersisted = emptyPersistedState as Partial<
+      const emptyPersisted = emptyPersistedState as unknown as Partial<
         typeof currentState
       >;
       const emptyMerged = {
