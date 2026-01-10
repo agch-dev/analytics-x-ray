@@ -6,22 +6,49 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-config-prettier';
+import globals from 'globals';
 
 export default [
   // Base JavaScript recommended rules
   js.configs.recommended,
-  
+
   // Global ignores
   {
-    ignores: [
-      'dist*/**',
-      'node_modules/**',
-      'coverage/**',
-      '*.config.js',
-      '*.config.ts',
-    ],
+    ignores: ['dist*/**', 'node_modules/**', 'coverage/**'],
   },
-  
+
+  // Node.js config files (vite configs, etc.)
+  {
+    files: ['*.config.ts', '*.config.js', 'custom-vite-plugins.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        process: 'readonly',
+        require: 'readonly',
+      },
+    },
+  },
+
+  // Test files
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/test/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.jest,
+        chrome: 'readonly',
+        global: 'readonly',
+        require: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-var-requires': 'off',
+    },
+  },
+
   // TypeScript files
   {
     files: ['**/*.{ts,tsx}'],
@@ -34,6 +61,17 @@ export default [
           jsx: true,
         },
         project: './tsconfig.json',
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2021,
+        chrome: 'readonly',
+        __DEV_MODE__: 'readonly',
+        __dirname: 'readonly',
+        process: 'readonly',
+        global: 'readonly',
+        require: 'readonly',
       },
     },
     plugins: {
@@ -57,16 +95,16 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
-      
+
       // React rules
       ...react.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off', // Not needed in React 17+
       'react/prop-types': 'off', // Using TypeScript for prop validation
       'react/display-name': 'off',
-      
+
       // React Hooks rules
       ...reactHooks.configs.recommended.rules,
-      
+
       // Import ordering
       'import/order': [
         'error',
@@ -116,7 +154,7 @@ export default [
       ],
       'import/no-unresolved': 'off', // TypeScript handles this
       'import/no-duplicates': 'error',
-      
+
       // Accessibility rules
       'jsx-a11y/alt-text': 'error',
       'jsx-a11y/aria-props': 'error',
@@ -135,11 +173,15 @@ export default [
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
         },
       },
     },
   },
-  
+
   // Prettier config (must be last to override other configs)
   prettier,
 ];

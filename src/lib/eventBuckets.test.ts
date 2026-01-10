@@ -1,4 +1,8 @@
 import { describe, it, expect } from 'vitest';
+
+import { createSegmentEvent } from '@src/test';
+import type { SegmentEvent } from '@src/types';
+
 import {
   categorizeEvent,
   getBucketConfig,
@@ -6,8 +10,6 @@ import {
   type EventBucket,
   type EventBucketConfig,
 } from './eventBuckets';
-import { createSegmentEvent } from '@src/test';
-import type { SegmentEvent } from '@src/types';
 
 describe('eventBuckets.ts', () => {
   describe('categorizeEvent', () => {
@@ -232,7 +234,9 @@ describe('eventBuckets.ts', () => {
         ];
 
         const event = createSegmentEvent({ name: 'Custom Event' });
-        expect(categorizeEvent(event, customBuckets)).toBe('custom' as EventBucket);
+        expect(categorizeEvent(event, customBuckets)).toBe(
+          'custom' as EventBucket
+        );
       });
 
       it('should fall back to default in custom buckets if no match', () => {
@@ -273,7 +277,9 @@ describe('eventBuckets.ts', () => {
         ];
 
         const event = createSegmentEvent({ type: 'track', name: 'Any Name' });
-        expect(categorizeEvent(event, customBuckets)).toBe('custom-track' as EventBucket);
+        expect(categorizeEvent(event, customBuckets)).toBe(
+          'custom-track' as EventBucket
+        );
       });
     });
 
@@ -394,7 +400,9 @@ describe('eventBuckets.ts', () => {
         },
       ];
 
-      expect(getBucketColor('custom' as EventBucket, customBuckets)).toBe('border-l-pink-500');
+      expect(getBucketColor('custom' as EventBucket, customBuckets)).toBe(
+        'border-l-pink-500'
+      );
     });
 
     it('should return empty string for bucket not in custom buckets', () => {
@@ -456,15 +464,42 @@ describe('eventBuckets.ts', () => {
     });
 
     it('should work with all default bucket types', () => {
-      const testCases: Array<{ event: SegmentEvent; expectedBucket: EventBucket }> = [
-        { event: createSegmentEvent({ type: 'page', name: 'Page' }), expectedBucket: 'page' },
-        { event: createSegmentEvent({ type: 'identify', name: 'Identify' }), expectedBucket: 'identify' },
-        { event: createSegmentEvent({ name: 'Product Viewed' }), expectedBucket: 'view' },
-        { event: createSegmentEvent({ name: 'Button Clicked' }), expectedBucket: 'interaction' },
-        { event: createSegmentEvent({ name: 'Route Changed' }), expectedBucket: 'navigation' },
-        { event: createSegmentEvent({ name: 'Purchase Completed' }), expectedBucket: 'conversion' },
-        { event: createSegmentEvent({ name: 'Error Occurred' }), expectedBucket: 'error' },
-        { event: createSegmentEvent({ name: 'Random Event' }), expectedBucket: 'default' },
+      const testCases: Array<{
+        event: SegmentEvent;
+        expectedBucket: EventBucket;
+      }> = [
+        {
+          event: createSegmentEvent({ type: 'page', name: 'Page' }),
+          expectedBucket: 'page',
+        },
+        {
+          event: createSegmentEvent({ type: 'identify', name: 'Identify' }),
+          expectedBucket: 'identify',
+        },
+        {
+          event: createSegmentEvent({ name: 'Product Viewed' }),
+          expectedBucket: 'view',
+        },
+        {
+          event: createSegmentEvent({ name: 'Button Clicked' }),
+          expectedBucket: 'interaction',
+        },
+        {
+          event: createSegmentEvent({ name: 'Route Changed' }),
+          expectedBucket: 'navigation',
+        },
+        {
+          event: createSegmentEvent({ name: 'Purchase Completed' }),
+          expectedBucket: 'conversion',
+        },
+        {
+          event: createSegmentEvent({ name: 'Error Occurred' }),
+          expectedBucket: 'error',
+        },
+        {
+          event: createSegmentEvent({ name: 'Random Event' }),
+          expectedBucket: 'default',
+        },
       ];
 
       testCases.forEach(({ event, expectedBucket }) => {

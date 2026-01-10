@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useConfigStore, selectMaxEvents } from '@src/stores';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@src/components/ui/card';
 import { Input } from '@src/components/ui/input';
 import { Label } from '@src/components/ui/label';
+import { useConfigStore, selectMaxEvents } from '@src/stores';
 
 export const EventCaptureSection = () => {
   const maxEvents = useConfigStore(selectMaxEvents);
@@ -66,4 +73,3 @@ export const EventCaptureSection = () => {
     </Card>
   );
 };
-

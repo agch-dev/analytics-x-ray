@@ -1,4 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
+
+import type {
+  SegmentProvider,
+  SegmentBatchEvent,
+  SegmentBatchPayload,
+} from '@src/types/segment';
+
 import {
   detectProvider,
   decodeRequestBody,
@@ -8,12 +15,6 @@ import {
   normalizeEvent,
   processBatchPayload,
 } from './segment';
-import type {
-  SegmentProvider,
-  SegmentBatchEvent,
-  SegmentBatchPayload,
-  SegmentEvent,
-} from '@src/types/segment';
 
 // Mock the logger
 vi.mock('@src/lib/logger', () => ({
@@ -32,15 +33,21 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should detect Segment provider from segment.com URL', () => {
-      expect(detectProvider('https://api.segment.com/v1/batch')).toBe('segment');
+      expect(detectProvider('https://api.segment.com/v1/batch')).toBe(
+        'segment'
+      );
     });
 
     it('should detect RudderStack provider', () => {
-      expect(detectProvider('https://api.rudderstack.com/v1/batch')).toBe('rudderstack');
+      expect(detectProvider('https://api.rudderstack.com/v1/batch')).toBe(
+        'rudderstack'
+      );
     });
 
     it('should detect DreamData provider', () => {
-      expect(detectProvider('https://tracking.dreamdata.cloud/v1/batch')).toBe('dreamdata');
+      expect(detectProvider('https://tracking.dreamdata.cloud/v1/batch')).toBe(
+        'dreamdata'
+      );
     });
 
     it('should return unknown for unrecognized URLs', () => {
@@ -50,8 +57,12 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should handle URLs with query parameters', () => {
-      expect(detectProvider('https://api.segment.io/v1/batch?key=value')).toBe('segment');
-      expect(detectProvider('https://api.rudderstack.com/v1/batch?writeKey=abc')).toBe('rudderstack');
+      expect(detectProvider('https://api.segment.io/v1/batch?key=value')).toBe(
+        'segment'
+      );
+      expect(
+        detectProvider('https://api.rudderstack.com/v1/batch?writeKey=abc')
+      ).toBe('rudderstack');
     });
   });
 
@@ -75,7 +86,11 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should decode multiple ArrayBuffer parts', () => {
-      const parts = ['{"batch":', '[{"type":"track"}],', '"sentAt":"2024-01-01T00:00:00Z"}'];
+      const parts = [
+        '{"batch":',
+        '[{"type":"track"}],',
+        '"sentAt":"2024-01-01T00:00:00Z"}',
+      ];
       const raw = parts.map((part) => ({
         bytes: createArrayBuffer(part),
       }));
@@ -438,7 +453,13 @@ describe('parsing/segment.ts', () => {
         userId: 'user-123',
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       expect(result.id).toBe('msg-123');
       expect(result.messageId).toBe('msg-123');
@@ -464,7 +485,13 @@ describe('parsing/segment.ts', () => {
         // messageId is missing
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       expect(result.id).toBeDefined();
       expect(result.messageId).toBeDefined();
@@ -480,7 +507,13 @@ describe('parsing/segment.ts', () => {
         // timestamp is missing
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       expect(result.timestamp).toBeDefined();
       expect(result.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
@@ -494,7 +527,13 @@ describe('parsing/segment.ts', () => {
         // context is missing
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       expect(result.context).toEqual({
         library: { name: 'unknown', version: 'unknown' },
@@ -517,7 +556,13 @@ describe('parsing/segment.ts', () => {
           messageId: `msg-${type}`,
         };
 
-        const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+        const result = normalizeEvent(
+          batchEvent,
+          baseParams.tabId,
+          baseParams.url,
+          baseParams.sentAt,
+          baseParams.provider
+        );
 
         expect(result.type).toBe(type);
         expect(result.id).toBe(`msg-${type}`);
@@ -532,7 +577,13 @@ describe('parsing/segment.ts', () => {
         messageId: 'msg-123',
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       expect(result.type).toBe('group');
       expect(result.groupId).toBe('group-123');
@@ -547,11 +598,20 @@ describe('parsing/segment.ts', () => {
         messageId: 'msg-123',
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       expect(result.type).toBe('identify');
       expect(result.userId).toBe('user-123');
-      expect(result.traits).toEqual({ email: 'test@example.com', name: 'Test User' });
+      expect(result.traits).toEqual({
+        email: 'test@example.com',
+        name: 'Test User',
+      });
     });
 
     it('should handle integrations field', () => {
@@ -565,13 +625,24 @@ describe('parsing/segment.ts', () => {
         },
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       expect(result.integrations).toEqual(batchEvent.integrations);
     });
 
     it('should handle different providers', () => {
-      const providers: SegmentProvider[] = ['segment', 'rudderstack', 'dreamdata', 'unknown'];
+      const providers: SegmentProvider[] = [
+        'segment',
+        'rudderstack',
+        'dreamdata',
+        'unknown',
+      ];
 
       providers.forEach((provider) => {
         const batchEvent: SegmentBatchEvent = {
@@ -580,7 +651,13 @@ describe('parsing/segment.ts', () => {
           messageId: 'msg-123',
         };
 
-        const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, provider);
+        const result = normalizeEvent(
+          batchEvent,
+          baseParams.tabId,
+          baseParams.url,
+          baseParams.sentAt,
+          provider
+        );
 
         expect(result.provider).toBe(provider);
       });
@@ -594,7 +671,13 @@ describe('parsing/segment.ts', () => {
         messageId: 'msg-123',
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       const after = Date.now();
       expect(result.capturedAt).toBeGreaterThanOrEqual(before);
@@ -609,7 +692,13 @@ describe('parsing/segment.ts', () => {
         messageId: 'msg-123',
       };
 
-      const result = normalizeEvent(batchEvent, baseParams.tabId, baseParams.url, baseParams.sentAt, baseParams.provider);
+      const result = normalizeEvent(
+        batchEvent,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.sentAt,
+        baseParams.provider
+      );
 
       expect(result.properties).toEqual({});
     });
@@ -639,7 +728,12 @@ describe('parsing/segment.ts', () => {
         sentAt: '2024-01-01T00:00:00Z',
       };
 
-      const result = processBatchPayload(payload, baseParams.tabId, baseParams.url, baseParams.provider);
+      const result = processBatchPayload(
+        payload,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.provider
+      );
 
       expect(result).toHaveLength(2);
       expect(result[0].type).toBe('track');
@@ -669,7 +763,12 @@ describe('parsing/segment.ts', () => {
         sentAt: '2024-01-01T00:00:00Z',
       };
 
-      const result = processBatchPayload(payload, baseParams.tabId, baseParams.url, baseParams.provider);
+      const result = processBatchPayload(
+        payload,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.provider
+      );
 
       expect(result).toHaveLength(2);
       expect(result[0].type).toBe('track');
@@ -682,7 +781,12 @@ describe('parsing/segment.ts', () => {
         sentAt: '2024-01-01T00:00:00Z',
       };
 
-      const result = processBatchPayload(payload, baseParams.tabId, baseParams.url, baseParams.provider);
+      const result = processBatchPayload(
+        payload,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.provider
+      );
 
       expect(result).toHaveLength(0);
     });
@@ -696,7 +800,12 @@ describe('parsing/segment.ts', () => {
         sentAt: '2024-01-01T00:00:00Z',
       };
 
-      const result = processBatchPayload(payload, baseParams.tabId, baseParams.url, baseParams.provider);
+      const result = processBatchPayload(
+        payload,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.provider
+      );
 
       expect(result).toHaveLength(0);
     });
@@ -710,7 +819,12 @@ describe('parsing/segment.ts', () => {
         sentAt: '2024-01-01T12:00:00Z',
       };
 
-      const result = processBatchPayload(payload, baseParams.tabId, baseParams.url, baseParams.provider);
+      const result = processBatchPayload(
+        payload,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.provider
+      );
 
       result.forEach((event) => {
         expect(event.sentAt).toBe('2024-01-01T12:00:00Z');
@@ -729,7 +843,12 @@ describe('parsing/segment.ts', () => {
         sentAt: '2024-01-01T00:00:00Z',
       };
 
-      const result = processBatchPayload(payload, baseParams.tabId, baseParams.url, baseParams.provider);
+      const result = processBatchPayload(
+        payload,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.provider
+      );
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBeDefined();
@@ -738,18 +857,26 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should handle large batch payloads', () => {
-      const batch: SegmentBatchEvent[] = Array.from({ length: 100 }, (_, i) => ({
-        type: 'track',
-        event: `Event ${i}`,
-        messageId: `msg-${i}`,
-      }));
+      const batch: SegmentBatchEvent[] = Array.from(
+        { length: 100 },
+        (_, i) => ({
+          type: 'track',
+          event: `Event ${i}`,
+          messageId: `msg-${i}`,
+        })
+      );
 
       const payload: SegmentBatchPayload = {
         batch,
         sentAt: '2024-01-01T00:00:00Z',
       };
 
-      const result = processBatchPayload(payload, baseParams.tabId, baseParams.url, baseParams.provider);
+      const result = processBatchPayload(
+        payload,
+        baseParams.tabId,
+        baseParams.url,
+        baseParams.provider
+      );
 
       expect(result).toHaveLength(100);
       result.forEach((event, i) => {
@@ -759,7 +886,12 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should handle different providers', () => {
-      const providers: SegmentProvider[] = ['segment', 'rudderstack', 'dreamdata', 'unknown'];
+      const providers: SegmentProvider[] = [
+        'segment',
+        'rudderstack',
+        'dreamdata',
+        'unknown',
+      ];
 
       providers.forEach((provider) => {
         const payload: SegmentBatchPayload = {
@@ -767,7 +899,12 @@ describe('parsing/segment.ts', () => {
           sentAt: '2024-01-01T00:00:00Z',
         };
 
-        const result = processBatchPayload(payload, baseParams.tabId, baseParams.url, provider);
+        const result = processBatchPayload(
+          payload,
+          baseParams.tabId,
+          baseParams.url,
+          provider
+        );
 
         expect(result[0].provider).toBe(provider);
       });

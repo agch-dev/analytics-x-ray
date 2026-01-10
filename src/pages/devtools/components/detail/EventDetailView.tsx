@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
-import type { SegmentEvent } from '@src/types';
+
 import { ThemedJsonView } from '@src/components';
+import type { SegmentEvent } from '@src/types';
+
 import {
   PropertiesSection,
   TraitsSection,
@@ -23,7 +25,7 @@ export function EventDetailView({
 }: EventDetailViewProps) {
   // Get filtered event for JSON view (without rawPayload)
   const displayEvent = useMemo(() => {
-    const { rawPayload, ...rest } = event;
+    const { rawPayload: _rawPayload, ...rest } = event;
     return rest;
   }, [event]);
 
@@ -59,4 +61,3 @@ export function EventDetailView({
     </div>
   );
 }
-

@@ -1,23 +1,24 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowRight01Icon, ArrowDown01Icon, PinIcon } from '@hugeicons/core-free-icons';
-import { cn, copyToClipboard } from '@src/lib';
-import { HighlightedText, ThemedJsonView } from '@src/components';
-import { PropertyValue } from './PropertyValue';
-import { PropertyActions } from './PropertyActions';
 import {
-  formatValue,
-  getValueColor,
-  isExpandable,
-  isArray,
-} from './utils';
+  ArrowRight01Icon,
+  ArrowDown01Icon,
+  PinIcon,
+} from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+import React, { useMemo, useState, useCallback } from 'react';
+
+import { HighlightedText, ThemedJsonView } from '@src/components';
+import { cn, copyToClipboard } from '@src/lib';
 import {
   shouldChunkArray,
   chunkArray,
   INITIAL_CHUNK_SIZE,
   CHUNK_SIZE,
 } from '@src/lib/arrayChunking';
+
+import { PropertyActions } from './PropertyActions';
+import { PropertyValue } from './PropertyValue';
 import type { PropertyRowProps, PropertyRowState } from './types';
+import { formatValue, getValueColor, isExpandable, isArray } from './utils';
 
 /**
  * PropertyRow component - Main component for rendering a single property
@@ -54,7 +55,8 @@ export const PropertyRow = React.memo(
     const isArrayValue = isArray(value);
 
     const handleCopy = useCallback(() => {
-      const textToCopy = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+      const textToCopy =
+        typeof value === 'string' ? value : JSON.stringify(value, null, 2);
       const success = copyToClipboard(textToCopy);
       if (success) {
         updateState({ copied: true });
@@ -93,7 +95,10 @@ export const PropertyRow = React.memo(
     const nestedEntries = useMemo(() => {
       if (!expandable || !state.isExpanded) return [];
       if (Array.isArray(value)) {
-        return value.map((item, index) => ({ key: String(index), value: item }));
+        return value.map((item, index) => ({
+          key: String(index),
+          value: item,
+        }));
       }
       if (typeof value === 'object' && value !== null) {
         return Object.entries(value).map(([key, val]) => ({ key, value: val }));
@@ -148,7 +153,9 @@ export const PropertyRow = React.memo(
                   : 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-amber-500'
               )}
               title={isPinned ? 'Unpin property' : 'Pin property'}
-              aria-label={isPinned ? `Unpin ${label} property` : `Pin ${label} property`}
+              aria-label={
+                isPinned ? `Unpin ${label} property` : `Pin ${label} property`
+              }
               aria-pressed={isPinned}
             >
               <HugeiconsIcon
@@ -166,7 +173,9 @@ export const PropertyRow = React.memo(
             <button
               onClick={toggleExpand}
               className="shrink-0 mt-0.5 p-0.5 hover:bg-muted rounded"
-              aria-label={state.isExpanded ? `Collapse ${label}` : `Expand ${label}`}
+              aria-label={
+                state.isExpanded ? `Collapse ${label}` : `Expand ${label}`
+              }
               aria-expanded={state.isExpanded}
             >
               <HugeiconsIcon
@@ -200,7 +209,9 @@ export const PropertyRow = React.memo(
               onCopy={handleCopy}
               showJsonViewToggle={isArrayValue && state.isExpanded}
               useJsonView={state.useJsonView}
-              onToggleJsonView={() => updateState({ useJsonView: !state.useJsonView })}
+              onToggleJsonView={() =>
+                updateState({ useJsonView: !state.useJsonView })
+              }
             />
           </div>
         </div>
@@ -219,13 +230,16 @@ export const PropertyRow = React.memo(
                   enableClipboard={false}
                 />
               </div>
-            ) : shouldChunk && Array.isArray(value) && arrayChunks.length > 0 ? (
+            ) : shouldChunk &&
+              Array.isArray(value) &&
+              arrayChunks.length > 0 ? (
               /* Chunked structured view for large arrays */
               <div className="my-2">
                 {arrayChunks.map((chunk, chunkIndex) => {
                   const isVisible = state.visibleChunks.has(chunkIndex);
                   const isLastChunk = chunkIndex === arrayChunks.length - 1;
-                  const allChunksVisible = state.visibleChunks.size === arrayChunks.length;
+                  const allChunksVisible =
+                    state.visibleChunks.size === arrayChunks.length;
 
                   return (
                     <div key={chunkIndex}>
@@ -233,24 +247,32 @@ export const PropertyRow = React.memo(
                         <button
                           onClick={() => toggleChunk(chunkIndex)}
                           className="w-full text-left py-1 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors flex items-center gap-1"
-                          aria-label={isVisible ? `Hide items ${chunk.start} to ${chunk.end - 1}` : `Show items ${chunk.start} to ${chunk.end - 1}`}
+                          aria-label={
+                            isVisible
+                              ? `Hide items ${chunk.start} to ${chunk.end - 1}`
+                              : `Show items ${chunk.start} to ${chunk.end - 1}`
+                          }
                           aria-expanded={isVisible}
                         >
                           <HugeiconsIcon
-                            icon={isVisible ? ArrowDown01Icon : ArrowRight01Icon}
+                            icon={
+                              isVisible ? ArrowDown01Icon : ArrowRight01Icon
+                            }
                             size={10}
                             className="text-muted-foreground"
                           />
                           <span>
-                            {isVisible ? 'Hide' : 'Show'} items {chunk.start}–{chunk.end - 1} (
-                            {chunk.items.length} items)
+                            {isVisible ? 'Hide' : 'Show'} items {chunk.start}–
+                            {chunk.end - 1} ({chunk.items.length} items)
                           </span>
                         </button>
                       )}
                       {isVisible && (
                         <div
                           className={
-                            chunkIndex > 0 ? 'ml-2 pl-2 border-l border-border/30' : ''
+                            chunkIndex > 0
+                              ? 'ml-2 pl-2 border-l border-border/30'
+                              : ''
                           }
                         >
                           {chunk.items.map((item, itemIndex) => {

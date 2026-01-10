@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback, ReactNode } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { PinIcon } from '@hugeicons/core-free-icons';
+import { useState, useMemo, useCallback, type ReactNode } from 'react';
+
+import type { PinSubsection } from '@src/hooks';
 import { useConfigStore } from '@src/stores';
-import type { PinSection, PinSubsection } from '@src/hooks';
 import type { SegmentEvent } from '@src/types';
+
 import { EventDetailSection } from './EventDetailSection';
 import {
   CollapsibleSubsection,
@@ -59,7 +59,10 @@ interface SubsectionWithPinInfo extends SubsectionDefinition {
  * Maps subsection keys to their prefixed config keys
  * Handles special case where 'metadata' subsection key maps to 'metadataCaptureInfo' in config
  */
-function getPrefixedSubsectionKey(sectionKey: 'context' | 'metadata', subsectionKey: string): string {
+function getPrefixedSubsectionKey(
+  sectionKey: 'context' | 'metadata',
+  subsectionKey: string
+): string {
   // Special case: 'metadata' subsection key maps to 'metadataCaptureInfo' in config
   if (sectionKey === 'metadata' && subsectionKey === 'metadata') {
     return 'metadataCaptureInfo';
@@ -80,43 +83,48 @@ export function SubsectionGroup({
   event,
 }: SubsectionGroupProps) {
   const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
-  
+
   // Get section default from config if sectionKey is provided
-  const configDefaultExpanded = sectionKey 
-    ? sectionDefaults.sections[sectionKey] 
+  const configDefaultExpanded = sectionKey
+    ? sectionDefaults.sections[sectionKey]
     : (propDefaultExpanded ?? true);
-  
+
   // Start with config default, but may be overridden by special defaults
   let defaultExpanded = configDefaultExpanded;
-  
+
   // Get subsection defaults from config and map prefixed keys to unprefixed
   const configDefaultExpandedSubsections = useMemo(() => {
     if (!sectionKey) return [];
-    
+
     const configSubsections = sectionDefaults.subsections[sectionKey];
     const expanded: string[] = [];
-    
+
     for (const subsection of subsections) {
       const prefixedKey = getPrefixedSubsectionKey(sectionKey, subsection.key);
-      const isExpanded = configSubsections[prefixedKey as keyof typeof configSubsections] ?? false;
+      const isExpanded =
+        configSubsections[prefixedKey as keyof typeof configSubsections] ??
+        false;
       if (isExpanded) {
         expanded.push(subsection.key);
       }
     }
-    
+
     return expanded;
   }, [sectionDefaults.subsections, sectionKey, subsections]);
-  
+
   // Merge config defaults with prop defaults
   const mergedDefaultExpandedSubsections = useMemo(() => {
-    const merged = new Set([...configDefaultExpandedSubsections, ...propDefaultExpandedSubsections]);
+    const merged = new Set([
+      ...configDefaultExpandedSubsections,
+      ...propDefaultExpandedSubsections,
+    ]);
     return Array.from(merged);
   }, [configDefaultExpandedSubsections, propDefaultExpandedSubsections]);
-  
+
   // Handle special defaults
   const finalDefaultExpandedSubsections = useMemo(() => {
     const final = new Set(mergedDefaultExpandedSubsections);
-    
+
     if (sectionKey === 'context' && event) {
       // Check if it's a page event and special default is enabled
       if (
@@ -128,29 +136,39 @@ export function SubsectionGroup({
         defaultExpanded = true;
       }
     }
-    
+
     if (sectionKey === 'metadata' && event) {
       // Check if it's an identify/alias/group event and special default is enabled
       if (
-        (event.type === 'identify' || event.type === 'group' || event.type === 'alias') &&
-        sectionDefaults.specialDefaults.metadataIdentifiersAlwaysOpenForIdentityEvents
+        (event.type === 'identify' ||
+          event.type === 'group' ||
+          event.type === 'alias') &&
+        sectionDefaults.specialDefaults
+          .metadataIdentifiersAlwaysOpenForIdentityEvents
       ) {
         final.add('identifiers');
         // Override section to be expanded
         defaultExpanded = true;
       }
     }
-    
+
     return Array.from(final);
-  }, [mergedDefaultExpandedSubsections, sectionKey, event, sectionDefaults.specialDefaults]);
-  
+  }, [
+    mergedDefaultExpandedSubsections,
+    sectionKey,
+    event,
+    sectionDefaults.specialDefaults,
+  ]);
+
   const [expandedSubsections, setExpandedSubsections] = useState<Set<string>>(
     () => new Set(finalDefaultExpandedSubsections)
   );
 
   // Get pin functions from store
   const togglePin = useConfigStore((state) => state.togglePin);
-  const pinnedPropertiesConfig = useConfigStore((state) => state.pinnedProperties);
+  const pinnedPropertiesConfig = useConfigStore(
+    (state) => state.pinnedProperties
+  );
 
   const toggleSubsection = useCallback((key: string) => {
     setExpandedSubsections((prev) => {
@@ -175,7 +193,7 @@ export function SubsectionGroup({
     (subsectionKey: string): string[] => {
       const profile = pinnedPropertiesConfig['default'];
       if (!profile) return [];
-      
+
       if (pinSection === 'context') {
         const contextKey = subsectionKey as keyof typeof profile.context;
         return profile.context[contextKey] ?? [];
@@ -194,7 +212,9 @@ export function SubsectionGroup({
     return subsections.map((subsection) => {
       const pinnedProps = getSubsectionPinnedProperties(subsection.key);
       const entryKeys = subsection.entries.map((e) => e.key);
-      const existingPinnedKeys = pinnedProps.filter((key) => entryKeys.includes(key));
+      const existingPinnedKeys = pinnedProps.filter((key) =>
+        entryKeys.includes(key)
+      );
       return {
         ...subsection,
         pinnedKeys: existingPinnedKeys,
@@ -210,7 +230,10 @@ export function SubsectionGroup({
 
   // Total pinned count across all subsections
   const totalPinnedCount = useMemo(() => {
-    return subsectionsWithPinInfo.reduce((acc, sub) => acc + sub.pinnedKeys.length, 0);
+    return subsectionsWithPinInfo.reduce(
+      (acc, sub) => acc + sub.pinnedKeys.length,
+      0
+    );
   }, [subsectionsWithPinInfo]);
 
   // Subsections that have pinned properties (for collapsed view)
@@ -296,4 +319,3 @@ export function SubsectionGroup({
     </EventDetailSection>
   );
 }
-

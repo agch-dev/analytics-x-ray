@@ -1,13 +1,14 @@
 /**
  * Event Storage Utilities
- * 
+ *
  * Handles storing and retrieving events from both in-memory cache and persistent storage.
  */
 
 import Browser from 'webextension-polyfill';
-import { logStorageSize } from '@src/lib/storage';
+
 import { createContextLogger } from '@src/lib/logger';
 import type { SegmentEvent } from '@src/lib/parsing/segment';
+import { logStorageSize } from '@src/lib/storage';
 import { useConfigStore } from '@src/stores';
 
 const log = createContextLogger('background');
@@ -29,14 +30,16 @@ function getMaxEvents(): number {
   try {
     return useConfigStore.getState().maxEvents;
   } catch (error) {
-    log.debug('⚠️ Could not read maxEvents from config store, using default: 500');
+    log.debug(
+      '⚠️ Could not read maxEvents from config store, using default: 500'
+    );
     return 500;
   }
 }
 
 /**
  * Store events in memory and persist to storage
- * 
+ *
  * Note: This function does NOT perform deduplication. Deduplication is handled
  * by the tabStore when events are added via addEvent(). The background script
  * simply forwards events to storage, and the store ensures no duplicates
@@ -53,7 +56,9 @@ export async function storeEvents(
   const updated = [...newEvents, ...existing].slice(0, maxEvents);
   tabEvents.set(tabId, updated);
 
-  log.debug(`💾 Stored ${newEvents.length} event(s) in memory (total: ${updated.length} for tab ${tabId})`);
+  log.debug(
+    `💾 Stored ${newEvents.length} event(s) in memory (total: ${updated.length} for tab ${tabId})`
+  );
 
   // Persist to storage for service worker restarts
   try {
@@ -61,8 +66,10 @@ export async function storeEvents(
     const events: StoredEvents = (result.events as StoredEvents) || {};
     events[tabId] = updated;
     await Browser.storage.local.set({ events });
-    log.debug(`💾 Persisted ${updated.length} event(s) to storage.local['events'][${tabId}]`);
-    
+    log.debug(
+      `💾 Persisted ${updated.length} event(s) to storage.local['events'][${tabId}]`
+    );
+
     // Log storage size periodically (every 10 events to avoid spam)
     if (updated.length % 10 === 0) {
       logStorageSize('background');
@@ -107,7 +114,7 @@ export async function clearEventsForTab(tabId: number): Promise<void> {
     const events: StoredEvents = (result.events as StoredEvents) || {};
     delete events[tabId];
     await Browser.storage.local.set({ events });
-    
+
     // Also clear reload timestamps for this tab
     const reloadsKey = `tab_${tabId}_reloads`;
     await Browser.storage.local.remove(reloadsKey);
@@ -125,17 +132,21 @@ export async function restoreEventsFromStorage(): Promise<void> {
     log.info('🔄 Restoring events from storage...');
     const result = await Browser.storage.local.get('events');
     const events: StoredEvents = (result.events as StoredEvents) || {};
-    
+
     let totalEvents = 0;
     for (const [tabIdStr, tabEventList] of Object.entries(events)) {
       const tabId = parseInt(tabIdStr, 10);
       if (!isNaN(tabId) && Array.isArray(tabEventList)) {
         tabEvents.set(tabId, tabEventList as SegmentEvent[]);
         totalEvents += tabEventList.length;
-        log.debug(`  ✅ Restored ${tabEventList.length} events for tab ${tabId}`);
+        log.debug(
+          `  ✅ Restored ${tabEventList.length} events for tab ${tabId}`
+        );
       }
     }
-    log.info(`✅ Restored ${totalEvents} total events across ${Object.keys(events).length} tab(s)`);
+    log.info(
+      `✅ Restored ${totalEvents} total events across ${Object.keys(events).length} tab(s)`
+    );
   } catch (error) {
     log.error('❌ Failed to restore events:', error);
   }

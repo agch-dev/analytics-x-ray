@@ -1,11 +1,12 @@
 /**
  * Hook for managing pinned properties in the structured view
- * 
+ *
  * Provides a convenient interface for components to check and toggle
  * pinned status for properties in different sections.
  */
 
 import { useCallback } from 'react';
+
 import { useConfigStore } from '@src/stores';
 
 export type PinSection = 'properties' | 'traits' | 'context' | 'metadata';
@@ -65,7 +66,7 @@ export function usePinnedProperties({
 }: UsePinnedPropertiesOptions): UsePinnedPropertiesReturn {
   const storeTogglePin = useConfigStore((state) => state.togglePin);
   const storeIsPinned = useConfigStore((state) => state.isPinned);
-  
+
   // Subscribe to pinned properties changes by selecting the specific profile
   const pinnedProperties = useConfigStore((state) => {
     const currentProfile = state.pinnedProperties[profile];
@@ -79,7 +80,8 @@ export function usePinnedProperties({
   );
 
   const togglePin = useCallback(
-    (property: string) => storeTogglePin(section, subsection, property, profile),
+    (property: string) =>
+      storeTogglePin(section, subsection, property, profile),
     [storeTogglePin, section, subsection, profile]
   );
 
@@ -121,4 +123,3 @@ export function sortWithPinnedFirst<T extends { key: string }>(
 
   return { pinned, unpinned };
 }
-

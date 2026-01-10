@@ -1,6 +1,7 @@
-import { Button } from '@src/components/ui/button';
-import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+
+import { Button } from '@src/components/ui/button';
 import { cn } from '@src/lib/utils';
 
 interface ScrollToBottomButtonProps {
@@ -8,12 +9,17 @@ interface ScrollToBottomButtonProps {
   onClick: () => void;
 }
 
-export function ScrollToBottomButton({ isVisible, onClick }: ScrollToBottomButtonProps) {
+export function ScrollToBottomButton({
+  isVisible,
+  onClick,
+}: ScrollToBottomButtonProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-20 right-4 z-50 transition-opacity duration-200",
-        isVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        'fixed bottom-20 right-4 z-50 transition-opacity duration-200',
+        isVisible
+          ? 'opacity-100 pointer-events-auto'
+          : 'opacity-0 pointer-events-none'
       )}
     >
       <Button
@@ -28,4 +34,3 @@ export function ScrollToBottomButton({ isVisible, onClick }: ScrollToBottomButto
     </div>
   );
 }
-

@@ -1,5 +1,5 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -25,7 +25,7 @@ export function copyToClipboard(text: string): boolean {
   // Create a temporary textarea element
   const textarea = document.createElement('textarea');
   textarea.value = text;
-  
+
   // Make it invisible and prevent scrolling
   textarea.style.position = 'fixed';
   textarea.style.top = '0';
@@ -37,18 +37,18 @@ export function copyToClipboard(text: string): boolean {
   textarea.style.outline = 'none';
   textarea.style.boxShadow = 'none';
   textarea.style.background = 'transparent';
-  
+
   document.body.appendChild(textarea);
   textarea.focus();
   textarea.select();
-  
+
   let success = false;
   try {
     success = document.execCommand('copy');
   } catch (err) {
     console.error('Failed to copy text:', err);
   }
-  
+
   document.body.removeChild(textarea);
   return success;
 }
@@ -84,7 +84,7 @@ export function extractPathFromUrl(url: string): string {
     return urlObj.pathname + urlObj.search + urlObj.hash;
   } catch {
     // If URL parsing fails, try to extract path manually
-    const match = url.match(/^https?:\/\/[^\/]+(\/.*)?$/);
+    const match = url.match(/^https?:\/\/[^/]+(\/.*)?$/);
     return match && match[1] ? match[1] : '/';
   }
 }
@@ -110,14 +110,14 @@ export function extractDomainFromUrl(url: string): string | null {
  * @param event - The Segment event
  * @returns The path string to display (with query params), or empty string if unavailable
  */
-export function getDisplayPath(event: { 
-  context?: { 
-    page?: { 
-      path?: string; 
-      url?: string; 
+export function getDisplayPath(event: {
+  context?: {
+    page?: {
+      path?: string;
+      url?: string;
       search?: string;
-    } 
-  } 
+    };
+  };
 }): string {
   // If we have path and search separately, combine them
   if (event.context?.page?.path) {
@@ -141,7 +141,9 @@ export function getDisplayPath(event: {
  * @param event - The Segment event
  * @returns The domain string or null if unavailable
  */
-export function getEventDomain(event: { context?: { page?: { url?: string } } }): string | null {
+export function getEventDomain(event: {
+  context?: { page?: { url?: string } };
+}): string | null {
   if (event.context?.page?.url) {
     return extractDomainFromUrl(event.context.page.url);
   }
@@ -154,9 +156,9 @@ export function getEventDomain(event: { context?: { page?: { url?: string } } })
  * @param event - The Segment event
  * @returns The full URL string or null if unavailable
  */
-export function getEventUrl(
-  event: { context?: { page?: { url?: string } } }
-): string | null {
+export function getEventUrl(event: {
+  context?: { page?: { url?: string } };
+}): string | null {
   return event.context?.page?.url || null;
 }
 
@@ -174,12 +176,12 @@ export function urlsAreDifferent(
 ): boolean {
   const url1 = getEventUrl(event1);
   const url2 = getEventUrl(event2);
-  
+
   // If either URL is missing, we can't compare
   if (!url1 || !url2) {
     return false;
   }
-  
+
   // Compare full URLs (including query params and hash)
   return url1 !== url2;
 }
@@ -211,12 +213,12 @@ export function domainsAreDifferent(
 ): boolean {
   const domain1 = getEventDomain(event1);
   const domain2 = getEventDomain(event2);
-  
+
   // If either domain is null, we can't compare, so assume they're the same
   if (!domain1 || !domain2) {
     return false;
   }
-  
+
   return domain1 !== domain2;
 }
 
@@ -232,9 +234,9 @@ export function getFeedbackMailtoLink(
   subject: string = 'Analytics x-ray - Feedback',
   body?: string
 ): string {
-  const defaultBody = 'Hi,\n\nI wanted to share some feedback about Analytics x-ray:\n\n\n\n---\n\n(Please include any relevant details about your feedback, suggestions, or issues you\'ve encountered)';
+  const defaultBody =
+    "Hi,\n\nI wanted to share some feedback about Analytics x-ray:\n\n\n\n---\n\n(Please include any relevant details about your feedback, suggestions, or issues you've encountered)";
   const emailBody = body ?? defaultBody;
-  
+
   return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
 }
-

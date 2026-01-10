@@ -1,4 +1,13 @@
 import {
+  Delete02Icon,
+  MoreVerticalIcon,
+  Settings02Icon,
+  FilterIcon,
+  Mail01Icon,
+} from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+
+import {
   Badge,
   Button,
   DropdownMenu,
@@ -6,15 +15,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@src/components';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Delete02Icon,
-  MoreVerticalIcon,
-  Settings02Icon,
-  FilterIcon,
-  Mail01Icon,
-} from '@hugeicons/core-free-icons';
-import Browser from 'webextension-polyfill';
 import { cn } from '@src/lib';
 
 interface ActionButtonsProps {
@@ -47,7 +47,9 @@ export function ActionButtons({
           isFilterPanelOpen && 'bg-accent'
         )}
         title="Filter"
-        aria-label={isFilterPanelOpen ? 'Close filter panel' : 'Open filter panel'}
+        aria-label={
+          isFilterPanelOpen ? 'Close filter panel' : 'Open filter panel'
+        }
         aria-expanded={isFilterPanelOpen}
       >
         <HugeiconsIcon icon={FilterIcon} size={14} />
@@ -98,4 +100,3 @@ export function ActionButtons({
     </div>
   );
 }
-

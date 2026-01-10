@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import {
+  Delete02Icon,
+  ArrowDown01Icon,
+  ArrowUp01Icon,
+} from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Delete02Icon, ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons';
+import { useState } from 'react';
+
 import { Button } from '@src/components/ui/button';
 import { Label } from '@src/components/ui/label';
 import { Switch } from '@src/components/ui/switch';
@@ -14,10 +19,17 @@ interface AllowedDomainListProps {
 
 const MAX_VISIBLE_DOMAINS = 3;
 
-export const AllowedDomainList = ({ domains, onRemove, onToggleSubdomains }: AllowedDomainListProps) => {
+export const AllowedDomainList = ({
+  domains,
+  onRemove,
+  onToggleSubdomains,
+}: AllowedDomainListProps) => {
   const [showAll, setShowAll] = useState(false);
   const hasMoreThanMax = domains.length > MAX_VISIBLE_DOMAINS;
-  const visibleDomains = hasMoreThanMax && !showAll ? domains.slice(0, MAX_VISIBLE_DOMAINS) : domains;
+  const visibleDomains =
+    hasMoreThanMax && !showAll
+      ? domains.slice(0, MAX_VISIBLE_DOMAINS)
+      : domains;
 
   if (domains.length === 0) {
     return (
@@ -56,7 +68,11 @@ export const AllowedDomainList = ({ domains, onRemove, onToggleSubdomains }: All
                 aria-label={`Remove ${allowedDomain.domain}`}
                 className="shrink-0"
               >
-                <HugeiconsIcon icon={Delete02Icon} size={18} className="text-destructive" />
+                <HugeiconsIcon
+                  icon={Delete02Icon}
+                  size={18}
+                  className="text-destructive"
+                />
               </Button>
             </div>
             <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
@@ -98,7 +114,11 @@ export const AllowedDomainList = ({ domains, onRemove, onToggleSubdomains }: All
             </>
           ) : (
             <>
-              <HugeiconsIcon icon={ArrowDown01Icon} size={16} className="mr-1" />
+              <HugeiconsIcon
+                icon={ArrowDown01Icon}
+                size={16}
+                className="mr-1"
+              />
               Show {domains.length - MAX_VISIBLE_DOMAINS} more
             </>
           )}
@@ -107,4 +127,3 @@ export const AllowedDomainList = ({ domains, onRemove, onToggleSubdomains }: All
     </div>
   );
 };
-

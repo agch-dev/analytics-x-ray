@@ -1,12 +1,13 @@
 /**
  * Onboarding System
- * 
+ *
  * Reusable system for managing onboarding modals.
  * Handles showing modals based on dismissal state and provides
  * a consistent interface for future onboarding flows.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ComponentType } from 'react';
+
 import { useOnboarding } from '@src/hooks/useOnboarding';
 
 export interface OnboardingModalProps {
@@ -20,18 +21,18 @@ interface OnboardingSystemProps {
    * Unique identifier for this onboarding modal
    */
   modalId: string;
-  
+
   /**
    * Component to render as the onboarding modal
    */
-  ModalComponent: React.ComponentType<OnboardingModalProps>;
-  
+  ModalComponent: ComponentType<OnboardingModalProps>;
+
   /**
    * Optional delay before showing the modal (in milliseconds)
    * Useful to avoid showing modals immediately on page load
    */
   delay?: number;
-  
+
   /**
    * Whether to show the modal even if it was previously dismissed
    * Useful for testing or re-showing important onboarding
@@ -41,7 +42,7 @@ interface OnboardingSystemProps {
 
 /**
  * OnboardingSystem Component
- * 
+ *
  * Manages the lifecycle of onboarding modals:
  * - Checks if modal has been dismissed
  * - Shows modal on mount (with optional delay)
@@ -72,7 +73,7 @@ export function OnboardingSystem({
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    
+
     // If closing, dismiss the modal
     if (!open) {
       dismiss();
@@ -97,4 +98,3 @@ export function OnboardingSystem({
     />
   );
 }
-

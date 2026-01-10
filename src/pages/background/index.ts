@@ -4,23 +4,27 @@
  * Intercepts network requests to Segment and compatible analytics endpoints
  * using the webRequest API. Captures the fully-enriched payloads that are
  * actually sent over the wire.
- * 
+ *
  * This file orchestrates all background script functionality by initializing
  * handlers and utilities in the correct order.
  */
 
 import Browser from 'webextension-polyfill';
+
 import { createContextLogger } from '@src/lib/logger';
 import { logStorageSize } from '@src/lib/storage';
-import { setupWebRequestListener } from './handlers/webRequestHandler';
+
+import {
+  setupDomainAllowlistListener,
+  setupStorageSyncListener,
+} from './handlers/domainHandler';
+import { setupMaxEventsListener } from './handlers/maxEventsHandler';
 import { setupMessageListener } from './handlers/messageHandler';
 import { setupReloadTracking } from './handlers/reloadHandler';
-import { setupDomainAllowlistListener, setupStorageSyncListener } from './handlers/domainHandler';
-import { setupMaxEventsListener } from './handlers/maxEventsHandler';
-import { restoreEventsFromStorage } from './utils/eventStorage';
-import { initializeDomainTracking } from './utils/domainTracking';
+import { setupWebRequestListener } from './handlers/webRequestHandler';
 import { setupPeriodicCleanup, cleanupTabData } from './utils/cleanup';
-import { tabDomains } from './utils/domainTracking';
+import { initializeDomainTracking, tabDomains } from './utils/domainTracking';
+import { restoreEventsFromStorage } from './utils/eventStorage';
 
 const log = createContextLogger('background');
 

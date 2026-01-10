@@ -1,10 +1,12 @@
 import React from 'react';
+
+import { ErrorBoundary, EventDetailErrorState } from '@src/components';
+import type { SearchMatch } from '@src/lib/search';
 import { cn } from '@src/lib/utils';
 import type { SegmentEvent } from '@src/types';
-import type { SearchMatch } from '@src/lib/search';
-import { EventRowHeader } from './EventRowHeader';
+
 import { EventDetailView } from './detail';
-import { ErrorBoundary, EventDetailErrorState } from '@src/components';
+import { EventRowHeader } from './EventRowHeader';
 
 type ViewMode = 'json' | 'structured';
 
@@ -21,9 +23,9 @@ interface EventRowProps {
   onViewModeChange: (mode: ViewMode) => void;
 }
 
-export const EventRow = React.memo(function EventRow({ 
-  event, 
-  isSelected, 
+export const EventRow = React.memo(function EventRow({
+  event,
+  isSelected,
   isExpanded,
   isAnimatingCollapse = false,
   isHidden = false,
@@ -40,7 +42,8 @@ export const EventRow = React.memo(function EventRow({
     <div
       className={cn(
         'w-full border-b border-border transition-colors bg-card/80',
-        isSelected && 'bg-blue-500/10 dark:bg-blue-500/10 border-l-2 border-l-blue-500',
+        isSelected &&
+          'bg-blue-500/10 dark:bg-blue-500/10 border-l-2 border-l-blue-500',
         isAnimatingCollapse && 'animate-ring-pulse'
       )}
     >
@@ -48,7 +51,11 @@ export const EventRow = React.memo(function EventRow({
       <button
         onClick={() => onToggleExpand(event.id)}
         className="w-full text-left"
-        aria-label={isExpanded ? `Collapse ${event.name} event` : `Expand ${event.name} event`}
+        aria-label={
+          isExpanded
+            ? `Collapse ${event.name} event`
+            : `Expand ${event.name} event`
+        }
         aria-expanded={isExpanded}
       >
         <EventRowHeader

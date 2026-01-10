@@ -1,12 +1,14 @@
 /**
  * Storage Cleanup Utilities
- * 
+ *
  * Handles cleanup of tab data when tabs are closed and periodic cleanup of stale tabs.
  */
 
 import Browser from 'webextension-polyfill';
-import { cleanupStaleTabs } from '@src/lib/storage';
+
 import { createContextLogger } from '@src/lib/logger';
+import { cleanupStaleTabs } from '@src/lib/storage';
+
 import { tabEvents } from './eventStorage';
 
 const log = createContextLogger('background');
@@ -30,15 +32,15 @@ export async function cleanupTabData(tabId: number): Promise<void> {
     const events: StoredEvents = (result.events as StoredEvents) || {};
     delete events[tabId];
     await Browser.storage.local.set({ events });
-    
+
     // Clean up reload timestamps
     const reloadsKey = `tab_${tabId}_reloads`;
     await Browser.storage.local.remove(reloadsKey);
-    
+
     // Clean up Zustand persisted storage (tab_${tabId}_store)
     const zustandKey = `tab_${tabId}_store`;
     await Browser.storage.local.remove(zustandKey);
-    
+
     log.debug(`✅ Cleaned up all data for tab ${tabId}`);
   } catch (error) {
     log.error(`❌ Failed to cleanup tab ${tabId}:`, error);
@@ -78,5 +80,7 @@ export function setupPeriodicCleanup(): void {
       });
   }, CLEANUP_INTERVAL_MS);
 
-  log.info(`🕐 Periodic cleanup scheduled (every ${CLEANUP_INTERVAL_MS / (60 * 1000)} minutes, cleaning tabs older than ${STALE_TAB_AGE_MS / (60 * 60 * 1000)} hours)`);
+  log.info(
+    `🕐 Periodic cleanup scheduled (every ${CLEANUP_INTERVAL_MS / (60 * 1000)} minutes, cleaning tabs older than ${STALE_TAB_AGE_MS / (60 * 60 * 1000)} hours)`
+  );
 }

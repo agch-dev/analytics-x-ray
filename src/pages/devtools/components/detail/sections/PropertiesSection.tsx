@@ -1,6 +1,8 @@
-import { HugeiconsIcon } from '@hugeicons/react';
 import { Tag01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+
 import type { SegmentEvent } from '@src/types';
+
 import { PinnableSection } from '../PinnableSection';
 
 interface PropertiesSectionProps {
@@ -8,7 +10,10 @@ interface PropertiesSectionProps {
   searchQuery?: string;
 }
 
-export function PropertiesSection({ event, searchQuery = '' }: PropertiesSectionProps) {
+export function PropertiesSection({
+  event,
+  searchQuery = '',
+}: PropertiesSectionProps) {
   return (
     <PinnableSection
       title="Properties"

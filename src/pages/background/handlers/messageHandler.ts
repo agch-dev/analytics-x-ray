@@ -1,10 +1,11 @@
 /**
  * Message Handler
- * 
+ *
  * Handles runtime messages from content scripts, popup, and DevTools panel.
  */
 
 import Browser from 'webextension-polyfill';
+
 import { createContextLogger } from '@src/lib/logger';
 import {
   isExtensionMessage,
@@ -14,7 +15,13 @@ import {
   isGetTabDomainMessage,
   isReEvaluateTabDomainMessage,
 } from '@src/types';
-import { tabEvents, getEventsForTab, clearEventsForTab } from '../utils/eventStorage';
+
+import {
+  tabEvents,
+  getEventsForTab,
+  clearEventsForTab,
+} from '../utils/eventStorage';
+
 import { getTabDomain, handleReEvaluateTabDomain } from './domainHandler';
 
 const log = createContextLogger('background');

@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Browser from 'webextension-polyfill';
+
+import type { AllowedDomain } from '@src/stores';
+
 import {
   extractDomain,
   normalizeDomain,
@@ -10,7 +13,6 @@ import {
   getTabDomain,
   isSpecialPage,
 } from './index';
-import type { AllowedDomain } from '@src/stores';
 
 // Mock webextension-polyfill
 vi.mock('webextension-polyfill', () => ({
@@ -32,11 +34,15 @@ describe('domain utilities', () => {
     });
 
     it('should extract domain with subdomain', () => {
-      expect(extractDomain('https://app.example.com/path')).toBe('app.example.com');
+      expect(extractDomain('https://app.example.com/path')).toBe(
+        'app.example.com'
+      );
     });
 
     it('should extract domain with port', () => {
-      expect(extractDomain('https://example.com:8080/path')).toBe('example.com');
+      expect(extractDomain('https://example.com:8080/path')).toBe(
+        'example.com'
+      );
     });
 
     it('should return null for chrome:// URLs', () => {
@@ -94,23 +100,33 @@ describe('domain utilities', () => {
 
   describe('matchesDomainWithSubdomains', () => {
     it('should match exact domain', () => {
-      expect(matchesDomainWithSubdomains('example.com', 'example.com', false)).toBe(true);
+      expect(
+        matchesDomainWithSubdomains('example.com', 'example.com', false)
+      ).toBe(true);
     });
 
     it('should match after normalizing www.', () => {
-      expect(matchesDomainWithSubdomains('www.example.com', 'example.com', false)).toBe(true);
+      expect(
+        matchesDomainWithSubdomains('www.example.com', 'example.com', false)
+      ).toBe(true);
     });
 
     it('should match subdomain when allowSubdomains is true', () => {
-      expect(matchesDomainWithSubdomains('app.example.com', 'example.com', true)).toBe(true);
+      expect(
+        matchesDomainWithSubdomains('app.example.com', 'example.com', true)
+      ).toBe(true);
     });
 
     it('should not match subdomain when allowSubdomains is false', () => {
-      expect(matchesDomainWithSubdomains('app.example.com', 'example.com', false)).toBe(false);
+      expect(
+        matchesDomainWithSubdomains('app.example.com', 'example.com', false)
+      ).toBe(false);
     });
 
     it('should not match different domain', () => {
-      expect(matchesDomainWithSubdomains('other.com', 'example.com', true)).toBe(false);
+      expect(
+        matchesDomainWithSubdomains('other.com', 'example.com', true)
+      ).toBe(false);
     });
   });
 
@@ -152,22 +168,31 @@ describe('domain utilities', () => {
     ];
 
     it('should return matching domain for subdomain', () => {
-      const result = isSubdomainOfAllowedDomain('app.example.com', allowedDomains);
+      const result = isSubdomainOfAllowedDomain(
+        'app.example.com',
+        allowedDomains
+      );
       expect(result).not.toBeNull();
       expect(result?.allowedDomain.domain).toBe('example.com');
       expect(result?.baseDomain).toBe('example.com');
     });
 
     it('should return null for base domain', () => {
-      expect(isSubdomainOfAllowedDomain('example.com', allowedDomains)).toBeNull();
+      expect(
+        isSubdomainOfAllowedDomain('example.com', allowedDomains)
+      ).toBeNull();
     });
 
     it('should return null when subdomains are already allowed', () => {
-      expect(isSubdomainOfAllowedDomain('app.test.com', allowedDomains)).toBeNull();
+      expect(
+        isSubdomainOfAllowedDomain('app.test.com', allowedDomains)
+      ).toBeNull();
     });
 
     it('should return null for domain not in list', () => {
-      expect(isSubdomainOfAllowedDomain('other.com', allowedDomains)).toBeNull();
+      expect(
+        isSubdomainOfAllowedDomain('other.com', allowedDomains)
+      ).toBeNull();
     });
   });
 
@@ -196,7 +221,9 @@ describe('domain utilities', () => {
     });
 
     it('should return null if tab does not exist', async () => {
-      (Browser.tabs.get as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Tab not found'));
+      (Browser.tabs.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Tab not found')
+      );
 
       const domain = await getTabDomain(999);
       expect(domain).toBeNull();

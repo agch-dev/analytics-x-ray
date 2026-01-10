@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useConfigStore } from '@src/stores';
+
 import { Button } from '@src/components/ui/button';
+import { useConfigStore } from '@src/stores';
 
 export const ResetButton = () => {
   const reset = useConfigStore((state) => state.reset);
@@ -19,13 +20,18 @@ export const ResetButton = () => {
   return (
     <div className="flex justify-end pt-4 border-t">
       <Button
-        variant={showResetConfirm ? "destructive" : "secondary"}
+        variant={showResetConfirm ? 'destructive' : 'secondary'}
         onClick={handleReset}
-        aria-label={showResetConfirm ? "Confirm reset to default settings" : "Reset all settings to default values"}
+        aria-label={
+          showResetConfirm
+            ? 'Confirm reset to default settings'
+            : 'Reset all settings to default values'
+        }
       >
-        {showResetConfirm ? 'Click again to confirm reset' : 'Reset to Defaults'}
+        {showResetConfirm
+          ? 'Click again to confirm reset'
+          : 'Reset to Defaults'}
       </Button>
     </div>
   );
 };
-

@@ -1,13 +1,15 @@
-import { useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Globe02Icon,
   BrowserIcon,
   Settings01Icon,
   Bookmark01Icon,
 } from '@hugeicons/core-free-icons';
-import type { SegmentEvent } from '@src/types';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { useMemo } from 'react';
+
 import { useConfigStore } from '@src/stores';
+import type { SegmentEvent } from '@src/types';
+
 import { SubsectionGroup, type SubsectionDefinition } from '../SubsectionGroup';
 
 interface ContextSectionProps {
@@ -15,7 +17,10 @@ interface ContextSectionProps {
   searchQuery?: string;
 }
 
-export function ContextSection({ event, searchQuery = '' }: ContextSectionProps) {
+export function ContextSection({
+  event,
+  searchQuery = '',
+}: ContextSectionProps) {
   const context = event.context;
   const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
 
@@ -90,15 +95,17 @@ export function ContextSection({ event, searchQuery = '' }: ContextSectionProps)
   const defaultExpandedSubsections = useMemo(() => {
     const configSubsections = sectionDefaults.subsections.context;
     const expanded: string[] = [];
-    
+
     for (const subsection of subsections) {
       const prefixedKey = `context${subsection.key.charAt(0).toUpperCase()}${subsection.key.slice(1)}`;
-      const isExpanded = configSubsections[prefixedKey as keyof typeof configSubsections] ?? false;
+      const isExpanded =
+        configSubsections[prefixedKey as keyof typeof configSubsections] ??
+        false;
       if (isExpanded) {
         expanded.push(subsection.key);
       }
     }
-    
+
     return expanded;
   }, [sectionDefaults.subsections.context, subsections]);
 

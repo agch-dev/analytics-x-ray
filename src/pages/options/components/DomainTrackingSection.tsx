@@ -1,16 +1,28 @@
 import { useState } from 'react';
-import { useDomainStore, selectAllowedDomains } from '@src/stores';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
-import { extractDomain, normalizeDomain, getBaseDomain } from '@src/lib/domain';
-import { AddDomainInput } from './AddDomainInput';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@src/components/ui/card';
+import { normalizeDomain, getBaseDomain } from '@src/lib/domain';
 import { validateDomainInput } from '@src/lib/domain/validation';
+import { useDomainStore, selectAllowedDomains } from '@src/stores';
+
+import { AddDomainInput } from './AddDomainInput';
 import { AllowedDomainList } from './AllowedDomainList';
 
 export const DomainTrackingSection = () => {
   const allowedDomains = useDomainStore(selectAllowedDomains);
   const addAllowedDomain = useDomainStore((state) => state.addAllowedDomain);
-  const removeAllowedDomain = useDomainStore((state) => state.removeAllowedDomain);
-  const updateDomainSubdomainSetting = useDomainStore((state) => state.updateDomainSubdomainSetting);
+  const removeAllowedDomain = useDomainStore(
+    (state) => state.removeAllowedDomain
+  );
+  const updateDomainSubdomainSetting = useDomainStore(
+    (state) => state.updateDomainSubdomainSetting
+  );
 
   const [newDomainInput, setNewDomainInput] = useState('');
   const [newDomainError, setNewDomainError] = useState('');
@@ -37,13 +49,15 @@ export const DomainTrackingSection = () => {
     }
 
     // Check if domain already exists (compare normalized)
-    if (allowedDomains.some((d) => {
-      const existingNormalized = normalizeDomain(d.domain);
-      if (d.allowSubdomains) {
-        return getBaseDomain(existingNormalized) === normalizedDomain;
-      }
-      return existingNormalized === normalizedDomain;
-    })) {
+    if (
+      allowedDomains.some((d) => {
+        const existingNormalized = normalizeDomain(d.domain);
+        if (d.allowSubdomains) {
+          return getBaseDomain(existingNormalized) === normalizedDomain;
+        }
+        return existingNormalized === normalizedDomain;
+      })
+    ) {
       setNewDomainError('This domain is already in the allowlist');
       return;
     }
@@ -100,4 +114,3 @@ export const DomainTrackingSection = () => {
     </Card>
   );
 };
-

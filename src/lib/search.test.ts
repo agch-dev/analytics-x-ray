@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import {
-  parseSearchQuery,
-  eventMatchesSearch,
-  highlightText,
-} from './search';
+
 import { createSegmentEvent } from '@src/test/utils';
+
+import { parseSearchQuery, eventMatchesSearch, highlightText } from './search';
 
 describe('search.ts', () => {
   describe('parseSearchQuery', () => {
@@ -55,21 +53,21 @@ describe('search.ts', () => {
     it('should match event name (case-insensitive)', () => {
       const event = createSegmentEvent({ name: 'User Signed Up' });
       const match = parseSearchQuery('signed');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
     it('should match event name exactly', () => {
       const event = createSegmentEvent({ name: 'User Signed Up' });
       const match = parseSearchQuery('User Signed Up');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
     it('should match event name case-insensitively', () => {
       const event = createSegmentEvent({ name: 'User Signed Up' });
       const match = parseSearchQuery('USER SIGNED');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -81,7 +79,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('example.com');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -93,7 +91,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('email');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -107,7 +105,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('John');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -121,7 +119,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('name');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -138,7 +136,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('John');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -149,7 +147,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('react');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -163,7 +161,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('Product B');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -175,7 +173,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('99');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -187,7 +185,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('true');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -198,7 +196,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('null');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -209,7 +207,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('undefined');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -230,7 +228,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('analytics');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -239,7 +237,7 @@ describe('search.ts', () => {
         userId: 'user-12345',
       });
       const match = parseSearchQuery('user-12345');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -248,7 +246,7 @@ describe('search.ts', () => {
         anonymousId: 'anon-67890',
       });
       const match = parseSearchQuery('anon-67890');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -257,7 +255,7 @@ describe('search.ts', () => {
         messageId: 'msg-abc123',
       });
       const match = parseSearchQuery('msg-abc');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -266,7 +264,7 @@ describe('search.ts', () => {
         provider: 'rudderstack',
       });
       const match = parseSearchQuery('rudderstack');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -275,7 +273,7 @@ describe('search.ts', () => {
         url: 'https://example.com/products',
       });
       const match = parseSearchQuery('products');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -287,7 +285,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('nonexistent');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(false);
     });
 
@@ -298,7 +296,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('example');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -311,7 +309,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('Example');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
 
@@ -323,7 +321,7 @@ describe('search.ts', () => {
         },
       });
       const match = parseSearchQuery('user');
-      
+
       expect(eventMatchesSearch(event, match)).toBe(true);
     });
   });

@@ -1,4 +1,5 @@
-import React, { Component, type ReactNode, type ErrorInfo } from 'react';
+import { Component, type ReactNode, type ErrorInfo } from 'react';
+
 import { createContextLogger } from '@src/lib/logger';
 
 const log = createContextLogger('ui');
@@ -17,11 +18,14 @@ interface ErrorBoundaryState {
 
 /**
  * ErrorBoundary component for catching React errors in component tree
- * 
+ *
  * Wraps components to catch errors during rendering, lifecycle methods, and constructors.
  * Provides fallback UI and optional error callback for logging/reporting.
  */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
@@ -42,7 +46,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // Log the error
     log.error('ErrorBoundary caught an error:', error);
     log.error('Error info:', errorInfo);
-    
+
     // Call optional error handler
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -55,7 +59,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       const hasResetKeyChanged = this.props.resetKeys.some(
         (key, index) => key !== prevProps.resetKeys?.[index]
       );
-      
+
       if (hasResetKeyChanged) {
         this.resetErrorBoundary();
       }
@@ -81,4 +85,3 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return this.props.children;
   }
 }
-

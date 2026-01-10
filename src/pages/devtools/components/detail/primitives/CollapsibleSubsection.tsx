@@ -1,10 +1,16 @@
-import { ReactNode, useCallback, useMemo } from 'react';
+import {
+  ArrowRight01Icon,
+  ArrowDown01Icon,
+  PinIcon,
+} from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowRight01Icon, ArrowDown01Icon, PinIcon } from '@hugeicons/core-free-icons';
-import { cn } from '@src/lib';
+import { ReactNode, useCallback, useMemo } from 'react';
+
 import { sortWithPinnedFirst } from '@src/hooks';
-import { PropertyRow } from './PropertyRow';
+import { cn } from '@src/lib';
+
 import type { PropertyEntry } from './PropertyList';
+import { PropertyRow } from './PropertyRow';
 
 interface CollapsibleSubsectionProps {
   /** Unique key for this subsection */
@@ -65,7 +71,11 @@ export function CollapsibleSubsection({
           'hover:bg-muted/30 transition-colors rounded',
           'text-left'
         )}
-        aria-label={isExpanded ? `Collapse ${title} subsection` : `Expand ${title} subsection`}
+        aria-label={
+          isExpanded
+            ? `Collapse ${title} subsection`
+            : `Expand ${title} subsection`
+        }
         aria-expanded={isExpanded}
       >
         <HugeiconsIcon
@@ -155,7 +165,11 @@ interface SubsectionHeaderProps {
 /**
  * Header for a subsection in the pinned content preview (collapsed state)
  */
-export function SubsectionHeader({ title, icon, pinnedCount }: SubsectionHeaderProps) {
+export function SubsectionHeader({
+  title,
+  icon,
+  pinnedCount,
+}: SubsectionHeaderProps) {
   return (
     <div className="flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground">
       {icon}
@@ -169,4 +183,3 @@ export function SubsectionHeader({ title, icon, pinnedCount }: SubsectionHeaderP
     </div>
   );
 }
-

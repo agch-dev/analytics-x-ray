@@ -1,13 +1,15 @@
-import { useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
 import {
   InformationCircleIcon,
   Link01Icon,
   UserIcon,
   PuzzleIcon,
 } from '@hugeicons/core-free-icons';
-import type { SegmentEvent } from '@src/types';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { useMemo } from 'react';
+
 import { useConfigStore } from '@src/stores';
+import type { SegmentEvent } from '@src/types';
+
 import { SubsectionGroup, type SubsectionDefinition } from '../SubsectionGroup';
 
 interface MiscSectionProps {
@@ -28,7 +30,8 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
     if (event.anonymousId)
       identifiers.push({ key: 'anonymousId', value: event.anonymousId });
     if (event.userId) identifiers.push({ key: 'userId', value: event.userId });
-    if (event.groupId) identifiers.push({ key: 'groupId', value: event.groupId });
+    if (event.groupId)
+      identifiers.push({ key: 'groupId', value: event.groupId });
 
     if (identifiers.length > 0) {
       sections.push({
@@ -78,16 +81,11 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
     return sections;
   }, [event]);
 
-  // Don't render if no subsections
-  if (subsections.length === 0) {
-    return null;
-  }
-
   // Get default expanded subsections from config (map prefixed keys to unprefixed)
   const defaultExpandedSubsections = useMemo(() => {
     const configSubsections = sectionDefaults.subsections.metadata;
     const expanded: string[] = [];
-    
+
     for (const subsection of subsections) {
       // Special case: 'metadata' subsection key maps to 'metadataCaptureInfo' in config
       let prefixedKey: string;
@@ -96,14 +94,21 @@ export function MiscSection({ event, searchQuery = '' }: MiscSectionProps) {
       } else {
         prefixedKey = `metadata${subsection.key.charAt(0).toUpperCase()}${subsection.key.slice(1)}`;
       }
-      const isExpanded = configSubsections[prefixedKey as keyof typeof configSubsections] ?? false;
+      const isExpanded =
+        configSubsections[prefixedKey as keyof typeof configSubsections] ??
+        false;
       if (isExpanded) {
         expanded.push(subsection.key);
       }
     }
-    
+
     return expanded;
   }, [sectionDefaults.subsections.metadata, subsections]);
+
+  // Don't render if no subsections
+  if (subsections.length === 0) {
+    return null;
+  }
 
   return (
     <SubsectionGroup

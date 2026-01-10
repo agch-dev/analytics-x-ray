@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+
 import { useConfigStore, selectTheme } from '@src/stores';
 
 /**
@@ -10,17 +11,17 @@ export function useTheme() {
 
   useEffect(() => {
     const root = document.documentElement;
-    
+
     // Remove existing theme classes
     root.classList.remove('light', 'dark');
-    
+
     if (theme === 'auto') {
       // Use system preference
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (isDark) {
         root.classList.add('dark');
       }
-      
+
       // Listen for system theme changes
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = (e: MediaQueryListEvent) => {
@@ -29,7 +30,7 @@ export function useTheme() {
           root.classList.add('dark');
         }
       };
-      
+
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     } else {
@@ -38,4 +39,3 @@ export function useTheme() {
     }
   }, [theme]);
 }
-

@@ -20,13 +20,13 @@ export type {
 
 export { EVENT_TYPE_COLORS, EVENT_TYPE_LABELS } from '@src/types/segment';
 
+import { createContextLogger } from '@src/lib/logger';
 import type {
   SegmentProvider,
   SegmentBatchEvent,
   SegmentBatchPayload,
   SegmentEvent,
 } from '@src/types/segment';
-import { createContextLogger } from '@src/lib/logger';
 
 const log = createContextLogger('background');
 
@@ -40,10 +40,10 @@ export const SEGMENT_ENDPOINTS = [
 
 /**
  * Detect which analytics provider a URL belongs to
- * 
+ *
  * @param url - The URL to check
  * @returns The provider type: 'segment', 'rudderstack', 'dreamdata', or 'unknown'
- * 
+ *
  * @example
  * ```ts
  * detectProvider('https://api.segment.io/v1/batch'); // 'segment'
@@ -66,10 +66,10 @@ export function detectProvider(url: string): SegmentProvider {
 /**
  * Decode the raw request body from webRequest API
  * The body comes as an array of UploadData objects where bytes can be unknown
- * 
+ *
  * @param raw - Array of UploadData objects from webRequest API
  * @returns Decoded string or null if decoding fails
- * 
+ *
  * @example
  * ```ts
  * const body = decodeRequestBody([{ bytes: new TextEncoder().encode('{"test": "data"}') }]);
@@ -86,10 +86,10 @@ export function decodeRequestBody(
     const parts = raw
       .filter((part) => part.bytes instanceof ArrayBuffer)
       .map((part) => decoder.decode(part.bytes as ArrayBuffer));
-    
+
     // Return null if no valid ArrayBuffer parts were found
     if (parts.length === 0) return null;
-    
+
     return parts.join('');
   } catch (error) {
     log.error('Failed to decode request body', error);
@@ -100,10 +100,10 @@ export function decodeRequestBody(
 /**
  * Parse a JSON string into a Segment batch payload
  * Handles both batch format and single event format
- * 
+ *
  * @param jsonString - JSON string to parse
  * @returns Parsed SegmentBatchPayload or null if parsing/validation fails
- * 
+ *
  * @example
  * ```ts
  * const payload = parseSegmentPayload('{"batch": [{"type": "track", "event": "Click"}]}');
@@ -120,7 +120,7 @@ export function parseSegmentPayload(
     if (isSegmentPayload(payload)) {
       return payload;
     }
-    
+
     // Check if it's a single event (not wrapped in batch)
     if (isSingleSegmentEvent(payload)) {
       log.debug('Converting single event to batch format');
@@ -135,13 +135,19 @@ export function parseSegmentPayload(
       isObject: typeof payload === 'object' && payload !== null,
       hasBatch: payload && 'batch' in payload,
       batchIsArray: payload && Array.isArray(payload.batch),
-      batchLength: payload && Array.isArray(payload.batch) ? payload.batch.length : 0,
+      batchLength:
+        payload && Array.isArray(payload.batch) ? payload.batch.length : 0,
       keys: payload ? Object.keys(payload) : [],
-      firstFewChars: jsonString.substring(0, 200)
+      firstFewChars: jsonString.substring(0, 200),
     });
     return null;
   } catch (error) {
-    log.error('Failed to parse Segment payload JSON:', error, 'String preview:', jsonString.substring(0, 200));
+    log.error(
+      'Failed to parse Segment payload JSON:',
+      error,
+      'String preview:',
+      jsonString.substring(0, 200)
+    );
     return null;
   }
 }
@@ -151,13 +157,15 @@ export function parseSegmentPayload(
  */
 function isSingleSegmentEvent(payload: unknown): boolean {
   if (typeof payload !== 'object' || payload === null) return false;
-  
+
   const p = payload as Record<string, unknown>;
-  
+
   // Check if it has the structure of a single event
   return (
     typeof p.type === 'string' &&
-    ['track', 'page', 'screen', 'identify', 'group', 'alias'].includes(p.type as string)
+    ['track', 'page', 'screen', 'identify', 'group', 'alias'].includes(
+      p.type as string
+    )
   );
 }
 
@@ -190,18 +198,20 @@ function isSegmentPayload(payload: unknown): payload is SegmentBatchPayload {
     log.error('First event missing type field. Event:', firstEvent);
     return false;
   }
-  
+
   // Validate event type is a valid Segment event type
   const validTypes = ['track', 'page', 'screen', 'identify', 'group', 'alias'];
   if (!validTypes.includes(firstEvent.type as string)) {
     log.error('First event has invalid type. Event:', firstEvent);
     return false;
   }
-  
+
   // messageId might be optional in some Segment implementations
   // Let's be more lenient here
   if (!firstEvent.messageId && !firstEvent.message_id) {
-    log.debug('First event missing messageId/message_id, but continuing anyway');
+    log.debug(
+      'First event missing messageId/message_id, but continuing anyway'
+    );
   }
 
   return true;
@@ -209,7 +219,7 @@ function isSegmentPayload(payload: unknown): payload is SegmentBatchPayload {
 
 /**
  * Type guard to validate individual batch events
- * 
+ *
  * Note: messageId is optional here because normalizeEvent can generate
  * a fallback messageId if one is missing. Some Segment implementations
  * (especially custom ones) may not include messageId.
@@ -220,9 +230,7 @@ export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
   const e = event as Record<string, unknown>;
   return (
     typeof e.type === 'string' &&
-    ['track', 'page', 'screen', 'identify', 'group', 'alias'].includes(
-      e.type
-    )
+    ['track', 'page', 'screen', 'identify', 'group', 'alias'].includes(e.type)
     // messageId is optional - normalizeEvent handles missing messageId
   );
 }
@@ -230,10 +238,10 @@ export function isValidBatchEvent(event: unknown): event is SegmentBatchEvent {
 /**
  * Extract the display name for an event
  * Formats the name based on event type
- * 
+ *
  * @param event - The batch event to extract name from
  * @returns Formatted display name for the event
- * 
+ *
  * @example
  * ```ts
  * getEventName({ type: 'track', event: 'Button Clicked' }); // 'Button Clicked'
@@ -263,14 +271,14 @@ export function getEventName(event: SegmentBatchEvent): string {
 /**
  * Convert a batch event to our normalized SegmentEvent format
  * Generates fallback messageId if missing
- * 
+ *
  * @param batchEvent - The batch event to normalize
  * @param tabId - Tab ID where event was captured
  * @param url - URL where event was fired
  * @param sentAt - ISO timestamp when event was sent
  * @param provider - Analytics provider (segment, rudderstack, etc.)
  * @returns Normalized SegmentEvent object
- * 
+ *
  * @example
  * ```ts
  * const event = normalizeEvent(
@@ -291,8 +299,10 @@ export function normalizeEvent(
 ): SegmentEvent {
   // Use messageId directly as the unique identifier
   // Generate one if not present (though all Segment events should have messageId)
-  const messageId = batchEvent.messageId || `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+  const messageId =
+    batchEvent.messageId ||
+    `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
   return {
     id: messageId,
     type: batchEvent.type,
@@ -305,7 +315,9 @@ export function normalizeEvent(
     messageId,
     timestamp: batchEvent.timestamp || new Date().toISOString(),
     sentAt,
-    context: batchEvent.context || { library: { name: 'unknown', version: 'unknown' } },
+    context: batchEvent.context || {
+      library: { name: 'unknown', version: 'unknown' },
+    },
     integrations: batchEvent.integrations,
     tabId,
     capturedAt: Date.now(),
@@ -318,13 +330,13 @@ export function normalizeEvent(
 /**
  * Process a complete Segment batch and return normalized events
  * Filters invalid events and normalizes each one
- * 
+ *
  * @param payload - The Segment batch payload
  * @param tabId - Tab ID where events were captured
  * @param url - URL where events were fired
  * @param provider - Analytics provider
  * @returns Array of normalized SegmentEvent objects
- * 
+ *
  * @example
  * ```ts
  * const events = processBatchPayload(
@@ -343,5 +355,7 @@ export function processBatchPayload(
 ): SegmentEvent[] {
   return payload.batch
     .filter(isValidBatchEvent)
-    .map((event) => normalizeEvent(event, tabId, url, payload.sentAt, provider));
+    .map((event) =>
+      normalizeEvent(event, tabId, url, payload.sentAt, provider)
+    );
 }

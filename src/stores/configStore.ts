@@ -1,12 +1,13 @@
 /**
  * Configuration Store
- * 
+ *
  * Stores global extension settings and preferences.
  * Persisted to Chrome storage.local for persistence across sessions.
  */
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+
 import { createChromeStorage } from '@src/lib/storage';
 
 /**
@@ -85,17 +86,17 @@ export interface SectionDefaults {
 export interface ExtensionConfig {
   // Event capture settings
   maxEvents: number;
-  
+
   // Display settings
   theme: 'light' | 'dark' | 'auto';
   preferredEventDetailView: 'json' | 'structured'; // Preferred view mode for event details
-  
+
   // Pinned properties settings (keyed by profile, "default" is the default profile)
   pinnedProperties: PinnedPropertiesConfig;
-  
+
   // Onboarding settings
   dismissedOnboardingModals: string[]; // List of onboarding modal IDs that have been dismissed
-  
+
   // Section defaults configuration
   sectionDefaults: SectionDefaults;
 }
@@ -104,23 +105,49 @@ interface ConfigStore extends ExtensionConfig {
   // Actions
   setMaxEvents: (max: number) => void;
   setTheme: (theme: ExtensionConfig['theme']) => void;
-  setPreferredEventDetailView: (view: ExtensionConfig['preferredEventDetailView']) => void;
+  setPreferredEventDetailView: (
+    view: ExtensionConfig['preferredEventDetailView']
+  ) => void;
   reset: () => void;
-  
+
   // Pin actions
-  togglePin: (section: string, subsection: string | null, property: string, profile?: string) => void;
-  isPinned: (section: string, subsection: string | null, property: string, profile?: string) => boolean;
-  getPinnedProperties: (section: string, subsection: string | null, profile?: string) => string[];
-  
+  togglePin: (
+    section: string,
+    subsection: string | null,
+    property: string,
+    profile?: string
+  ) => void;
+  isPinned: (
+    section: string,
+    subsection: string | null,
+    property: string,
+    profile?: string
+  ) => boolean;
+  getPinnedProperties: (
+    section: string,
+    subsection: string | null,
+    profile?: string
+  ) => string[];
+
   // Onboarding actions
   dismissOnboardingModal: (modalId: string) => void;
   isOnboardingModalDismissed: (modalId: string) => boolean;
   resetOnboardingModals: () => void;
-  
+
   // Section defaults actions
-  setSectionDefaultExpanded: (sectionKey: keyof SectionDefaults['sections'], expanded: boolean) => void;
-  setSubsectionDefaultExpanded: (sectionKey: 'context' | 'metadata', subsectionKey: string, expanded: boolean) => void;
-  setSpecialDefault: (key: keyof SectionDefaults['specialDefaults'], value: boolean) => void;
+  setSectionDefaultExpanded: (
+    sectionKey: keyof SectionDefaults['sections'],
+    expanded: boolean
+  ) => void;
+  setSubsectionDefaultExpanded: (
+    sectionKey: 'context' | 'metadata',
+    subsectionKey: string,
+    expanded: boolean
+  ) => void;
+  setSpecialDefault: (
+    key: keyof SectionDefaults['specialDefaults'],
+    value: boolean
+  ) => void;
   resetSectionDefaults: () => void;
 }
 
@@ -191,23 +218,30 @@ export const useConfigStore = create<ConfigStore>()(
     (set, get) => ({
       ...defaultConfig,
 
-      setMaxEvents: (max) => set({ maxEvents: Math.max(1, Math.min(10000, max)) }),
+      setMaxEvents: (max) =>
+        set({ maxEvents: Math.max(1, Math.min(10000, max)) }),
       setTheme: (theme) => set({ theme }),
-      setPreferredEventDetailView: (view) => set({ preferredEventDetailView: view }),
+      setPreferredEventDetailView: (view) =>
+        set({ preferredEventDetailView: view }),
       // Reset only user-visible settings, preserve pinned properties (internal state)
-      reset: () => set((state) => ({
-        maxEvents: defaultConfig.maxEvents,
-        theme: defaultConfig.theme,
-        preferredEventDetailView: defaultConfig.preferredEventDetailView,
-        // Preserve pinnedProperties - they're internal state not shown in Options
-        pinnedProperties: state.pinnedProperties,
-      })),
+      reset: () =>
+        set((state) => ({
+          maxEvents: defaultConfig.maxEvents,
+          theme: defaultConfig.theme,
+          preferredEventDetailView: defaultConfig.preferredEventDetailView,
+          // Preserve pinnedProperties - they're internal state not shown in Options
+          pinnedProperties: state.pinnedProperties,
+        })),
 
       togglePin: (section, subsection, property, profile = 'default') => {
         set((state) => {
-          const currentProfile = state.pinnedProperties[profile] ?? { ...defaultPinnedProfile };
-          const newProfile = JSON.parse(JSON.stringify(currentProfile)) as PinnedPropertiesProfile;
-          
+          const currentProfile = state.pinnedProperties[profile] ?? {
+            ...defaultPinnedProfile,
+          };
+          const newProfile = JSON.parse(
+            JSON.stringify(currentProfile)
+          ) as PinnedPropertiesProfile;
+
           if (section === 'properties') {
             const idx = newProfile.properties.indexOf(property);
             if (idx === -1) {
@@ -245,7 +279,7 @@ export const useConfigStore = create<ConfigStore>()(
               }
             }
           }
-          
+
           return {
             pinnedProperties: {
               ...state.pinnedProperties,
@@ -259,7 +293,7 @@ export const useConfigStore = create<ConfigStore>()(
         const state = get();
         const currentProfile = state.pinnedProperties[profile];
         if (!currentProfile) return false;
-        
+
         const pinnedArr = getPinnedPath(currentProfile, section, subsection);
         return pinnedArr?.includes(property) ?? false;
       },
@@ -268,17 +302,20 @@ export const useConfigStore = create<ConfigStore>()(
         const state = get();
         const currentProfile = state.pinnedProperties[profile];
         if (!currentProfile) return [];
-        
+
         const pinnedArr = getPinnedPath(currentProfile, section, subsection);
         return pinnedArr ?? [];
       },
-      
+
       // Onboarding actions
       dismissOnboardingModal: (modalId) => {
         set((state) => {
           if (!state.dismissedOnboardingModals.includes(modalId)) {
             return {
-              dismissedOnboardingModals: [...state.dismissedOnboardingModals, modalId],
+              dismissedOnboardingModals: [
+                ...state.dismissedOnboardingModals,
+                modalId,
+              ],
             };
           }
           return state;
@@ -291,7 +328,7 @@ export const useConfigStore = create<ConfigStore>()(
       resetOnboardingModals: () => {
         set({ dismissedOnboardingModals: [] });
       },
-      
+
       // Section defaults actions
       setSectionDefaultExpanded: (sectionKey, expanded) => {
         set((state) => ({
@@ -304,7 +341,7 @@ export const useConfigStore = create<ConfigStore>()(
           },
         }));
       },
-      
+
       setSubsectionDefaultExpanded: (sectionKey, subsectionKey, expanded) => {
         set((state) => ({
           sectionDefaults: {
@@ -319,7 +356,7 @@ export const useConfigStore = create<ConfigStore>()(
           },
         }));
       },
-      
+
       setSpecialDefault: (key, value) => {
         set((state) => ({
           sectionDefaults: {
@@ -331,78 +368,82 @@ export const useConfigStore = create<ConfigStore>()(
           },
         }));
       },
-      
+
       resetSectionDefaults: () => {
         set({ sectionDefaults: defaultSectionDefaults });
       },
     }),
-      {
-        name: 'analytics-xray-config',
-        storage: createJSONStorage(() => createChromeStorage()),
-        version: 7,
-        migrate: (persistedState, version) => {
-          const state = persistedState as ExtensionConfig;
-          if (version < 2) {
-            // Migration from v1 to v2: add pinnedProperties
-            return {
-              ...state,
-              pinnedProperties: {
-                default: defaultPinnedProfile,
-              },
+    {
+      name: 'analytics-xray-config',
+      storage: createJSONStorage(() => createChromeStorage()),
+      version: 7,
+      migrate: (persistedState, version) => {
+        const state = persistedState as ExtensionConfig;
+        if (version < 2) {
+          // Migration from v1 to v2: add pinnedProperties
+          return {
+            ...state,
+            pinnedProperties: {
+              default: defaultPinnedProfile,
+            },
+          };
+        }
+        if (version < 3) {
+          // Migration from v2 to v3: add traits to pinnedProperties profiles
+          const updatedPinnedProperties: PinnedPropertiesConfig = {};
+          for (const [profileKey, profile] of Object.entries(
+            state.pinnedProperties
+          )) {
+            updatedPinnedProperties[profileKey] = {
+              ...profile,
+              traits: [],
             };
           }
-          if (version < 3) {
-            // Migration from v2 to v3: add traits to pinnedProperties profiles
-            const updatedPinnedProperties: PinnedPropertiesConfig = {};
-            for (const [profileKey, profile] of Object.entries(state.pinnedProperties)) {
-              updatedPinnedProperties[profileKey] = {
-                ...profile,
-                traits: [],
-              };
-            }
-            return {
-              ...state,
-              pinnedProperties: updatedPinnedProperties,
-            };
-          }
-          if (version < 4) {
-            // Migration from v3 to v4: add preferredEventDetailView
-            return {
-              ...state,
-              preferredEventDetailView: defaultConfig.preferredEventDetailView,
-            };
-          }
-          if (version < 5) {
-            // Migration from v4 to v5: allowedDomains moved to domainStore
-            // No longer part of configStore, so we just skip this migration
-            return state;
-          }
-          if (version < 6) {
-            // Migration from v5 to v6: add dismissedOnboardingModals
-            return {
-              ...state,
-              dismissedOnboardingModals: defaultConfig.dismissedOnboardingModals,
-            };
-          }
-          if (version < 7) {
-            // Migration from v6 to v7: add sectionDefaults
-            return {
-              ...state,
-              sectionDefaults: defaultSectionDefaults,
-            };
-          }
+          return {
+            ...state,
+            pinnedProperties: updatedPinnedProperties,
+          };
+        }
+        if (version < 4) {
+          // Migration from v3 to v4: add preferredEventDetailView
+          return {
+            ...state,
+            preferredEventDetailView: defaultConfig.preferredEventDetailView,
+          };
+        }
+        if (version < 5) {
+          // Migration from v4 to v5: allowedDomains moved to domainStore
+          // No longer part of configStore, so we just skip this migration
           return state;
-        },
-      }
+        }
+        if (version < 6) {
+          // Migration from v5 to v6: add dismissedOnboardingModals
+          return {
+            ...state,
+            dismissedOnboardingModals: defaultConfig.dismissedOnboardingModals,
+          };
+        }
+        if (version < 7) {
+          // Migration from v6 to v7: add sectionDefaults
+          return {
+            ...state,
+            sectionDefaults: defaultSectionDefaults,
+          };
+        }
+        return state;
+      },
+    }
   )
 );
 
 // Selectors for optimized re-renders
 export const selectMaxEvents = (state: ConfigStore) => state.maxEvents;
 export const selectTheme = (state: ConfigStore) => state.theme;
-export const selectPreferredEventDetailView = (state: ConfigStore) => state.preferredEventDetailView;
-export const selectPinnedProperties = (state: ConfigStore) => state.pinnedProperties;
+export const selectPreferredEventDetailView = (state: ConfigStore) =>
+  state.preferredEventDetailView;
+export const selectPinnedProperties = (state: ConfigStore) =>
+  state.pinnedProperties;
 export const selectTogglePin = (state: ConfigStore) => state.togglePin;
 export const selectIsPinned = (state: ConfigStore) => state.isPinned;
-export const selectGetPinnedProperties = (state: ConfigStore) => state.getPinnedProperties;
-
+export const selectGetPinnedProperties = (state: ConfigStore) =>
+  state.getPinnedProperties;

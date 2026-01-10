@@ -1,8 +1,15 @@
-import { useDomainStore, selectAllowedDomains } from '@src/stores';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
-import { Button } from '@src/components/ui/button';
-import { HugeiconsIcon } from '@hugeicons/react';
 import { Delete02Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+
+import { Button } from '@src/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@src/components/ui/card';
+import { useDomainStore, selectAllowedDomains } from '@src/stores';
 
 interface DevDomainSectionProps {
   onClearDomains?: () => void;
@@ -10,7 +17,7 @@ interface DevDomainSectionProps {
 
 export const DevDomainSection = ({ onClearDomains }: DevDomainSectionProps) => {
   const allowedDomains = useDomainStore(selectAllowedDomains);
-  
+
   const handleClear = () => {
     if (onClearDomains) {
       onClearDomains();
@@ -24,7 +31,8 @@ export const DevDomainSection = ({ onClearDomains }: DevDomainSectionProps) => {
       <CardHeader>
         <CardTitle>Allowed Domains (Dev Mode)</CardTitle>
         <CardDescription>
-          List of domains that have been automatically allowed. Clear for testing purposes.
+          List of domains that have been automatically allowed. Clear for
+          testing purposes.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -67,4 +75,3 @@ export const DevDomainSection = ({ onClearDomains }: DevDomainSectionProps) => {
     </Card>
   );
 };
-

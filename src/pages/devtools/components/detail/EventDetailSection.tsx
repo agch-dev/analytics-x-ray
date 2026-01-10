@@ -1,15 +1,22 @@
-import { useState, useCallback, ReactNode } from 'react';
+import {
+  ArrowRight01Icon,
+  ArrowDown01Icon,
+  PinIcon,
+  MoreVerticalIcon,
+} from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowRight01Icon, ArrowDown01Icon, PinIcon, MoreVerticalIcon } from '@hugeicons/core-free-icons';
-import { cn } from '@src/lib';
+import { useState, useCallback, type ReactNode, type MouseEvent } from 'react';
+
+import { Button } from '@src/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from '@src/components/ui/dropdown-menu';
-import { Button } from '@src/components/ui/button';
+import { cn } from '@src/lib';
 import { useConfigStore } from '@src/stores';
+
 import { SectionDefaultsModal } from './SectionDefaultsModal';
 import type { SubsectionDefinition } from './SubsectionGroup';
 
@@ -45,23 +52,28 @@ export function EventDetailSection({
 }: EventDetailSectionProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
-  const setSectionDefaultExpanded = useConfigStore((state) => state.setSectionDefaultExpanded);
+  const setSectionDefaultExpanded = useConfigStore(
+    (state) => state.setSectionDefaultExpanded
+  );
 
   const toggleExpand = useCallback(() => {
     setIsExpanded((prev) => !prev);
   }, []);
 
-  const handleKebabClick = useCallback((e: React.MouseEvent) => {
+  const handleKebabClick = useCallback((e: MouseEvent) => {
     e.stopPropagation();
   }, []);
 
-  const handleSectionDefaultToggle = useCallback((checked: boolean) => {
-    if (sectionKey) {
-      setSectionDefaultExpanded(sectionKey, checked);
-    }
-  }, [sectionKey, setSectionDefaultExpanded]);
+  const handleSectionDefaultToggle = useCallback(
+    (checked: boolean) => {
+      if (sectionKey) {
+        setSectionDefaultExpanded(sectionKey, checked);
+      }
+    },
+    [sectionKey, setSectionDefaultExpanded]
+  );
 
   const hasPinnedContent = pinnedCount > 0 && pinnedContent;
 
@@ -75,7 +87,9 @@ export function EventDetailSection({
           'hover:bg-muted/50 transition-colors',
           'text-left'
         )}
-        aria-label={isExpanded ? `Collapse ${title} section` : `Expand ${title} section`}
+        aria-label={
+          isExpanded ? `Collapse ${title} section` : `Expand ${title} section`
+        }
         aria-expanded={isExpanded}
       >
         <HugeiconsIcon
@@ -83,11 +97,9 @@ export function EventDetailSection({
           size={14}
           className="shrink-0 text-muted-foreground"
         />
-        
-        {icon && (
-          <span className="shrink-0 text-muted-foreground">{icon}</span>
-        )}
-        
+
+        {icon && <span className="shrink-0 text-muted-foreground">{icon}</span>}
+
         <span className="text-sm font-medium text-foreground flex-1">
           {title}
         </span>
@@ -99,7 +111,7 @@ export function EventDetailSection({
             {pinnedCount}
           </span>
         )}
-        
+
         {badge !== undefined && (
           <span className="shrink-0 text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
             {badge}
@@ -117,7 +129,11 @@ export function EventDetailSection({
                   className="h-6 w-6 p-0 hover:bg-muted/50"
                   onClick={() => setIsModalOpen(true)}
                 >
-                  <HugeiconsIcon icon={MoreVerticalIcon} size={14} className="text-muted-foreground" />
+                  <HugeiconsIcon
+                    icon={MoreVerticalIcon}
+                    size={14}
+                    className="text-muted-foreground"
+                  />
                 </Button>
                 {sectionKey === 'context' || sectionKey === 'metadata' ? (
                   <SectionDefaultsModal
@@ -137,12 +153,18 @@ export function EventDetailSection({
                     size="sm"
                     className="h-6 w-6 p-0 hover:bg-muted/50"
                   >
-                    <HugeiconsIcon icon={MoreVerticalIcon} size={14} className="text-muted-foreground" />
+                    <HugeiconsIcon
+                      icon={MoreVerticalIcon}
+                      size={14}
+                      className="text-muted-foreground"
+                    />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuCheckboxItem
-                    checked={sectionKey ? sectionDefaults.sections[sectionKey] : false}
+                    checked={
+                      sectionKey ? sectionDefaults.sections[sectionKey] : false
+                    }
                     onCheckedChange={handleSectionDefaultToggle}
                   >
                     Open by default
@@ -170,4 +192,3 @@ export function EventDetailSection({
     </div>
   );
 }
-

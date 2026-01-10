@@ -1,14 +1,19 @@
 import {
+  HeartCheckIcon,
+  Coffee01Icon,
+  Mail01Icon,
+} from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+
+import { buttonVariants } from '@src/components/ui/button';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@src/components/ui/dialog';
-import { buttonVariants } from '@src/components/ui/button';
 import { cn, getFeedbackMailtoLink } from '@src/lib/utils';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { HeartCheckIcon, Coffee01Icon, Mail01Icon } from '@hugeicons/core-free-icons';
 
 interface SupportModalProps {
   open: boolean;
@@ -21,14 +26,20 @@ export function SupportModal({ open, onOpenChange }: SupportModalProps) {
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3 text-left">
           <DialogTitle className="flex items-center gap-2">
-            <HugeiconsIcon icon={HeartCheckIcon} size={20} className="text-primary" />
+            <HugeiconsIcon
+              icon={HeartCheckIcon}
+              size={20}
+              className="text-primary"
+            />
             Support Analytics X-Ray
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1.5">
-          If you find Analytics X-Ray useful, please consider supporting its development.
-          <br />
-          <br />
-          Your support helps keep this project alive and allows for continued improvements and new features.
+            If you find Analytics X-Ray useful, please consider supporting its
+            development.
+            <br />
+            <br />
+            Your support helps keep this project alive and allows for continued
+            improvements and new features.
           </DialogDescription>
         </DialogHeader>
         <div className="pt-2 pb-4">
@@ -37,7 +48,10 @@ export function SupportModal({ open, onOpenChange }: SupportModalProps) {
               href="https://buymeacoffee.com/aguschaer"
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(buttonVariants({ variant: 'default', size: 'default' }), 'w-full')}
+              className={cn(
+                buttonVariants({ variant: 'default', size: 'default' }),
+                'w-full'
+              )}
             >
               <HugeiconsIcon icon={Coffee01Icon} size={18} className="mr-2" />
               Buy Me a Coffee
@@ -76,4 +90,3 @@ export function SupportModal({ open, onOpenChange }: SupportModalProps) {
     </Dialog>
   );
 }
-

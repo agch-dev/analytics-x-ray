@@ -1,7 +1,13 @@
-import { Badge, Input, Logo } from '@src/components';
+import {
+  Search01Icon,
+  SearchRemoveIcon,
+  Clock04Icon,
+} from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Search01Icon, SearchRemoveIcon, Clock04Icon } from '@hugeicons/core-free-icons';
 import Browser from 'webextension-polyfill';
+
+import { Badge, Input, Logo } from '@src/components';
+
 import { ActionButtons } from './ActionButtons';
 
 interface HeaderProps {
@@ -17,8 +23,8 @@ interface HeaderProps {
   onOpenFeedback: () => void;
 }
 
-export function Header({ 
-  eventCount, 
+export function Header({
+  eventCount,
   totalEventCount,
   maxEvents,
   filteredEventNamesCount,
@@ -45,23 +51,26 @@ export function Header({
               Analytics X-Ray
             </h1>
           </div>
-          <Badge variant="secondary" className="text-xs font-mono shrink-0 flex items-center gap-1.5">
+          <Badge
+            variant="secondary"
+            className="text-xs font-mono shrink-0 flex items-center gap-1.5"
+          >
             <span>{eventCount} events</span>
             {isAtMaxEvents && (
-              <span 
+              <span
                 title={`Event log is truncated at ${maxEvents} events. Older events are being removed.`}
                 className="flex items-center"
               >
-                <HugeiconsIcon 
-                  icon={Clock04Icon} 
-                  size={14} 
+                <HugeiconsIcon
+                  icon={Clock04Icon}
+                  size={14}
                   className="text-yellow-500 animate-pulse"
                 />
               </span>
             )}
           </Badge>
         </div>
-        
+
         <ActionButtons
           filteredEventNamesCount={filteredEventNamesCount}
           isFilterPanelOpen={isFilterPanelOpen}
@@ -72,12 +81,12 @@ export function Header({
           className="lg:hidden"
         />
       </div>
-      
+
       {/* Search input */}
       <div className="relative flex-1 lg:max-w-md lg:mx-auto">
-        <HugeiconsIcon 
-          icon={Search01Icon} 
-          size={16} 
+        <HugeiconsIcon
+          icon={Search01Icon}
+          size={16}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
         />
         <Input
@@ -113,4 +122,3 @@ export function Header({
     </header>
   );
 }
-

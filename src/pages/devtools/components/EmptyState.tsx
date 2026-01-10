@@ -1,5 +1,5 @@
-import { HugeiconsIcon } from '@hugeicons/react';
 import { Analytics01Icon, SearchRemoveIcon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 
 interface EmptyStateProps {
   searchQuery?: string;
@@ -11,10 +11,10 @@ export function EmptyState({ searchQuery }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
       <div className="mb-4 opacity-20">
-        <HugeiconsIcon 
-          icon={hasSearchQuery ? SearchRemoveIcon : Analytics01Icon} 
-          size={48} 
-          className="text-current" 
+        <HugeiconsIcon
+          icon={hasSearchQuery ? SearchRemoveIcon : Analytics01Icon}
+          size={48}
+          className="text-current"
         />
       </div>
       {hasSearchQuery ? (
@@ -35,4 +35,3 @@ export function EmptyState({ searchQuery }: EmptyStateProps) {
     </div>
   );
 }
-

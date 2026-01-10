@@ -1,8 +1,13 @@
-import { useCallback, useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRight01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import JsonView from '@uiw/react-json-view';
-import { chunkArray, INITIAL_CHUNK_SIZE, CHUNK_SIZE } from '@src/lib/arrayChunking';
+import { useCallback, useState } from 'react';
+
+import {
+  chunkArray,
+  INITIAL_CHUNK_SIZE,
+  CHUNK_SIZE,
+} from '@src/lib/arrayChunking';
 import { getJsonViewTheme } from '@src/lib/jsonViewTheme';
 
 interface ChunkedArrayViewProps {
@@ -15,7 +20,11 @@ interface ChunkedArrayViewProps {
   /** Whether to enable clipboard in JsonView (default: true) */
   enableClipboard?: boolean;
   /** Callback when chunk visibility changes */
-  onChunkToggle?: (arrayPath: string, chunkIndex: number, isVisible: boolean) => void;
+  onChunkToggle?: (
+    arrayPath: string,
+    chunkIndex: number,
+    isVisible: boolean
+  ) => void;
   /** Initial visible chunks (default: first chunk visible) */
   initialVisibleChunks?: Set<number>;
 }
@@ -31,24 +40,28 @@ export function ChunkedArrayView({
   onChunkToggle,
   initialVisibleChunks = new Set([0]),
 }: ChunkedArrayViewProps) {
-  const [visibleChunks, setVisibleChunks] = useState<Set<number>>(initialVisibleChunks);
-  
+  const [visibleChunks, setVisibleChunks] =
+    useState<Set<number>>(initialVisibleChunks);
+
   const chunks = chunkArray(array, INITIAL_CHUNK_SIZE, CHUNK_SIZE);
   const allChunksVisible = visibleChunks.size === chunks.length;
 
-  const toggleChunk = useCallback((chunkIndex: number) => {
-    setVisibleChunks((prev) => {
-      const next = new Set(prev);
-      if (next.has(chunkIndex)) {
-        next.delete(chunkIndex);
-        onChunkToggle?.(arrayPath, chunkIndex, false);
-      } else {
-        next.add(chunkIndex);
-        onChunkToggle?.(arrayPath, chunkIndex, true);
-      }
-      return next;
-    });
-  }, [arrayPath, onChunkToggle]);
+  const toggleChunk = useCallback(
+    (chunkIndex: number) => {
+      setVisibleChunks((prev) => {
+        const next = new Set(prev);
+        if (next.has(chunkIndex)) {
+          next.delete(chunkIndex);
+          onChunkToggle?.(arrayPath, chunkIndex, false);
+        } else {
+          next.add(chunkIndex);
+          onChunkToggle?.(arrayPath, chunkIndex, true);
+        }
+        return next;
+      });
+    },
+    [arrayPath, onChunkToggle]
+  );
 
   const showAllChunks = useCallback(() => {
     const allChunks = new Set(chunks.map((_, i) => i));
@@ -83,12 +96,17 @@ export function ChunkedArrayView({
                   className="text-muted-foreground"
                 />
                 <span>
-                  {isVisible ? 'Hide' : 'Show'} items {chunk.start}–{chunk.end - 1} ({chunk.items.length} items)
+                  {isVisible ? 'Hide' : 'Show'} items {chunk.start}–
+                  {chunk.end - 1} ({chunk.items.length} items)
                 </span>
               </button>
             )}
             {isVisible && (
-              <div className={!isFirstChunk ? 'ml-2 pl-2 border-l border-border/30' : ''}>
+              <div
+                className={
+                  !isFirstChunk ? 'ml-2 pl-2 border-l border-border/30' : ''
+                }
+              >
                 <JsonView
                   value={chunk.items}
                   style={{
@@ -104,7 +122,8 @@ export function ChunkedArrayView({
             )}
             {!isVisible && !isFirstChunk && (
               <div className="pl-2 text-xs text-muted-foreground italic py-1">
-                ... {chunk.items.length} items hidden ({chunk.start}–{chunk.end - 1})
+                ... {chunk.items.length} items hidden ({chunk.start}–
+                {chunk.end - 1})
               </div>
             )}
             {isLastChunk && !allChunksVisible && (
@@ -124,4 +143,3 @@ export function ChunkedArrayView({
     </div>
   );
 }
-

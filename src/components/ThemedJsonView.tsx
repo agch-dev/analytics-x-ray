@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
-import JsonView from '@uiw/react-json-view';
-import { HugeiconsIcon } from '@hugeicons/react';
 import { Copy01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
-import { copyToClipboard } from '@src/lib/utils';
-import { highlightText } from '@src/lib/search';
+import { HugeiconsIcon } from '@hugeicons/react';
+import JsonView from '@uiw/react-json-view';
+import { useState, useCallback } from 'react';
+
 import { getJsonViewTheme } from '@src/lib/jsonViewTheme';
+import { highlightText } from '@src/lib/search';
+import { copyToClipboard } from '@src/lib/utils';
 
 interface ThemedJsonViewProps {
   value: unknown;
@@ -54,7 +55,8 @@ export function ThemedJsonView({
       { keyName, value: val }: { keyName?: string | number; value?: object }
     ) => {
       // Collapse large nested objects by default
-      const keyNameStr = typeof keyName === 'string' ? keyName : String(keyName);
+      const keyNameStr =
+        typeof keyName === 'string' ? keyName : String(keyName);
       if (keyNameStr === 'integrations' || keyNameStr === 'userAgentData') {
         return false;
       }
@@ -150,7 +152,10 @@ export function ThemedJsonView({
       {/* Custom renderer for true boolean values to highlight search matches */}
       {searchQuery && (
         <JsonView.True
-          render={({ children, ...reset }, { type, value: val }: { type?: string; value?: unknown }) => {
+          render={(
+            { children, ...reset },
+            { type, value: val }: { type?: string; value?: unknown }
+          ) => {
             if (type === 'value' && val === true) {
               const valueStr = 'true';
               const parts = highlightText(valueStr, searchQuery);
@@ -183,7 +188,10 @@ export function ThemedJsonView({
       {/* Custom renderer for false boolean values to highlight search matches */}
       {searchQuery && (
         <JsonView.False
-          render={({ children, ...reset }, { type, value: val }: { type?: string; value?: unknown }) => {
+          render={(
+            { children, ...reset },
+            { type, value: val }: { type?: string; value?: unknown }
+          ) => {
             if (type === 'value' && val === false) {
               const valueStr = 'false';
               const parts = highlightText(valueStr, searchQuery);
@@ -216,7 +224,10 @@ export function ThemedJsonView({
       {/* Custom renderer for null values to highlight search matches */}
       {searchQuery && (
         <JsonView.Null
-          render={({ children, ...reset }, { type, value: val }: { type?: string; value?: unknown }) => {
+          render={(
+            { children, ...reset },
+            { type, value: val }: { type?: string; value?: unknown }
+          ) => {
             if (type === 'value' && val === null) {
               const valueStr = 'null';
               const parts = highlightText(valueStr, searchQuery);
@@ -321,7 +332,11 @@ export function ThemedJsonView({
                 }}
                 title="Copy to clipboard"
               >
-                <HugeiconsIcon icon={Copy01Icon} size={12} color="currentColor" />
+                <HugeiconsIcon
+                  icon={Copy01Icon}
+                  size={12}
+                  color="currentColor"
+                />
               </span>
             );
           }}
@@ -330,4 +345,3 @@ export function ThemedJsonView({
     </JsonView>
   );
 }
-

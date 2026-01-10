@@ -1,16 +1,35 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import Browser from 'webextension-polyfill';
-import { getTabStore, useConfigStore, selectPreferredEventDetailView, selectMaxEvents } from '@src/stores';
-import { Header, EventList, Footer, FilterPanel, ScrollToBottomButton, FeedbackModal, OnboardingSystem, WelcomeOnboardingModal, type EventListHandle } from './components';
-import { useEventSync } from './hooks/useEventSync';
-import { useDomainTracking } from './hooks/useDomainTracking';
-import { createContextLogger } from '@src/lib/logger';
-import { normalizeEventNameForFilter } from '@src/lib/utils';
-import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
-import { sanitizeSearchQuery, isValidSearchQuery } from '@src/lib/domain/validation';
-import { useDebounce } from '@src/hooks';
-import { ErrorBoundary, EventListErrorState } from '@src/components';
 
+import { ErrorBoundary, EventListErrorState } from '@src/components';
+import { useDebounce } from '@src/hooks';
+import {
+  sanitizeSearchQuery,
+  isValidSearchQuery,
+} from '@src/lib/domain/validation';
+import { createContextLogger } from '@src/lib/logger';
+import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
+import { normalizeEventNameForFilter } from '@src/lib/utils';
+import {
+  getTabStore,
+  useConfigStore,
+  selectPreferredEventDetailView,
+  selectMaxEvents,
+} from '@src/stores';
+
+import {
+  Header,
+  EventList,
+  Footer,
+  FilterPanel,
+  ScrollToBottomButton,
+  FeedbackModal,
+  OnboardingSystem,
+  WelcomeOnboardingModal,
+  type EventListHandle,
+} from './components';
+import { useDomainTracking } from './hooks/useDomainTracking';
+import { useEventSync } from './hooks/useEventSync';
 
 const log = createContextLogger('panel');
 
@@ -22,34 +41,38 @@ export default function Panel() {
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-  
+
   // Domain tracking via hook
   const { domainAllowed } = useDomainTracking({ tabId });
-  
+
   // Get preferred view mode from config store (used directly, not persisted per tab)
   const preferredViewMode = useConfigStore(selectPreferredEventDetailView);
-  const setPreferredEventDetailView = useConfigStore((state) => state.setPreferredEventDetailView);
-  
+  const setPreferredEventDetailView = useConfigStore(
+    (state) => state.setPreferredEventDetailView
+  );
+
   // Get maxEvents from config store to pass to tab store
   const maxEvents = useConfigStore(selectMaxEvents);
-  
+
   // Initialize tab store with current maxEvents from config
   // Note: The store will read maxEvents dynamically from config store on each addEvent,
   // but we pass it here for initial setup and fallback
   const useTabStore = useMemo(() => getTabStore(tabId, maxEvents), [maxEvents]);
-  
+
   // Trim events when maxEvents is reduced (apply instantly when user changes setting)
   useEffect(() => {
     const currentEvents = useTabStore.getState().events;
     if (currentEvents.length > maxEvents) {
-      log.info(`✂️ Trimming events from ${currentEvents.length} to ${maxEvents} (maxEvents setting changed)`);
+      log.info(
+        `✂️ Trimming events from ${currentEvents.length} to ${maxEvents} (maxEvents setting changed)`
+      );
       useTabStore.setState({
         events: currentEvents.slice(0, maxEvents),
         lastUpdated: Date.now(),
       });
     }
   }, [maxEvents, useTabStore]);
-  
+
   // Selectors - only subscribe to what we need
   const events = useTabStore((state) => state.events);
   const selectedEventId = useTabStore((state) => state.selectedEventId);
@@ -59,23 +82,25 @@ export default function Panel() {
   const reloadTimestamps = useTabStore((state) => state.reloadTimestamps);
   const setSelectedEvent = useTabStore((state) => state.setSelectedEvent);
   const toggleEventExpanded = useTabStore((state) => state.toggleEventExpanded);
-  const toggleEventNameVisibility = useTabStore((state) => state.toggleEventNameVisibility);
+  const toggleEventNameVisibility = useTabStore(
+    (state) => state.toggleEventNameVisibility
+  );
   const showAllEventNames = useTabStore((state) => state.showAllEventNames);
   const hideAllEventNames = useTabStore((state) => state.hideAllEventNames);
   const setSearchQuery = useTabStore((state) => state.setSearchQuery);
   const clearEvents = useTabStore((state) => state.clearEvents);
   const addEvent = useTabStore((state) => state.addEvent);
-  
+
   // Local state for immediate search input (for display)
   const [searchInput, setSearchInput] = useState(searchQuery);
-  
+
   // Ref to track the last debounced value we set to the store
   // This helps us distinguish between store changes from our debounce vs external changes
   const lastDebouncedValueRef = useRef<string>(searchQuery);
-  
+
   // Debounce search input (250ms delay)
   const debouncedSearch = useDebounce(searchInput, 250);
-  
+
   // Update store's searchQuery when debounced value changes
   useEffect(() => {
     if (debouncedSearch !== lastDebouncedValueRef.current) {
@@ -83,7 +108,7 @@ export default function Panel() {
       setSearchQuery(debouncedSearch);
     }
   }, [debouncedSearch, setSearchQuery]);
-  
+
   // Sync local searchInput with store's searchQuery when it changes externally
   // (e.g., when cleared from clearEvents, but not from our own debounced update)
   useEffect(() => {
@@ -94,7 +119,7 @@ export default function Panel() {
       setSearchInput(searchQuery);
     }
   }, [searchQuery]);
-  
+
   const handleSearchChange = useCallback((query: string) => {
     // Sanitize and validate search query
     const sanitized = sanitizeSearchQuery(query);
@@ -112,10 +137,12 @@ export default function Panel() {
       // Ctrl/Cmd+K to focus search
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        const searchInput = document.querySelector('input[type="text"][aria-label*="Search"]') as HTMLInputElement;
+        const searchInput = document.querySelector(
+          'input[type="text"][aria-label*="Search"]'
+        ) as HTMLInputElement;
         searchInput?.focus();
       }
-      
+
       // Escape to clear search (when search input is focused)
       if (e.key === 'Escape' && document.activeElement?.tagName === 'INPUT') {
         const activeInput = document.activeElement as HTMLInputElement;
@@ -129,17 +156,23 @@ export default function Panel() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleSearchChange]);
-  
-  const handleViewModeChange = useCallback((mode: 'json' | 'structured') => {
-    // Update the global preference when user toggles view mode
-    setPreferredEventDetailView(mode);
-  }, [setPreferredEventDetailView]);
-  
+
+  const handleViewModeChange = useCallback(
+    (mode: 'json' | 'structured') => {
+      // Update the global preference when user toggles view mode
+      setPreferredEventDetailView(mode);
+    },
+    [setPreferredEventDetailView]
+  );
+
   // Sync events with background script
   useEventSync({ tabId, addEvent });
 
   // Parse search query
-  const searchMatch = useMemo(() => parseSearchQuery(searchQuery), [searchQuery]);
+  const searchMatch = useMemo(
+    () => parseSearchQuery(searchQuery),
+    [searchQuery]
+  );
 
   // Filter events based on hidden event names and search query
   const filteredEvents = useMemo(() => {
@@ -148,14 +181,19 @@ export default function Panel() {
     // Filter by hidden event names (using normalized names)
     if (hiddenEventNames.size > 0) {
       filtered = filtered.filter((event) => {
-        const normalizedName = normalizeEventNameForFilter(event.name, event.type);
+        const normalizedName = normalizeEventNameForFilter(
+          event.name,
+          event.type
+        );
         return !hiddenEventNames.has(normalizedName);
       });
     }
 
     // Filter by search query
     if (searchMatch) {
-      filtered = filtered.filter((event) => eventMatchesSearch(event, searchMatch));
+      filtered = filtered.filter((event) =>
+        eventMatchesSearch(event, searchMatch)
+      );
     }
 
     return filtered;
@@ -165,7 +203,10 @@ export default function Panel() {
   const uniqueEventNames = useMemo(() => {
     const names = new Set<string>();
     events.forEach((event) => {
-      const normalizedName = normalizeEventNameForFilter(event.name, event.type);
+      const normalizedName = normalizeEventNameForFilter(
+        event.name,
+        event.type
+      );
       names.add(normalizedName);
     });
     return Array.from(names).sort();
@@ -184,13 +225,13 @@ export default function Panel() {
   useEffect(() => {
     log.debug(`📊 Event count changed: ${events.length}`);
   }, [events.length]);
-  
+
   const handleClearEvents = async () => {
     log.info(`🗑️ Clearing events via UI`);
-    
+
     // Clear local store
     clearEvents();
-    
+
     // Also clear in background script
     try {
       await Browser.runtime.sendMessage({
@@ -202,7 +243,7 @@ export default function Panel() {
       log.error(`❌ Failed to clear events in background:`, error);
     }
   };
-  
+
   const handleScrollToBottom = () => {
     eventListRef.current?.scrollToBottom();
   };
@@ -223,8 +264,6 @@ export default function Panel() {
     toggleEventNameVisibility(eventName);
   };
 
-
-
   return (
     <div className="h-screen bg-background text-foreground flex flex-col">
       <Header
@@ -239,7 +278,7 @@ export default function Panel() {
         onToggleFilterPanel={handleToggleFilterPanel}
         onOpenFeedback={() => setIsFeedbackModalOpen(true)}
       />
-      
+
       {isFilterPanelOpen && (
         <FilterPanel
           events={events}
@@ -249,7 +288,7 @@ export default function Panel() {
           onHideAll={handleHideAll}
         />
       )}
-      
+
       <ErrorBoundary
         fallback={<EventListErrorState />}
         resetKeys={[filteredEvents.length]}
@@ -270,19 +309,19 @@ export default function Panel() {
           onViewModeChange={handleViewModeChange}
         />
       </ErrorBoundary>
-      
+
       <ScrollToBottomButton
         isVisible={!isAtBottom}
         onClick={handleScrollToBottom}
       />
-      
+
       <Footer tabId={tabId} isListening={domainAllowed === true} />
-      
+
       <FeedbackModal
         open={isFeedbackModalOpen}
         onOpenChange={setIsFeedbackModalOpen}
       />
-      
+
       <OnboardingSystem
         modalId="welcome"
         ModalComponent={WelcomeOnboardingModal}

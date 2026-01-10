@@ -1,5 +1,7 @@
 import { useMemo, useCallback } from 'react';
+
 import { sortWithPinnedFirst } from '@src/hooks';
+
 import { PropertyRow } from './PropertyRow';
 
 export interface PropertyEntry {
@@ -127,4 +129,3 @@ export function PinnedPropertyList({
     </div>
   );
 }
-

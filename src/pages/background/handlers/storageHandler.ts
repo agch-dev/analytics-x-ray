@@ -1,13 +1,14 @@
 /**
  * Storage Handler
- * 
+ *
  * Handles event storage operations and notifications to listeners.
  */
 
 import Browser from 'webextension-polyfill';
+
 import { createContextLogger } from '@src/lib/logger';
-import type { EventsCapturedMessage } from '@src/types';
 import type { SegmentEvent } from '@src/lib/parsing/segment';
+import type { EventsCapturedMessage } from '@src/types';
 
 const log = createContextLogger('background');
 
@@ -20,7 +21,9 @@ export function notifyListeners(tabId: number, events: SegmentEvent[]): void {
     payload: { tabId, events },
   };
 
-  log.debug(`📤 Sending EVENTS_CAPTURED message (tabId: ${tabId}, ${events.length} event(s))`);
+  log.debug(
+    `📤 Sending EVENTS_CAPTURED message (tabId: ${tabId}, ${events.length} event(s))`
+  );
 
   Browser.runtime
     .sendMessage(message)
@@ -29,6 +32,9 @@ export function notifyListeners(tabId: number, events: SegmentEvent[]): void {
     })
     .catch((error) => {
       // No listeners - panel might not be open
-      log.debug(`⚠️ No listeners for message (panel may not be open):`, error.message);
+      log.debug(
+        `⚠️ No listeners for message (panel may not be open):`,
+        error.message
+      );
     });
 }

@@ -1,8 +1,14 @@
 import { useMemo, useCallback, ReactNode } from 'react';
+
 import { usePinnedProperties, type PinSection } from '@src/hooks';
 import { useConfigStore } from '@src/stores';
+
 import { EventDetailSection } from './EventDetailSection';
-import { PropertyList, PinnedPropertyList, type PropertyEntry } from './primitives';
+import {
+  PropertyList,
+  PinnedPropertyList,
+  type PropertyEntry,
+} from './primitives';
 
 interface PinnableSectionProps {
   /** Section title */
@@ -40,12 +46,12 @@ export function PinnableSection({
   const { togglePin, pinnedProperties } = usePinnedProperties({
     section: pinSection,
   });
-  
+
   const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
-  
+
   // Get default expanded state from config if sectionKey is provided
-  const defaultExpanded = sectionKey 
-    ? sectionDefaults.sections[sectionKey] 
+  const defaultExpanded = sectionKey
+    ? sectionDefaults.sections[sectionKey]
     : true;
 
   // Convert data object to sorted entries
@@ -117,4 +123,3 @@ export function PinnableSection({
     </EventDetailSection>
   );
 }
-

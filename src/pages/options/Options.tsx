@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import Browser from 'webextension-polyfill';
-import { useConfigStore, useDomainStore } from '@src/stores';
+
 import { createContextLogger } from '@src/lib/logger';
 import { isDevMode } from '@src/lib/utils';
+import { useConfigStore, useDomainStore } from '@src/stores';
+
 import {
   OptionsHeader,
   AppearanceSection,
@@ -16,7 +18,7 @@ const log = createContextLogger('ui');
 export default function Options() {
   // Track the last local update timestamp to skip rehydration from our own changes
   const lastLocalUpdateRef = useRef<number>(0);
-  
+
   // Listen for storage changes to sync config updates from other extension contexts
   useEffect(() => {
     const handleStorageChange = (
@@ -25,7 +27,7 @@ export default function Options() {
     ) => {
       // Only listen to local storage changes
       if (areaName !== 'local') return;
-      
+
       // Check if the config storage key changed
       const configKey = 'analytics-xray-config';
       const change = changes[configKey];
@@ -34,10 +36,12 @@ export default function Options() {
         // This prevents rehydration from our own changes
         const now = Date.now();
         if (now - lastLocalUpdateRef.current < 500) {
-          log.debug('Skipping storage change rehydration (recent local update)');
+          log.debug(
+            'Skipping storage change rehydration (recent local update)'
+          );
           return;
         }
-        
+
         // Use the newValue from the change event to avoid timing issues
         const storedValue = change.newValue;
         if (storedValue && typeof storedValue === 'string') {
@@ -55,9 +59,9 @@ export default function Options() {
         }
       }
     };
-    
+
     Browser.storage.onChanged.addListener(handleStorageChange);
-    
+
     return () => {
       Browser.storage.onChanged.removeListener(handleStorageChange);
     };
@@ -69,10 +73,10 @@ export default function Options() {
     // This ensures the flag is set before Zustand persist writes to storage
     const timestamp = Date.now();
     lastLocalUpdateRef.current = timestamp;
-    
+
     // Clear the domains synchronously (using domainStore)
     useDomainStore.getState().clearAllAllowedDomains();
-    
+
     // Also set a timeout to reset the flag after the storage write completes
     // This ensures we don't block legitimate updates from other contexts
     setTimeout(() => {
@@ -89,7 +93,9 @@ export default function Options() {
         <OptionsHeader />
         <AppearanceSection />
         <EventCaptureSection />
-        {isDevMode() && <DevDomainSection onClearDomains={handleClearDomains} />}
+        {isDevMode() && (
+          <DevDomainSection onClearDomains={handleClearDomains} />
+        )}
         <ResetButton />
       </div>
     </div>

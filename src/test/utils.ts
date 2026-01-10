@@ -1,11 +1,12 @@
 /**
  * Test Utilities
- * 
+ *
  * Shared utilities for writing tests across the codebase.
  * These helpers reduce boilerplate and make tests more maintainable.
  */
 
 import { vi, type MockedFunction } from 'vitest';
+
 import type {
   SegmentEvent,
   SegmentBatchEvent,
@@ -63,7 +64,9 @@ export function createBatchPayload(
 export function createSegmentEvent(
   overrides: Partial<SegmentEvent> = {}
 ): SegmentEvent {
-  const messageId = overrides.messageId || `test-msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const messageId =
+    overrides.messageId ||
+    `test-msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const batchEvent = createBatchEvent({
     messageId,
     ...overrides.rawPayload,
@@ -101,7 +104,7 @@ export function createEventsByType(
 ): SegmentEvent[] {
   return types.map((type, index) => {
     const base = createSegmentEvent({ type });
-    
+
     switch (type) {
       case 'track':
         return {
@@ -150,14 +153,22 @@ export function createEventsByType(
 
 export interface MockStorage {
   data: Record<string, unknown>;
-  get: MockedFunction<(keys: string | string[] | Record<string, unknown> | null) => Promise<Record<string, unknown>>>;
+  get: MockedFunction<
+    (
+      keys: string | string[] | Record<string, unknown> | null
+    ) => Promise<Record<string, unknown>>
+  >;
   set: MockedFunction<(items: Record<string, unknown>) => Promise<void>>;
   remove: MockedFunction<(keys: string | string[]) => Promise<void>>;
   clear: MockedFunction<() => Promise<void>>;
   // Chrome StorageArea required properties
   QUOTA_BYTES: number;
-  getBytesInUse: MockedFunction<(keys?: string | string[] | null) => Promise<number>>;
-  setAccessLevel: MockedFunction<(accessOptions: { accessLevel: string }) => Promise<void>>;
+  getBytesInUse: MockedFunction<
+    (keys?: string | string[] | null) => Promise<number>
+  >;
+  setAccessLevel: MockedFunction<
+    (accessOptions: { accessLevel: string }) => Promise<void>
+  >;
   onChanged: {
     addListener: MockedFunction<(callback: () => void) => void>;
     removeListener: MockedFunction<(callback: () => void) => void>;
@@ -169,33 +180,37 @@ export interface MockStorage {
 /**
  * Create a mock storage object with realistic behavior
  */
-export function createMockStorage(initialData: Record<string, unknown> = {}): MockStorage {
+export function createMockStorage(
+  initialData: Record<string, unknown> = {}
+): MockStorage {
   const data: Record<string, unknown> = { ...initialData };
 
-  const get = vi.fn(async (keys: string | string[] | Record<string, unknown> | null) => {
-    if (keys === null || keys === undefined) {
-      return { ...data };
-    }
-    
-    if (typeof keys === 'string') {
-      return { [keys]: data[keys] };
-    }
-    
-    if (Array.isArray(keys)) {
+  const get = vi.fn(
+    async (keys: string | string[] | Record<string, unknown> | null) => {
+      if (keys === null || keys === undefined) {
+        return { ...data };
+      }
+
+      if (typeof keys === 'string') {
+        return { [keys]: data[keys] };
+      }
+
+      if (Array.isArray(keys)) {
+        const result: Record<string, unknown> = {};
+        keys.forEach((key) => {
+          result[key] = data[key];
+        });
+        return result;
+      }
+
+      // Object with default values
       const result: Record<string, unknown> = {};
-      keys.forEach((key) => {
-        result[key] = data[key];
+      Object.keys(keys).forEach((key) => {
+        result[key] = data[key] !== undefined ? data[key] : keys[key];
       });
       return result;
     }
-    
-    // Object with default values
-    const result: Record<string, unknown> = {};
-    Object.keys(keys).forEach((key) => {
-      result[key] = data[key] !== undefined ? data[key] : keys[key];
-    });
-    return result;
-  });
+  );
 
   const set = vi.fn(async (items: Record<string, unknown>) => {
     Object.assign(data, items);
@@ -214,24 +229,28 @@ export function createMockStorage(initialData: Record<string, unknown> = {}): Mo
     });
   });
 
-  const getBytesInUse = vi.fn(async (keys?: string | string[] | null): Promise<number> => {
-    // Simple mock: return approximate size
-    if (keys === null || keys === undefined) {
-      return JSON.stringify(data).length;
-    }
-    const keysToCheck = Array.isArray(keys) ? keys : [keys];
-    let size = 0;
-    keysToCheck.forEach((key) => {
-      if (data[key] !== undefined) {
-        size += JSON.stringify(data[key]).length;
+  const getBytesInUse = vi.fn(
+    async (keys?: string | string[] | null): Promise<number> => {
+      // Simple mock: return approximate size
+      if (keys === null || keys === undefined) {
+        return JSON.stringify(data).length;
       }
-    });
-    return size;
-  });
+      const keysToCheck = Array.isArray(keys) ? keys : [keys];
+      let size = 0;
+      keysToCheck.forEach((key) => {
+        if (data[key] !== undefined) {
+          size += JSON.stringify(data[key]).length;
+        }
+      });
+      return size;
+    }
+  );
 
-  const setAccessLevel = vi.fn(async (_accessOptions: { accessLevel: string }) => {
-    // Mock implementation
-  });
+  const setAccessLevel = vi.fn(
+    async (_accessOptions: { accessLevel: string }) => {
+      // Mock implementation
+    }
+  );
 
   const onChanged = {
     addListener: vi.fn((_callback: () => void) => {
@@ -269,7 +288,7 @@ export function setupMockChromeStorage(
 ): MockStorage {
   const mockStorage = createMockStorage(initialData);
   const mockSyncStorage = createMockStorage();
-  
+
   global.chrome = {
     ...global.chrome,
     storage: {
@@ -289,7 +308,7 @@ export function setupMockBrowserStorage(
   initialData: Record<string, unknown> = {}
 ): MockStorage {
   const mockStorage = createMockStorage(initialData);
-  
+
   // This will be used by vi.mock in individual test files if needed
   return mockStorage;
 }
@@ -302,7 +321,10 @@ export function setupMockBrowserStorage(
  * Reset a Zustand store to its initial state
  * Useful for cleaning up between tests
  */
-export function resetStore<T>(store: { setState: (state: Partial<T>) => void; getState: () => T }): void {
+export function resetStore<T>(store: {
+  setState: (state: Partial<T>) => void;
+  getState: () => T;
+}): void {
   const initialState = store.getState();
   store.setState(initialState as Partial<T>);
 }
@@ -345,7 +367,9 @@ export function mockLogger() {
 /**
  * Create a fixed date for testing time-dependent code
  */
-export function createFixedDate(isoString: string = '2024-01-01T00:00:00Z'): Date {
+export function createFixedDate(
+  isoString: string = '2024-01-01T00:00:00Z'
+): Date {
   return new Date(isoString);
 }
 
@@ -355,7 +379,7 @@ export function createFixedDate(isoString: string = '2024-01-01T00:00:00Z'): Dat
 export function mockDateNow(timestamp: number = 1704067200000): () => void {
   const originalNow = Date.now;
   Date.now = vi.fn(() => timestamp);
-  
+
   return () => {
     Date.now = originalNow;
   };
@@ -364,16 +388,18 @@ export function mockDateNow(timestamp: number = 1704067200000): () => void {
 /**
  * Mock new Date() to return a fixed date
  */
-export function mockNewDate(isoString: string = '2024-01-01T00:00:00Z'): () => void {
+export function mockNewDate(
+  isoString: string = '2024-01-01T00:00:00Z'
+): () => void {
   const fixedDate = new Date(isoString);
   const originalDate = global.Date;
-  
+
   // Mocking Date constructor
   global.Date = vi.fn(() => fixedDate) as any;
   global.Date.now = vi.fn(() => fixedDate.getTime());
   global.Date.parse = originalDate.parse;
   global.Date.UTC = originalDate.UTC;
-  
+
   return () => {
     global.Date = originalDate;
   };
@@ -433,7 +459,7 @@ export async function waitForCondition(
   interval: number = 10
 ): Promise<void> {
   const start = Date.now();
-  
+
   while (!condition()) {
     if (Date.now() - start > timeout) {
       throw new Error(`Condition not met within ${timeout}ms`);

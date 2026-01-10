@@ -1,18 +1,19 @@
 import { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Browser from 'webextension-polyfill';
-import Panel from '@src/pages/devtools/Panel';
-import { useTheme } from '@src/hooks/useTheme';
-import { useConfigStore, useDomainStore } from '@src/stores';
-import { createContextLogger } from '@src/lib/logger';
+
 import { ErrorBoundary, PanelErrorState } from '@src/components';
+import { useTheme } from '@src/hooks/useTheme';
+import { createContextLogger } from '@src/lib/logger';
+import Panel from '@src/pages/devtools/Panel';
+import { useConfigStore, useDomainStore } from '@src/stores';
 import '@assets/styles/tailwind.css';
 
 const log = createContextLogger('devtools');
 
 function PanelWrapper() {
   useTheme();
-  
+
   // Listen for storage changes to sync config and domain updates from other extension contexts
   useEffect(() => {
     const handleStorageChange = (
@@ -21,12 +22,12 @@ function PanelWrapper() {
     ) => {
       // Only listen to local storage changes
       if (areaName !== 'local') return;
-      
+
       // Check if the config storage key changed
       const configKey = 'analytics-xray-config';
       if (changes[configKey]) {
         log.debug('Config storage changed, rehydrating store...');
-        
+
         // Read the new config from storage and update the store
         Browser.storage.local.get(configKey).then((result) => {
           const storedValue = result[configKey];
@@ -45,12 +46,12 @@ function PanelWrapper() {
           }
         });
       }
-      
+
       // Check if the domain storage key changed
       const domainKey = 'analytics-xray-domain';
       if (changes[domainKey]) {
         log.debug('Domain storage changed, rehydrating store...');
-        
+
         // Read the new domain config from storage and update the store
         Browser.storage.local.get(domainKey).then((result) => {
           const storedValue = result[domainKey];
@@ -70,14 +71,14 @@ function PanelWrapper() {
         });
       }
     };
-    
+
     Browser.storage.onChanged.addListener(handleStorageChange);
-    
+
     return () => {
       Browser.storage.onChanged.removeListener(handleStorageChange);
     };
   }, []);
-  
+
   return (
     <ErrorBoundary fallback={<PanelErrorState />}>
       <Panel />
@@ -90,7 +91,11 @@ log.info(`Inspected tab ID: ${Browser.devtools.inspectedWindow.tabId}`);
 
 // Create the devtools panel
 Browser.devtools.panels
-  .create('Analytics X-Ray', 'icons/icon32.png', 'src/pages/devtools/index.html')
+  .create(
+    'Analytics X-Ray',
+    'icons/icon32.png',
+    'src/pages/devtools/index.html'
+  )
   .then(() => {
     log.info('✅ DevTools panel created successfully');
     // Initialize React app when panel is created
@@ -104,4 +109,3 @@ Browser.devtools.panels
     log.error('❌ Failed to create DevTools panel:', error);
     console.error(error);
   });
-

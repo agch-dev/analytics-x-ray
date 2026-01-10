@@ -1,6 +1,8 @@
 import React from 'react';
+
 import { HighlightedText } from '@src/components';
 import { cn } from '@src/lib';
+
 import type { PropertyValueProps } from './types';
 
 /**
@@ -24,7 +26,9 @@ export const PropertyValue = React.memo(function PropertyValue({
   return (
     <span
       className={cn('text-xs font-mono break-all', valueColorStyle.className)}
-      style={valueColorStyle.color ? { color: valueColorStyle.color } : undefined}
+      style={
+        valueColorStyle.color ? { color: valueColorStyle.color } : undefined
+      }
     >
       {shouldHighlight ? (
         <HighlightedText text={displayValue} searchQuery={searchQuery} />

@@ -1,20 +1,22 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@src/components/ui/dialog';
-import { Button } from '@src/components/ui/button';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
   Layout01Icon,
   Search01Icon,
   PinIcon,
   Clock04Icon,
   CheckmarkCircle01Icon,
 } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+
 import { Logo } from '@src/components/Logo';
+import { Button } from '@src/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@src/components/ui/dialog';
+
 import type { OnboardingModalProps } from './OnboardingSystem';
 
 interface Feature {
@@ -27,22 +29,26 @@ const features: Feature[] = [
   {
     icon: Layout01Icon,
     title: 'Structured & JSON Views',
-    description: 'Provides a more readable Structured View that let\'s you easily inspect what is important to you. Still has the Raw JSON View available for those who prefer it. Set your preferred view in the extension settings.',
+    description:
+      "Provides a more readable Structured View that let's you easily inspect what is important to you. Still has the Raw JSON View available for those who prefer it. Set your preferred view in the extension settings.",
   },
   {
     icon: Search01Icon,
     title: 'Powerful Search & Filter',
-    description: 'Search across events, properties, and values. Filter by event type or hide/mute specific events to focus on what matters.',
+    description:
+      'Search across events, properties, and values. Filter by event type or hide/mute specific events to focus on what matters.',
   },
   {
     icon: PinIcon,
     title: 'Property Pinning',
-    description: 'Pin important properties to the top of event details to verify things faster and keep key data visible. Do so by hovering over the property and clicking the pin icon.',
+    description:
+      'Pin important properties to the top of event details to verify things faster and keep key data visible. Do so by hovering over the property and clicking the pin icon.',
   },
   {
     icon: Clock04Icon,
     title: 'Timeline View Improvements',
-    description: 'Navigate through your analytics timeline with clear visual separators for page reloads and navigation events. So you can easily see what happened when.',
+    description:
+      'Navigate through your analytics timeline with clear visual separators for page reloads and navigation events. So you can easily see what happened when.',
   },
 ];
 
@@ -63,7 +69,8 @@ export function WelcomeOnboardingModal({
             </DialogTitle>
           </div>
           <DialogDescription className="text-base">
-            Your powerful tool for inspecting and verifying Segment analytics events in real-time.
+            Your powerful tool for inspecting and verifying Segment analytics
+            events in real-time.
           </DialogDescription>
         </DialogHeader>
 
@@ -117,4 +124,3 @@ export function WelcomeOnboardingModal({
     </Dialog>
   );
 }
-

@@ -1,6 +1,6 @@
 /**
  * Event Synchronization Hook
- * 
+ *
  * Handles syncing events between background script and DevTools panel:
  * 1. Fetches initial events from background script on mount
  * 2. Listens for new events via runtime messages
@@ -9,10 +9,11 @@
 
 import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';
-import type { SegmentEvent } from '@src/types';
+
 import { createContextLogger } from '@src/lib/logger';
-import { isEventsCapturedMessage, isReloadDetectedMessage } from '@src/types';
 import { syncReloadTimestamps } from '@src/stores';
+import type { SegmentEvent } from '@src/types';
+import { isEventsCapturedMessage, isReloadDetectedMessage } from '@src/types';
 
 const log = createContextLogger('panel');
 
@@ -36,11 +37,19 @@ export function useEventSync({ tabId, addEvent }: EventSyncOptions) {
         })) as SegmentEvent[];
 
         if (events && Array.isArray(events)) {
-          log.info(`✅ Received ${events.length} initial events from background`);
+          log.info(
+            `✅ Received ${events.length} initial events from background`
+          );
           if (events.length > 0) {
-            log.table(events.map((e) => ({ name: e.name, type: e.type, timestamp: e.timestamp })));
+            log.table(
+              events.map((e) => ({
+                name: e.name,
+                type: e.type,
+                timestamp: e.timestamp,
+              }))
+            );
           }
-          
+
           // Add events in reverse order so they appear correctly
           // (background stores newest first, we need to add oldest first)
           events.reverse().forEach((event) => addEvent(event));
@@ -118,4 +127,3 @@ export function useEventSync({ tabId, addEvent }: EventSyncOptions) {
     };
   }, [tabId, addEvent]);
 }
-

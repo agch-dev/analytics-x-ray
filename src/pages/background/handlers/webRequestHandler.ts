@@ -1,10 +1,12 @@
 /**
  * Web Request Handler
- * 
+ *
  * Handles interception of Segment API requests using the webRequest API.
  */
 
 import Browser from 'webextension-polyfill';
+
+import { createContextLogger } from '@src/lib/logger';
 import {
   SEGMENT_ENDPOINTS,
   decodeRequestBody,
@@ -12,9 +14,10 @@ import {
   parseSegmentPayload,
   processBatchPayload,
 } from '@src/lib/parsing/segment';
-import { createContextLogger } from '@src/lib/logger';
+
 import { tabDomains } from '../utils/domainTracking';
 import { storeEvents } from '../utils/eventStorage';
+
 import { notifyListeners } from './storageHandler';
 
 const log = createContextLogger('background');
@@ -29,7 +32,10 @@ export function setupWebRequestListener(): void {
     ['requestBody']
   );
 
-  log.info('📡 webRequest listener registered for endpoints:', SEGMENT_ENDPOINTS);
+  log.info(
+    '📡 webRequest listener registered for endpoints:',
+    SEGMENT_ENDPOINTS
+  );
 }
 
 /**
@@ -39,22 +45,24 @@ function handleRequest(
   details: Browser.WebRequest.OnBeforeRequestDetailsType
 ): void {
   log.group(`🎯 Request intercepted (tabId: ${details.tabId})`, true);
-  
+
   // Early exit checks (before any expensive processing)
   if (details.tabId < 0) {
     log.debug('❌ Ignoring: Invalid tabId');
     log.groupEnd();
     return;
   }
-  
+
   // Check if domain is allowed (fast map lookup)
   const tabDomainInfo = tabDomains.get(details.tabId);
   if (!tabDomainInfo || !tabDomainInfo.isAllowed) {
-    log.debug(`❌ Ignoring: Domain not allowed (tabId: ${details.tabId}, domain: ${tabDomainInfo?.domain || 'unknown'})`);
+    log.debug(
+      `❌ Ignoring: Domain not allowed (tabId: ${details.tabId}, domain: ${tabDomainInfo?.domain || 'unknown'})`
+    );
     log.groupEnd();
     return;
   }
-  
+
   // Only process POST requests with a body
   if (details.method !== 'POST') {
     log.debug('❌ Ignoring: Not a POST request');
@@ -115,6 +123,6 @@ function handleRequest(
 
   // Notify listeners (DevTools panel, popup, etc.)
   notifyListeners(details.tabId, events);
-  
+
   log.groupEnd();
 }

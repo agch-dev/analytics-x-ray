@@ -4,6 +4,7 @@ import { afterEach, beforeAll, afterAll, vi } from 'vitest';
 // Cleanup after each test (only for React component tests)
 // For pure unit tests, this is not needed
 try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { cleanup } = require('@testing-library/react');
   afterEach(() => {
     cleanup();
