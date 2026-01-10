@@ -50,7 +50,7 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.3",
     "@eslint/js": "^9.32.0",
-    "@tailwindcss/vite": "^4.1.11",
+    "@tailwindcss/vite": "^4.1.18",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
