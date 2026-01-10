@@ -1,12 +1,6 @@
-import {
-  ArrowRight01Icon,
-  ArrowDown01Icon,
-  PinIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import React, { useMemo, useState, useCallback } from 'react';
 
-import { HighlightedText, ThemedJsonView } from '@src/components';
+import { HighlightedText } from '@src/components';
 import { cn, copyToClipboard } from '@src/lib';
 import {
   shouldChunkArray,
@@ -15,6 +9,9 @@ import {
   CHUNK_SIZE,
 } from '@src/lib/arrayChunking';
 
+import { ExpandButton } from './ExpandButton';
+import { NestedContent } from './NestedContent';
+import { PinButton } from './PinButton';
 import { PropertyActions } from './PropertyActions';
 import { PropertyValue } from './PropertyValue';
 import type { PropertyRowProps, PropertyRowState } from './types';
@@ -34,7 +31,7 @@ export const PropertyRow = React.memo(
     isPinned = false,
     onTogglePin,
     showPinButton = false,
-  }: PropertyRowProps) {
+  }: Readonly<PropertyRowProps>) {
     const [state, setState] = useState<PropertyRowState>({
       isExpanded: false,
       copied: false,
@@ -50,7 +47,7 @@ export const PropertyRow = React.memo(
     const expandable = isExpandable(value);
     const displayValue = formatValue(value);
     const valueColorStyle = getValueColor(value);
-    const canPin = showPinButton && depth === 0 && onTogglePin;
+    const canPin = Boolean(showPinButton && depth === 0 && onTogglePin);
     const shouldChunk = shouldChunkArray(value);
     const isArrayValue = isArray(value);
 
@@ -140,63 +137,20 @@ export const PropertyRow = React.memo(
           )}
         >
           {/* Pin button - only show for first-level properties (left side) */}
-          {canPin ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onTogglePin();
-              }}
-              className={cn(
-                `
-                  shrink-0 rounded p-0.5 transition-all
-                  hover:bg-muted
-                `,
-                isPinned
-                  ? 'text-amber-500 opacity-100'
-                  : `
-                    text-muted-foreground opacity-0
-                    group-hover:opacity-100
-                    hover:text-amber-500
-                  `
-              )}
-              title={isPinned ? 'Unpin property' : 'Pin property'}
-              aria-label={
-                isPinned ? `Unpin ${label} property` : `Pin ${label} property`
-              }
-              aria-pressed={isPinned}
-            >
-              <HugeiconsIcon
-                icon={PinIcon}
-                size={12}
-                className={cn('transition-transform', isPinned && 'rotate-45')}
-              />
-            </button>
-          ) : (
-            <span className="w-5 shrink-0" />
-          )}
+          <PinButton
+            canPin={canPin}
+            isPinned={isPinned}
+            label={label}
+            onTogglePin={onTogglePin}
+          />
 
           {/* Expand/collapse button for nested objects */}
-          {expandable ? (
-            <button
-              onClick={toggleExpand}
-              className={`
-                mt-0.5 shrink-0 rounded p-0.5
-                hover:bg-muted
-              `}
-              aria-label={
-                state.isExpanded ? `Collapse ${label}` : `Expand ${label}`
-              }
-              aria-expanded={state.isExpanded}
-            >
-              <HugeiconsIcon
-                icon={state.isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
-                size={12}
-                className="text-muted-foreground"
-              />
-            </button>
-          ) : (
-            <span className="w-4 shrink-0" />
-          )}
+          <ExpandButton
+            expandable={expandable}
+            isExpanded={state.isExpanded}
+            label={label}
+            onToggle={toggleExpand}
+          />
 
           {/* Label */}
           <span
@@ -233,112 +187,18 @@ export const PropertyRow = React.memo(
         {/* Nested properties */}
         {state.isExpanded && (
           <div className="ml-4 border-l border-border/50 pl-3">
-            {/* JSON view for arrays */}
-            {isArrayValue && state.useJsonView ? (
-              <div className="my-2">
-                <ThemedJsonView
-                  value={value}
-                  searchQuery={searchQuery}
-                  fontSize="11px"
-                  collapsed={false}
-                  enableClipboard={false}
-                />
-              </div>
-            ) : shouldChunk &&
-              Array.isArray(value) &&
-              arrayChunks.length > 0 ? (
-              /* Chunked structured view for large arrays */
-              <div className="my-2">
-                {arrayChunks.map((chunk, chunkIndex) => {
-                  const isVisible = state.visibleChunks.has(chunkIndex);
-                  const isLastChunk = chunkIndex === arrayChunks.length - 1;
-                  const allChunksVisible =
-                    state.visibleChunks.size === arrayChunks.length;
-
-                  return (
-                    <div key={chunkIndex}>
-                      {chunkIndex > 0 && (
-                        <button
-                          onClick={() => toggleChunk(chunkIndex)}
-                          className={`
-                            flex w-full items-center gap-1 rounded px-2 py-1
-                            text-left text-xs text-muted-foreground
-                            transition-colors
-                            hover:bg-muted/50 hover:text-foreground
-                          `}
-                          aria-label={
-                            isVisible
-                              ? `Hide items ${chunk.start} to ${chunk.end - 1}`
-                              : `Show items ${chunk.start} to ${chunk.end - 1}`
-                          }
-                          aria-expanded={isVisible}
-                        >
-                          <HugeiconsIcon
-                            icon={
-                              isVisible ? ArrowDown01Icon : ArrowRight01Icon
-                            }
-                            size={10}
-                            className="text-muted-foreground"
-                          />
-                          <span>
-                            {isVisible ? 'Hide' : 'Show'} items {chunk.start}–
-                            {chunk.end - 1} ({chunk.items.length} items)
-                          </span>
-                        </button>
-                      )}
-                      {isVisible && (
-                        <div
-                          className={
-                            chunkIndex > 0
-                              ? 'ml-2 border-l border-border/30 pl-2'
-                              : ''
-                          }
-                        >
-                          {chunk.items.map((item, itemIndex) => {
-                            const actualIndex = chunk.start + itemIndex;
-                            return (
-                              <PropertyRow
-                                key={actualIndex}
-                                label={String(actualIndex)}
-                                value={item}
-                                searchQuery={searchQuery}
-                                depth={depth + 1}
-                                isNested
-                              />
-                            );
-                          })}
-                        </div>
-                      )}
-                      {isLastChunk && !allChunksVisible && (
-                        <button
-                          onClick={showAllChunks}
-                          className={`
-                            mt-2 rounded px-2 py-1 text-xs text-blue-500
-                            transition-colors
-                            hover:bg-blue-500/10 hover:text-blue-400
-                          `}
-                          aria-label={`Show all ${value.length} items`}
-                        >
-                          Show all items ({value.length} total)
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : nestedEntries.length > 0 ? (
-              /* Regular nested view for small arrays and objects */
-              nestedEntries.map(({ key, value: nestedValue }) => (
-                <PropertyRow
-                  key={key}
-                  label={key}
-                  value={nestedValue}
-                  searchQuery={searchQuery}
-                  depth={depth + 1}
-                  isNested
-                />
-              ))
-            ) : null}
+            <NestedContent
+              value={value}
+              isArrayValue={isArrayValue}
+              shouldChunk={shouldChunk}
+              arrayChunks={arrayChunks}
+              nestedEntries={nestedEntries}
+              state={state}
+              searchQuery={searchQuery}
+              depth={depth}
+              toggleChunk={toggleChunk}
+              showAllChunks={showAllChunks}
+            />
           </div>
         )}
       </div>
