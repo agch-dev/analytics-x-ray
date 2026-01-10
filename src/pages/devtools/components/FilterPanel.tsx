@@ -6,11 +6,11 @@ import { cn, normalizeEventNameForFilter } from '@src/lib/utils';
 import type { SegmentEvent } from '@src/types';
 
 interface FilterPanelProps {
-  events: SegmentEvent[];
-  hiddenEventNames: Set<string>;
-  onToggleEventName: (eventName: string) => void;
-  onShowAll: () => void;
-  onHideAll: () => void;
+  readonly events: SegmentEvent[];
+  readonly hiddenEventNames: Set<string>;
+  readonly onToggleEventName: (eventName: string) => void;
+  readonly onShowAll: () => void;
+  readonly onHideAll: () => void;
 }
 
 /**
@@ -21,7 +21,8 @@ function getPillColorClasses(borderColorClass: string): string {
   if (!borderColorClass) return '';
 
   // Extract color from border-l-{color}-500 format
-  const colorMatch = borderColorClass.match(/border-l-(\w+)-500/);
+  const regex = /border-l-(\w+)-500/;
+  const colorMatch = regex.exec(borderColorClass);
   if (!colorMatch) return '';
 
   const color = colorMatch[1];
@@ -50,7 +51,7 @@ export function FilterPanel({
   onToggleEventName,
   onShowAll,
   onHideAll,
-}: FilterPanelProps) {
+}: Readonly<FilterPanelProps>) {
   // Get all unique event names from current events (normalized)
   const uniqueEventNames = useMemo(() => {
     const names = new Set<string>();
@@ -61,7 +62,7 @@ export function FilterPanel({
       );
       names.add(normalizedName);
     });
-    return Array.from(names).sort();
+    return Array.from(names).sort((a, b) => a.localeCompare(b));
   }, [events]);
 
   // Map normalized event names to their bucket colors
@@ -121,10 +122,18 @@ export function FilterPanel({
           const pillColorClasses = eventNameColors.get(eventName) || '';
           const hasColor = pillColorClasses.length > 0;
 
+          // Determine button variant based on color and hidden state
+          let variant: 'default' | 'secondary' | 'ghost' = 'default';
+          if (hasColor) {
+            variant = 'ghost';
+          } else if (isHidden) {
+            variant = 'secondary';
+          }
+
           return (
             <Button
               key={eventName}
-              variant={hasColor ? 'ghost' : isHidden ? 'secondary' : 'default'}
+              variant={variant}
               size="sm"
               onClick={() => onToggleEventName(eventName)}
               className={cn(
