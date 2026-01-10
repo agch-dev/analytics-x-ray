@@ -1,14 +1,19 @@
-import { useState, useRef, useCallback } from 'react';
 import type { Virtualizer } from '@tanstack/react-virtual';
+import { useState, useRef, useCallback } from 'react';
+
 import type { SegmentEvent } from '@src/types';
+
 import type { ListItem } from './types';
-import { ROW_HEADER_HEIGHT, STICKY_SHOW_THRESHOLD, STICKY_HIDE_THRESHOLD } from './types';
+import {
+  ROW_HEADER_HEIGHT,
+  STICKY_SHOW_THRESHOLD,
+  STICKY_HIDE_THRESHOLD,
+} from './types';
 
 interface UseStickyHeaderParams {
   listItems: ListItem[];
   expandedEventIds: Set<string>;
   virtualizer: Virtualizer<HTMLDivElement, Element>;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
   onToggleExpand: (id: string) => void;
 }
 
@@ -28,7 +33,6 @@ export function useStickyHeader({
   listItems,
   expandedEventIds,
   virtualizer,
-  scrollContainerRef,
   onToggleExpand,
 }: UseStickyHeaderParams): UseStickyHeaderReturn {
   const [stickyEvent, setStickyEvent] = useState<SegmentEvent | null>(null);
@@ -66,7 +70,9 @@ export function useStickyHeader({
         // Use hysteresis ONLY for the bottom boundary (prevents flicker when scrolling down)
         // For the top boundary, immediately hide when the actual header becomes visible
         const isCurrentlySticky = currentStickyIdRef.current === event.id;
-        const bottomThreshold = isCurrentlySticky ? STICKY_HIDE_THRESHOLD : STICKY_SHOW_THRESHOLD;
+        const bottomThreshold = isCurrentlySticky
+          ? STICKY_HIDE_THRESHOLD
+          : STICKY_SHOW_THRESHOLD;
         const enoughContentVisible = visibleBelowHeader > bottomThreshold;
         const shouldBeSticky = headerFullyHidden && enoughContentVisible;
 
