@@ -15,3 +15,10 @@ export { cleanupTabStorage, cleanupStaleTabs } from './cleanup';
 
 // Monitoring Utilities
 export { logStorageSize } from './monitoring';
+
+// Type Guards
+export {
+  isSegmentEventArray,
+  isStoredEvents,
+  isNumberArray,
+} from './typeGuards';

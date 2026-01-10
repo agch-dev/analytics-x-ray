@@ -17,6 +17,7 @@ import {
   createContextLogger,
   createTabStorage,
   logStorageSize,
+  isNumberArray,
 } from '@src/lib';
 import { useConfigStore } from '@src/stores';
 import type { SegmentEvent } from '@src/types';
@@ -384,7 +385,8 @@ export const syncReloadTimestamps = async (tabId: number): Promise<void> => {
   try {
     const reloadsKey = `tab_${tabId}_reloads`;
     const result = await Browser.storage.local.get(reloadsKey);
-    const reloadTimestamps = (result[reloadsKey] as number[]) || [];
+    const rawReloads = result[reloadsKey];
+    const reloadTimestamps = isNumberArray(rawReloads) ? rawReloads : [];
 
     // Update store with reload timestamps using setState
     store.setState({ reloadTimestamps });

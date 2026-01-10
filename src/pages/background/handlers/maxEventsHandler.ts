@@ -6,7 +6,7 @@
 
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger } from '@src/lib';
+import { createContextLogger, isStoredEvents } from '@src/lib';
 import { useConfigStore } from '@src/stores';
 
 import { tabEvents } from '../utils/eventStorage';
@@ -64,8 +64,10 @@ export function setupMaxEventsListener(): void {
           Browser.storage.local
             .get('events')
             .then((result) => {
-              const storedEvents: StoredEvents =
-                (result.events as StoredEvents) || {};
+              const rawEvents = result.events;
+              const storedEvents: StoredEvents = isStoredEvents(rawEvents)
+                ? rawEvents
+                : {};
               storedEvents[tabId] = trimmed;
               Browser.storage.local
                 .set({ events: storedEvents })

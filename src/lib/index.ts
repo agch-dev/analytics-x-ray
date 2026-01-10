@@ -38,6 +38,9 @@ export {
   cleanupTabStorage,
   cleanupStaleTabs,
   logStorageSize,
+  isSegmentEventArray,
+  isStoredEvents,
+  isNumberArray,
 } from './storage';
 
 // Segment Parsing

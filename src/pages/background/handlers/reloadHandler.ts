@@ -6,7 +6,7 @@
 
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger } from '@src/lib';
+import { createContextLogger, isNumberArray } from '@src/lib';
 import type { ReloadDetectedMessage } from '@src/types';
 
 import { updateTabDomainInfo } from '../utils/domainTracking';
@@ -77,7 +77,8 @@ export function setupReloadTracking(): void {
         // Get existing reload timestamps
         const reloadsKey = `tab_${tabId}_reloads`;
         const result = await Browser.storage.local.get(reloadsKey);
-        const existingReloads = (result[reloadsKey] as number[]) || [];
+        const rawReloads = result[reloadsKey];
+        const existingReloads = isNumberArray(rawReloads) ? rawReloads : [];
 
         // Append new timestamp
         const updatedReloads = [...existingReloads, timestamp];

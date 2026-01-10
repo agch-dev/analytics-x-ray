@@ -10,6 +10,8 @@ import {
   createContextLogger,
   type SegmentEvent,
   logStorageSize,
+  isStoredEvents,
+  isSegmentEventArray,
 } from '@src/lib';
 import { useConfigStore } from '@src/stores';
 
@@ -66,7 +68,8 @@ export async function storeEvents(
   // Persist to storage for service worker restarts
   try {
     const result = await Browser.storage.local.get('events');
-    const events: StoredEvents = (result.events as StoredEvents) || {};
+    const rawEvents = result.events;
+    const events: StoredEvents = isStoredEvents(rawEvents) ? rawEvents : {};
     events[tabId] = updated;
     await Browser.storage.local.set({ events });
     log.debug(
@@ -99,8 +102,10 @@ export async function getEventsForTab(tabId: number): Promise<SegmentEvent[]> {
   // Fall back to storage
   try {
     const result = await Browser.storage.local.get('events');
-    const events: StoredEvents = (result.events as StoredEvents) || {};
-    return events[tabId] || [];
+    const rawEvents = result.events;
+    const events: StoredEvents = isStoredEvents(rawEvents) ? rawEvents : {};
+    const tabEvents = events[tabId];
+    return isSegmentEventArray(tabEvents) ? tabEvents : [];
   } catch {
     return [];
   }
@@ -114,7 +119,8 @@ export async function clearEventsForTab(tabId: number): Promise<void> {
 
   try {
     const result = await Browser.storage.local.get('events');
-    const events: StoredEvents = (result.events as StoredEvents) || {};
+    const rawEvents = result.events;
+    const events: StoredEvents = isStoredEvents(rawEvents) ? rawEvents : {};
     delete events[tabId];
     await Browser.storage.local.set({ events });
 
@@ -134,16 +140,21 @@ export async function restoreEventsFromStorage(): Promise<void> {
   try {
     log.info('🔄 Restoring events from storage...');
     const result = await Browser.storage.local.get('events');
-    const events: StoredEvents = (result.events as StoredEvents) || {};
+    const rawEvents = result.events;
+    const events: StoredEvents = isStoredEvents(rawEvents) ? rawEvents : {};
 
     let totalEvents = 0;
     for (const [tabIdStr, tabEventList] of Object.entries(events)) {
       const tabId = parseInt(tabIdStr, 10);
-      if (!isNaN(tabId) && Array.isArray(tabEventList)) {
-        tabEvents.set(tabId, tabEventList as SegmentEvent[]);
+      if (!isNaN(tabId) && isSegmentEventArray(tabEventList)) {
+        tabEvents.set(tabId, tabEventList);
         totalEvents += tabEventList.length;
         log.debug(
           `  ✅ Restored ${tabEventList.length} events for tab ${tabId}`
+        );
+      } else if (!isNaN(tabId)) {
+        log.warn(
+          `  ⚠️ Skipped invalid event data for tab ${tabId} (not a valid SegmentEvent array)`
         );
       }
     }

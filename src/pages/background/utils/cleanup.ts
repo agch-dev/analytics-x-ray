@@ -10,6 +10,7 @@ import {
   createContextLogger,
   cleanupTabStorage,
   cleanupStaleTabs,
+  isStoredEvents,
 } from '@src/lib';
 
 import { tabEvents } from './eventStorage';
@@ -32,7 +33,8 @@ export async function cleanupTabData(tabId: number): Promise<void> {
 
     // Clean up events from storage
     const result = await Browser.storage.local.get('events');
-    const events: StoredEvents = (result.events as StoredEvents) || {};
+    const rawEvents = result.events;
+    const events: StoredEvents = isStoredEvents(rawEvents) ? rawEvents : {};
     delete events[tabId];
     await Browser.storage.local.set({ events });
 
