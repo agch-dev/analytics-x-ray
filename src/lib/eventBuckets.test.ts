@@ -11,6 +11,17 @@ import {
   type EventBucketConfig,
 } from './eventBuckets';
 
+// Helper function to test multiple events against expected bucket
+const testEventsAgainstBucket = (
+  eventNames: string[],
+  expectedBucket: EventBucket
+) => {
+  eventNames.forEach((eventName) => {
+    const event = createSegmentEvent({ name: eventName });
+    expect(categorizeEvent(event)).toBe(expectedBucket);
+  });
+};
+
 describe('eventBuckets.ts', () => {
   describe('categorizeEvent', () => {
     describe('event type matching', () => {
@@ -69,10 +80,7 @@ describe('eventBuckets.ts', () => {
           'Page Scrolled',
         ];
 
-        events.forEach((eventName) => {
-          const event = createSegmentEvent({ name: eventName });
-          expect(categorizeEvent(event)).toBe('interaction');
-        });
+        testEventsAgainstBucket(events, 'interaction');
       });
 
       it('should categorize navigation events by name pattern', () => {
@@ -83,10 +91,7 @@ describe('eventBuckets.ts', () => {
           'Page Routed',
         ];
 
-        events.forEach((eventName) => {
-          const event = createSegmentEvent({ name: eventName });
-          expect(categorizeEvent(event)).toBe('navigation');
-        });
+        testEventsAgainstBucket(events, 'navigation');
       });
 
       it('should categorize conversion events by name pattern', () => {
@@ -101,10 +106,7 @@ describe('eventBuckets.ts', () => {
           'Payment Paid',
         ];
 
-        events.forEach((eventName) => {
-          const event = createSegmentEvent({ name: eventName });
-          expect(categorizeEvent(event)).toBe('conversion');
-        });
+        testEventsAgainstBucket(events, 'conversion');
       });
 
       it('should categorize error events by name pattern', () => {
@@ -116,10 +118,7 @@ describe('eventBuckets.ts', () => {
           'Warning Displayed',
         ];
 
-        events.forEach((eventName) => {
-          const event = createSegmentEvent({ name: eventName });
-          expect(categorizeEvent(event)).toBe('error');
-        });
+        testEventsAgainstBucket(events, 'error');
       });
 
       it('should categorize identify events by name pattern', () => {
@@ -140,10 +139,7 @@ describe('eventBuckets.ts', () => {
           'ClIcK bUtToN',
         ];
 
-        events.forEach((eventName) => {
-          const event = createSegmentEvent({ name: eventName });
-          expect(categorizeEvent(event)).toBe('interaction');
-        });
+        testEventsAgainstBucket(events, 'interaction');
       });
 
       it('should match event types case-insensitively in name', () => {
