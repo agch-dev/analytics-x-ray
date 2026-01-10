@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# Run build to ensure code builds without errors
+echo "Running build:chrome..."
+yarn build:chrome || exit 1
+
+# Run lint-staged for formatting and linting
 npx lint-staged

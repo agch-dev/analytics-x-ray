@@ -18,16 +18,9 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  
-  "permissions": [
-    "activeTab",
-    "tabs",
-    "storage",
-    "webRequest"
-  ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+
+  "permissions": ["activeTab", "tabs", "storage", "webRequest"],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "src/pages/background/index.ts",
     "type": "module"
@@ -35,10 +28,7 @@
   "devtools_page": "src/pages/devtools/index.html",
   "web_accessible_resources": [
     {
-      "resources": [
-        "icon128.png",
-        "icon32.png"
-      ],
+      "resources": ["icons/icon128.png", "icons/icon32.png"],
       "matches": []
     }
   ]
