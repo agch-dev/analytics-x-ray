@@ -12,8 +12,8 @@ import {
   normalizeDomain,
   getBaseDomain,
   isDomainAllowed,
-} from '@src/lib/domain';
-import { createChromeStorage } from '@src/lib/storage';
+  createChromeStorage,
+} from '@src/lib';
 
 export interface AllowedDomain {
   domain: string; // e.g., "example.com"

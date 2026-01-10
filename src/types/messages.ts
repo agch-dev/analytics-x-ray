@@ -5,7 +5,7 @@
  * between background script, DevTools panel, popup, and content scripts.
  */
 
-import type { SegmentEvent } from '@src/lib/parsing/segment';
+import type { SegmentEvent } from '@src/lib';
 
 // All message types used in extension communication
 export type MessageType =

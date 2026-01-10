@@ -1,6 +1,6 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react';
 
-import { createContextLogger } from '@src/lib/logger';
+import { createContextLogger } from '@src/lib';
 
 const log = createContextLogger('ui');
 

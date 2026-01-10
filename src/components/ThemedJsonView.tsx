@@ -3,9 +3,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import JsonView from '@uiw/react-json-view';
 import { useState, useCallback } from 'react';
 
-import { getJsonViewTheme } from '@src/lib/jsonViewTheme';
-import { highlightText } from '@src/lib/search';
-import { copyToClipboard } from '@src/lib/utils';
+import { getJsonViewTheme, highlightText, copyToClipboard } from '@src/lib';
 
 interface ThemedJsonViewProps {
   value: unknown;

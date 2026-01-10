@@ -1,8 +1,12 @@
 import { useMemo } from 'react';
 
 import { Button } from '@src/components/ui/button';
-import { categorizeEvent, getBucketColor } from '@src/lib/eventBuckets';
-import { cn, normalizeEventNameForFilter } from '@src/lib/utils';
+import {
+  categorizeEvent,
+  getBucketColor,
+  cn,
+  normalizeEventNameForFilter,
+} from '@src/lib';
 import type { SegmentEvent } from '@src/types';
 
 interface FilterPanelProps {

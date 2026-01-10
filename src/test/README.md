@@ -7,7 +7,11 @@ This directory contains shared testing utilities for the analytics-x-ray test su
 Import utilities from the test index:
 
 ```typescript
-import { createSegmentEvent, createBatchPayload, setupMockChromeStorage } from '@src/test';
+import {
+  createSegmentEvent,
+  createBatchPayload,
+  setupMockChromeStorage,
+} from '@src/test';
 ```
 
 ## Available Utilities
@@ -17,7 +21,11 @@ import { createSegmentEvent, createBatchPayload, setupMockChromeStorage } from '
 Create test Segment events with sensible defaults:
 
 ```typescript
-import { createBatchEvent, createBatchPayload, createSegmentEvent } from '@src/test';
+import {
+  createBatchEvent,
+  createBatchPayload,
+  createSegmentEvent,
+} from '@src/test';
 
 // Create a basic batch event
 const event = createBatchEvent({ type: 'track', event: 'Button Clicked' });
@@ -49,7 +57,7 @@ describe('MyComponent', () => {
     const mockStorage = setupMockChromeStorage({
       'my-key': { value: 'test' },
     });
-    
+
     const result = await mockStorage.get('my-key');
     expect(result).toEqual({ 'my-key': { value: 'test' } });
   });
@@ -139,15 +147,20 @@ afterEach(() => {
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { processBatchPayload } from '@src/lib/parsing/segment';
+import { processBatchPayload } from '@src/lib';
 import { createBatchPayload, createEventsByType } from '@src/test';
 
 describe('processBatchPayload', () => {
   it('should process multiple events', () => {
     const events = createEventsByType(['track', 'page', 'identify']);
     const payload = createBatchPayload(events);
-    
-    const result = processBatchPayload(payload, 1, 'https://example.com', 'segment');
+
+    const result = processBatchPayload(
+      payload,
+      1,
+      'https://example.com',
+      'segment'
+    );
     expect(result).toHaveLength(3);
   });
 });
@@ -161,11 +174,11 @@ import { setupMockChromeStorage } from '@src/test';
 
 describe('Storage Operations', () => {
   let mockStorage: ReturnType<typeof setupMockChromeStorage>;
-  
+
   beforeEach(() => {
-    mockStorage = setupMockChromeStorage({ 'key': 'value' });
+    mockStorage = setupMockChromeStorage({ key: 'value' });
   });
-  
+
   it('should read from storage', async () => {
     const result = await mockStorage.get('key');
     expect(result).toEqual({ key: 'value' });

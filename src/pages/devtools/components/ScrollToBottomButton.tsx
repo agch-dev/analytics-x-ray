@@ -2,7 +2,7 @@ import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
 import { Button } from '@src/components/ui/button';
-import { cn } from '@src/lib/utils';
+import { cn } from '@src/lib';
 
 interface ScrollToBottomButtonProps {
   isVisible: boolean;

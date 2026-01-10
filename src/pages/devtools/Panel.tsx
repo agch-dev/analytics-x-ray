@@ -6,10 +6,11 @@ import { useDebounce } from '@src/hooks';
 import {
   sanitizeSearchQuery,
   isValidSearchQuery,
-} from '@src/lib/domain/validation';
-import { createContextLogger } from '@src/lib/logger';
-import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
-import { normalizeEventNameForFilter } from '@src/lib/utils';
+  createContextLogger,
+  eventMatchesSearch,
+  parseSearchQuery,
+  normalizeEventNameForFilter,
+} from '@src/lib';
 import {
   getTabStore,
   useConfigStore,

@@ -6,8 +6,11 @@
 
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger } from '@src/lib/logger';
-import { cleanupTabStorage, cleanupStaleTabs } from '@src/lib/storage';
+import {
+  createContextLogger,
+  cleanupTabStorage,
+  cleanupStaleTabs,
+} from '@src/lib';
 
 import { tabEvents } from './eventStorage';
 

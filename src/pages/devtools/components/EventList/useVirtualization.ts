@@ -8,7 +8,7 @@ import {
   type RefObject,
 } from 'react';
 
-import { urlsAreDifferent } from '@src/lib/utils';
+import { urlsAreDifferent } from '@src/lib';
 import type { SegmentEvent } from '@src/types';
 
 import {

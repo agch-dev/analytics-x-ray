@@ -7,7 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import * as React from 'react';
 
-import { cn } from '@src/lib/utils';
+import { cn } from '@src/lib';
 
 const Select = SelectPrimitive.Root;
 

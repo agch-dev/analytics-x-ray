@@ -10,7 +10,7 @@
 import { useEffect } from 'react';
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger } from '@src/lib/logger';
+import { createContextLogger } from '@src/lib';
 import { syncReloadTimestamps } from '@src/stores';
 import type { SegmentEvent } from '@src/types';
 import { isEventsCapturedMessage, isReloadDetectedMessage } from '@src/types';

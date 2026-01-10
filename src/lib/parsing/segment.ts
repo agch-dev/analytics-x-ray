@@ -20,7 +20,7 @@ export type {
 
 export { EVENT_TYPE_COLORS, EVENT_TYPE_LABELS } from '@src/types/segment';
 
-import { createContextLogger } from '@src/lib/logger';
+import { createContextLogger } from '@src/lib';
 import type {
   SegmentProvider,
   SegmentBatchEvent,

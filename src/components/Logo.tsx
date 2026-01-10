@@ -1,4 +1,4 @@
-import { isDevMode } from '@src/lib/utils';
+import { isDevMode } from '@src/lib';
 
 import iconDev from '@assets/images/iconDev.svg';
 import iconProd from '@assets/images/iconProd.svg';

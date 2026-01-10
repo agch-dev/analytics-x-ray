@@ -6,14 +6,14 @@
 
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger } from '@src/lib/logger';
 import {
+  createContextLogger,
   SEGMENT_ENDPOINTS,
   decodeRequestBody,
   detectProvider,
   parseSegmentPayload,
   processBatchPayload,
-} from '@src/lib/parsing/segment';
+} from '@src/lib';
 
 import { tabDomains } from '../utils/domainTracking';
 import { storeEvents } from '../utils/eventStorage';

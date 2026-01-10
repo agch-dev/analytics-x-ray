@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ThemedJsonView } from '@src/components';
-import { chunkArray } from '@src/lib/arrayChunking';
+import { chunkArray } from '@src/lib';
 
 import { ChunkItem } from './ChunkItem';
 import { PropertyRow } from './PropertyRow';

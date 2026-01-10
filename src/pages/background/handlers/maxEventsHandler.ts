@@ -6,7 +6,7 @@
 
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger } from '@src/lib/logger';
+import { createContextLogger } from '@src/lib';
 import { useConfigStore } from '@src/stores';
 
 import { tabEvents } from '../utils/eventStorage';

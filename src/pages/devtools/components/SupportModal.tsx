@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@src/components/ui/dialog';
-import { cn, getFeedbackMailtoLink } from '@src/lib/utils';
+import { cn, getFeedbackMailtoLink } from '@src/lib';
 
 interface SupportModalProps {
   open: boolean;

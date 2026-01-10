@@ -2,7 +2,7 @@ import { ArrowRight01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import React from 'react';
 
-import { chunkArray } from '@src/lib/arrayChunking';
+import { chunkArray } from '@src/lib';
 
 import { PropertyRow } from './PropertyRow';
 import type { PropertyRowState } from './types';

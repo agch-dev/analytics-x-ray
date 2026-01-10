@@ -1,4 +1,4 @@
-import { highlightText } from '@src/lib/search';
+import { highlightText } from '@src/lib';
 
 interface HighlightedTextProps {
   text: string;

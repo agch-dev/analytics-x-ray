@@ -29,11 +29,7 @@ export {
 } from './search';
 
 // JSON View Theme
-export {
-  getJsonViewTheme,
-  getValueTypeColor,
-  isDarkMode,
-} from './jsonViewTheme';
+export { getJsonViewTheme, getValueTypeColor } from './jsonViewTheme';
 
 // Storage
 export {

@@ -6,9 +6,11 @@
 
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger } from '@src/lib/logger';
-import type { SegmentEvent } from '@src/lib/parsing/segment';
-import { logStorageSize } from '@src/lib/storage';
+import {
+  createContextLogger,
+  type SegmentEvent,
+  logStorageSize,
+} from '@src/lib';
 import { useConfigStore } from '@src/stores';
 
 const log = createContextLogger('background');

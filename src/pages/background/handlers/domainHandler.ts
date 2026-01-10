@@ -6,8 +6,7 @@
 
 import Browser from 'webextension-polyfill';
 
-import { extractDomain } from '@src/lib/domain';
-import { createContextLogger } from '@src/lib/logger';
+import { extractDomain, createContextLogger } from '@src/lib';
 import { useDomainStore } from '@src/stores';
 
 import {

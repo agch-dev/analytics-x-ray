@@ -6,8 +6,8 @@ import {
   useCallback,
 } from 'react';
 
-import type { SearchMatch } from '@src/lib/search';
-import { normalizeEventNameForFilter } from '@src/lib/utils';
+import type { SearchMatch } from '@src/lib';
+import { normalizeEventNameForFilter } from '@src/lib';
 import type { SegmentEvent } from '@src/types';
 
 import { EmptyState } from '../EmptyState';

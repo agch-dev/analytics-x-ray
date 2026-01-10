@@ -13,8 +13,11 @@ import Browser from 'webextension-polyfill';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-import { createContextLogger } from '@src/lib/logger';
-import { createTabStorage, logStorageSize } from '@src/lib/storage';
+import {
+  createContextLogger,
+  createTabStorage,
+  logStorageSize,
+} from '@src/lib';
 import { useConfigStore } from '@src/stores';
 import type { SegmentEvent } from '@src/types';
 

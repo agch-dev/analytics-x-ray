@@ -7,7 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import * as React from 'react';
 
-import { cn } from '@src/lib/utils';
+import { cn } from '@src/lib';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 

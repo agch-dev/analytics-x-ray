@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@src/components/ui/dialog';
-import { getFeedbackMailtoLink } from '@src/lib/utils';
+import { getFeedbackMailtoLink } from '@src/lib';
 
 interface FeedbackModalProps {
   open: boolean;

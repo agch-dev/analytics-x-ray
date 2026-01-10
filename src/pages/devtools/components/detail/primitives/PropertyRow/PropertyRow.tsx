@@ -1,13 +1,14 @@
 import React, { useMemo, useState, useCallback } from 'react';
 
 import { HighlightedText } from '@src/components';
-import { cn, copyToClipboard } from '@src/lib';
 import {
+  cn,
+  copyToClipboard,
   shouldChunkArray,
   chunkArray,
   INITIAL_CHUNK_SIZE,
   CHUNK_SIZE,
-} from '@src/lib/arrayChunking';
+} from '@src/lib';
 
 import { ExpandButton } from './ExpandButton';
 import { NestedContent } from './NestedContent';

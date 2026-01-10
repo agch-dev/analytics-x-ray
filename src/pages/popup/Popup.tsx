@@ -12,8 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@src/components/ui/card';
-import { isDevMode } from '@src/lib/utils';
-import { getFormattedVersion } from '@src/lib/version';
+import { isDevMode, getFormattedVersion } from '@src/lib';
 
 export default function Popup() {
   const handleOpenOptions = () => {

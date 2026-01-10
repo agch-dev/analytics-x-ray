@@ -12,7 +12,7 @@ import {
   getEventUrl,
   domainsAreDifferent,
   extractPathFromUrl,
-} from '@src/lib/utils';
+} from '@src/lib';
 import type { SegmentEvent } from '@src/types';
 
 import { PropertyRow } from './detail/primitives/PropertyRow';

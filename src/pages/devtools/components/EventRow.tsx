@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { ErrorBoundary, EventDetailErrorState } from '@src/components';
-import type { SearchMatch } from '@src/lib/search';
-import { cn } from '@src/lib/utils';
+import type { SearchMatch } from '@src/lib';
+import { cn } from '@src/lib';
 import type { SegmentEvent } from '@src/types';
 
 import { EventDetailView } from './detail';

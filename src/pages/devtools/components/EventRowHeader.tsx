@@ -7,10 +7,14 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import React from 'react';
 
 import { Button } from '@src/components/ui/button';
-import { categorizeEvent, getBucketColor } from '@src/lib/eventBuckets';
-import type { SearchMatch } from '@src/lib/search';
-import { highlightText } from '@src/lib/search';
-import { cn, normalizeEventNameForFilter } from '@src/lib/utils';
+import {
+  categorizeEvent,
+  getBucketColor,
+  type SearchMatch,
+  highlightText,
+  cn,
+  normalizeEventNameForFilter,
+} from '@src/lib';
 import type { SegmentEvent } from '@src/types';
 
 type ViewMode = 'json' | 'structured';

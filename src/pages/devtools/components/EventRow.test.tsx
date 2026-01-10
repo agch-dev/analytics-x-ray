@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import type { SearchMatch } from '@src/lib/search';
+import type { SearchMatch } from '@src/lib';
 import { createSegmentEvent } from '@src/test';
 import type { SegmentEvent, ViewMode } from '@src/types';
 

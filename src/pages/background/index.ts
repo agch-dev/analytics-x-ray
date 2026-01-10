@@ -11,8 +11,7 @@
 
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger } from '@src/lib/logger';
-import { logStorageSize } from '@src/lib/storage';
+import { createContextLogger, logStorageSize } from '@src/lib';
 
 import {
   setupDomainAllowlistListener,

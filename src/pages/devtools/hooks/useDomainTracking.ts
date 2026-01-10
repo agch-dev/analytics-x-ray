@@ -12,8 +12,8 @@ import {
   getTabDomain,
   isDomainAllowed,
   normalizeDomain,
-} from '@src/lib/domain';
-import { createContextLogger } from '@src/lib/logger';
+  createContextLogger,
+} from '@src/lib';
 import { useDomainStore } from '@src/stores';
 import { isDomainChangedMessage } from '@src/types';
 

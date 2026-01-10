@@ -7,8 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@src/components/ui/card';
-import { normalizeDomain, getBaseDomain } from '@src/lib/domain';
-import { validateDomainInput } from '@src/lib/domain/validation';
+import { normalizeDomain, getBaseDomain, validateDomainInput } from '@src/lib';
 import { useDomainStore, selectAllowedDomains } from '@src/stores';
 
 import { AddDomainInput } from './AddDomainInput';
