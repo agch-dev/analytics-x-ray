@@ -32,18 +32,7 @@ export {
   createTabStorage,
   cleanupTabStorage,
   cleanupStaleTabs,
-  getStorageSizeInfo,
   logStorageSize,
-  type StorageAdapter,
-  type StorageSizeInfo,
-} from './storage';
-
-// Storage Type Guards
-export {
-  isSegmentEventArray,
-  isStoredEvents,
-  isNumberArray,
-  isStorageResult,
 } from './storage';
 
 // Segment Parsing
@@ -52,18 +41,7 @@ export {
   detectProvider,
   decodeRequestBody,
   parseSegmentPayload,
-  isValidBatchEvent,
-  getEventName,
-  normalizeEvent,
   processBatchPayload,
-  EVENT_TYPE_COLORS,
-  EVENT_TYPE_LABELS,
-  type SegmentEventType,
-  type SegmentProvider,
-  type SegmentContext,
-  type SegmentBatchEvent,
-  type SegmentBatchPayload,
-  type SegmentEvent,
 } from './parsing/segment';
 
 // Domain
@@ -71,9 +49,7 @@ export {
   extractDomain,
   normalizeDomain,
   getBaseDomain,
-  matchesDomainWithSubdomains,
   isDomainAllowed,
-  isSubdomainOfAllowedDomain,
   getTabDomain,
   isSpecialPage,
 } from './domain';
@@ -83,11 +59,10 @@ export {
   validateDomainInput,
   sanitizeSearchQuery,
   isValidSearchQuery,
-  type DomainValidationResult,
 } from './domain/validation';
 
 // Version
-export { getVersion, getFormattedVersion } from './version';
+export { getFormattedVersion } from './version';
 
 // Array Chunking
 export {
@@ -98,10 +73,4 @@ export {
 } from './arrayChunking';
 
 // Event Buckets
-export {
-  categorizeEvent,
-  getBucketConfig,
-  getBucketColor,
-  type EventBucket,
-  type EventBucketConfig,
-} from './eventBuckets';
+export { categorizeEvent, getBucketColor } from './eventBuckets';
