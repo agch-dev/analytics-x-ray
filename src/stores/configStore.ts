@@ -213,6 +213,55 @@ function getPinnedPath(
   return null;
 }
 
+/**
+ * Helper to toggle an item in an array (add if not present, remove if present)
+ */
+function toggleItemInArray(arr: string[], item: string): void {
+  const idx = arr.indexOf(item);
+  if (idx === -1) {
+    arr.push(item);
+  } else {
+    arr.splice(idx, 1);
+  }
+}
+
+/**
+ * Helper to update a pinned array in a profile based on section and subsection
+ */
+function updatePinnedArray(
+  profile: PinnedPropertiesProfile,
+  section: string,
+  subsection: string | null,
+  property: string
+): void {
+  if (section === 'properties') {
+    toggleItemInArray(profile.properties, property);
+    return;
+  }
+
+  if (section === 'traits') {
+    toggleItemInArray(profile.traits, property);
+    return;
+  }
+
+  if (section === 'context' && subsection) {
+    const contextKey = subsection as keyof typeof profile.context;
+    const arr = profile.context[contextKey];
+    if (arr) {
+      toggleItemInArray(arr, property);
+    }
+    return;
+  }
+
+  if (section === 'metadata' && subsection) {
+    const metadataKey = subsection as keyof typeof profile.metadata;
+    const arr = profile.metadata[metadataKey];
+    if (arr) {
+      toggleItemInArray(arr, property);
+    }
+  }
+}
+
 export const useConfigStore = create<ConfigStore>()(
   persist(
     (set, get) => ({
@@ -242,43 +291,7 @@ export const useConfigStore = create<ConfigStore>()(
             JSON.stringify(currentProfile)
           ) as PinnedPropertiesProfile;
 
-          if (section === 'properties') {
-            const idx = newProfile.properties.indexOf(property);
-            if (idx === -1) {
-              newProfile.properties.push(property);
-            } else {
-              newProfile.properties.splice(idx, 1);
-            }
-          } else if (section === 'traits') {
-            const idx = newProfile.traits.indexOf(property);
-            if (idx === -1) {
-              newProfile.traits.push(property);
-            } else {
-              newProfile.traits.splice(idx, 1);
-            }
-          } else if (section === 'context' && subsection) {
-            const contextKey = subsection as keyof typeof newProfile.context;
-            if (newProfile.context[contextKey]) {
-              const arr = newProfile.context[contextKey];
-              const idx = arr.indexOf(property);
-              if (idx === -1) {
-                arr.push(property);
-              } else {
-                arr.splice(idx, 1);
-              }
-            }
-          } else if (section === 'metadata' && subsection) {
-            const metadataKey = subsection as keyof typeof newProfile.metadata;
-            if (newProfile.metadata[metadataKey]) {
-              const arr = newProfile.metadata[metadataKey];
-              const idx = arr.indexOf(property);
-              if (idx === -1) {
-                arr.push(property);
-              } else {
-                arr.splice(idx, 1);
-              }
-            }
-          }
+          updatePinnedArray(newProfile, section, subsection, property);
 
           return {
             pinnedProperties: {
