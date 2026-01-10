@@ -8,12 +8,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-import {
-  normalizeDomain,
-  getBaseDomain,
-  isDomainAllowed,
-  createChromeStorage,
-} from '@src/lib';
+import { normalizeDomain, getBaseDomain, isDomainAllowed } from '@src/lib';
+import { createChromeStorage } from '@src/lib/storage';
 
 export interface AllowedDomain {
   domain: string; // e.g., "example.com"

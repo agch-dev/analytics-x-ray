@@ -8,7 +8,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-import { createChromeStorage } from '@src/lib';
+import { createChromeStorage } from '@src/lib/storage';
 
 /**
  * Pinned properties configuration
