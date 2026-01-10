@@ -3,7 +3,7 @@ import { useDomainStore, selectAllowedDomains } from '@src/stores/domainStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@src/components/ui/card';
 import { extractDomain, normalizeDomain, getBaseDomain } from '@src/lib/domain';
 import { AddDomainInput } from './AddDomainInput';
-import { validateDomainInput } from '@src/lib/domainValidation';
+import { validateDomainInput } from '@src/lib/domain/validation';
 import { AllowedDomainList } from './AllowedDomainList';
 
 export const DomainTrackingSection = () => {

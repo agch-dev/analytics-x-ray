@@ -25,7 +25,7 @@ vi.mock('@src/lib/logger', () => ({
   }),
 }));
 
-describe('segment.ts', () => {
+describe('parsing/segment.ts', () => {
   describe('detectProvider', () => {
     it('should detect Segment provider from segment.io URL', () => {
       expect(detectProvider('https://api.segment.io/v1/batch')).toBe('segment');

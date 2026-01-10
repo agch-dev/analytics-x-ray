@@ -4,7 +4,7 @@
  * Utilities for validating domain inputs before adding to allowlist
  */
 
-import { extractDomain, normalizeDomain, isSpecialPage } from './domain';
+import { extractDomain, normalizeDomain, isSpecialPage } from './index';
 
 /**
  * Validation result for domain input

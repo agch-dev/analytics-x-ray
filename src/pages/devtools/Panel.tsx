@@ -8,7 +8,7 @@ import { useDomainTracking } from './hooks/useDomainTracking';
 import { createContextLogger } from '@src/lib/logger';
 import { normalizeEventNameForFilter } from '@src/lib/utils';
 import { eventMatchesSearch, parseSearchQuery } from '@src/lib/search';
-import { sanitizeSearchQuery, isValidSearchQuery } from '@src/lib/domainValidation';
+import { sanitizeSearchQuery, isValidSearchQuery } from '@src/lib/domain/validation';
 import { useDebounce } from '@src/hooks';
 import { ErrorBoundary, EventListErrorState } from '@src/components';
 

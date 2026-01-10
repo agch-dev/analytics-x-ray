@@ -139,7 +139,7 @@ afterEach(() => {
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { processBatchPayload } from '@src/lib/segment';
+import { processBatchPayload } from '@src/lib/parsing/segment';
 import { createBatchPayload, createEventsByType } from '@src/test';
 
 describe('processBatchPayload', () => {

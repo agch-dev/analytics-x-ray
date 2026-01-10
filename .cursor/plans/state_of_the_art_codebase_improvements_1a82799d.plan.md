@@ -76,7 +76,7 @@ todos:
     status: completed
   - id: folder-structure
     content: Reorganize folder structure for better code organization
-    status: pending
+    status: completed
   - id: error-boundaries
     content: Add error boundaries around Panel, EventList, and EventDetailView
     status: completed

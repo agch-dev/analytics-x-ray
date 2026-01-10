@@ -11,7 +11,7 @@ import {
   detectProvider,
   parseSegmentPayload,
   processBatchPayload,
-} from '@src/lib/segment';
+} from '@src/lib/parsing/segment';
 import { createContextLogger } from '@src/lib/logger';
 import { tabDomains } from '../utils/domainTracking';
 import { storeEvents } from '../utils/eventStorage';

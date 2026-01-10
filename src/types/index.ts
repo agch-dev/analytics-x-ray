@@ -12,9 +12,9 @@ export type {
   SegmentBatchEvent,
   SegmentBatchPayload,
   SegmentEvent,
-} from './segment';
+} from '@src/lib/parsing/segment';
 
-export { EVENT_TYPE_COLORS, EVENT_TYPE_LABELS } from './segment';
+export { EVENT_TYPE_COLORS, EVENT_TYPE_LABELS } from '@src/lib/parsing/segment';
 
 // Extension message types
 export type {

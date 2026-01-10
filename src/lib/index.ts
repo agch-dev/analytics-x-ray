@@ -56,7 +56,7 @@ export {
   isStorageResult,
 } from './storage';
 
-// Segment
+// Segment Parsing
 export {
   SEGMENT_ENDPOINTS,
   detectProvider,
@@ -74,7 +74,27 @@ export {
   type SegmentBatchEvent,
   type SegmentBatchPayload,
   type SegmentEvent,
-} from './segment';
+} from './parsing/segment';
+
+// Domain
+export {
+  extractDomain,
+  normalizeDomain,
+  getBaseDomain,
+  matchesDomainWithSubdomains,
+  isDomainAllowed,
+  isSubdomainOfAllowedDomain,
+  getTabDomain,
+  isSpecialPage,
+} from './domain';
+
+// Domain Validation
+export {
+  validateDomainInput,
+  sanitizeSearchQuery,
+  isValidSearchQuery,
+  type DomainValidationResult,
+} from './domain/validation';
 
 // Version
 export {
@@ -100,11 +120,3 @@ export {
   type EventBucket,
   type EventBucketConfig,
 } from './eventBuckets';
-
-// Domain Validation
-export {
-  validateDomainInput,
-  sanitizeSearchQuery,
-  isValidSearchQuery,
-  type DomainValidationResult,
-} from './domainValidation';
