@@ -29,7 +29,8 @@ export function createBatchEvent(
   const defaults: SegmentBatchEvent = {
     type: 'track',
     event: 'Test Event',
-    messageId: `test-msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    // eslint-disable-next-line sonarjs/pseudo-random
+    messageId: `test-msg-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
     timestamp: new Date().toISOString(),
     properties: {},
     context: {
@@ -66,7 +67,8 @@ export function createSegmentEvent(
 ): SegmentEvent {
   const messageId =
     overrides.messageId ||
-    `test-msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // eslint-disable-next-line sonarjs/pseudo-random
+    `test-msg-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
   const batchEvent = createBatchEvent({
     messageId,
     ...overrides.rawPayload,
@@ -187,7 +189,7 @@ export function createMockStorage(
 
   const get = vi.fn(
     async (keys: string | string[] | Record<string, unknown> | null) => {
-      if (keys === null || keys === undefined) {
+      if (keys == null) {
         return { ...data };
       }
 
