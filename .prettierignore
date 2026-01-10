@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist_chrome/
+dist_firefox/
+coverage/
+
+# Generated files
+*.log
+*.tsbuildinfo
+
+# Package manager files
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# Public assets
+public/
+
+# Config files that shouldn't be formatted
+*.min.js
+*.min.css

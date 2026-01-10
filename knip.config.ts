@@ -50,6 +50,7 @@ const config: KnipConfig = {
     '@testing-library/dom',
     // ESLint plugins (configured but not imported)
     'eslint',
+    '@eslint/js',
     '@typescript-eslint/eslint-plugin',
     '@typescript-eslint/parser',
     'eslint-config-prettier',
@@ -57,6 +58,8 @@ const config: KnipConfig = {
     'eslint-plugin-jsx-a11y',
     'eslint-plugin-react',
     'eslint-plugin-react-hooks',
+    // Prettier (formatting tool, configured but not imported)
+    'prettier',
   ],
   paths: {
     '@src/*': ['src/*'],
@@ -72,7 +75,7 @@ const config: KnipConfig = {
     configFile: 'tsconfig.json',
   },
   // Ignore files that are referenced in manifest but not directly imported
-  ignoreBinaries: ['vite', 'vitest', 'nodemon'],
+  ignoreBinaries: ['vite', 'vitest', 'nodemon', 'prettier'],
 };
 
 export default config;
