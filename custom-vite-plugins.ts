@@ -25,6 +25,7 @@ export function stripDevIcons(isDev: boolean) {
 }
 
 // plugin to support i18n
+// eslint-disable-next-line sonarjs/function-return-type
 export function crxI18n(options: {
   localize: boolean;
   src: string;
