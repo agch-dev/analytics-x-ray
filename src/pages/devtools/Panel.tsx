@@ -207,7 +207,7 @@ export default function Panel() {
       );
       names.add(normalizedName);
     });
-    return Array.from(names).sort();
+    return Array.from(names).sort((a, b) => a.localeCompare(b));
   }, [events]);
 
   // Count how many hidden event names are currently in the timeline
