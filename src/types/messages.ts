@@ -106,9 +106,7 @@ export function isExtensionMessage(msg: unknown): msg is ExtensionMessage {
   return validTypes.includes(m.type as MessageType);
 }
 
-export function isGetEventsMessage(
-  msg: unknown
-): msg is GetEventsMessage {
+export function isGetEventsMessage(msg: unknown): msg is GetEventsMessage {
   return (
     isExtensionMessage(msg) &&
     msg.type === 'GET_EVENTS' &&
@@ -116,9 +114,7 @@ export function isGetEventsMessage(
   );
 }
 
-export function isClearEventsMessage(
-  msg: unknown
-): msg is ClearEventsMessage {
+export function isClearEventsMessage(msg: unknown): msg is ClearEventsMessage {
   return (
     isExtensionMessage(msg) &&
     msg.type === 'CLEAR_EVENTS' &&
@@ -143,13 +139,16 @@ export function isEventsCapturedMessage(
     return false;
   }
 
-  const m = msg as EventsCapturedMessage;
-  return (
-    typeof m.payload === 'object' &&
-    m.payload !== null &&
-    typeof m.payload.tabId === 'number' &&
-    Array.isArray(m.payload.events)
-  );
+  // Cast through unknown first to access payload property
+  const m = msg as unknown as Record<string, unknown>;
+  const payload = m.payload;
+
+  if (typeof payload !== 'object' || payload === null) {
+    return false;
+  }
+
+  const p = payload as Record<string, unknown>;
+  return typeof p.tabId === 'number' && Array.isArray(p.events);
 }
 
 export function isReloadDetectedMessage(
@@ -192,4 +191,3 @@ export function isReEvaluateTabDomainMessage(
     typeof (msg as ReEvaluateTabDomainMessage).tabId === 'number'
   );
 }
-
