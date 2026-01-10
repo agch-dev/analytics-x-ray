@@ -1,6 +1,7 @@
 import JsonView from '@uiw/react-json-view';
-import { shouldChunkArray } from '@src/lib/arrayChunking';
+
 import { ChunkedArrayView } from '@src/components/ChunkedArrayView';
+import { shouldChunkArray } from '@src/lib/arrayChunking';
 import { getJsonViewTheme } from '@src/lib/jsonViewTheme';
 
 interface JsonViewWithChunkingProps {
@@ -17,9 +18,6 @@ interface JsonViewWithChunkingProps {
  */
 export function JsonViewWithChunking({
   value,
-  searchQuery = '',
-  copiedKey,
-  onCopy,
   ...jsonViewProps
 }: JsonViewWithChunkingProps) {
   // If it's a large array, use ChunkedArrayView
@@ -37,8 +35,8 @@ export function JsonViewWithChunking({
   // For objects, check if they contain large arrays
   if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
     const obj = value as Record<string, unknown>;
-    const hasLargeArray = Object.values(obj).some(v => shouldChunkArray(v));
-    
+    const hasLargeArray = Object.values(obj).some((v) => shouldChunkArray(v));
+
     if (hasLargeArray) {
       // Render object with chunked arrays
       return (
@@ -47,7 +45,9 @@ export function JsonViewWithChunking({
             if (shouldChunkArray(val)) {
               return (
                 <div key={key} className="my-2">
-                  <div className="text-xs font-medium text-muted-foreground mb-1">{key}:</div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">
+                    {key}:
+                  </div>
                   <ChunkedArrayView
                     array={val as unknown[]}
                     arrayPath={key}
@@ -96,4 +96,3 @@ export function JsonViewWithChunking({
     />
   );
 }
-
