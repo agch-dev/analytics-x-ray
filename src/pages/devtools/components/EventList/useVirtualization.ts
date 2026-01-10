@@ -18,6 +18,90 @@ import {
   type ListItem,
 } from './types';
 
+/**
+ * Checks if a reload timestamp falls between two events
+ */
+function findReloadTimestamp(
+  previousEvent: SegmentEvent,
+  event: SegmentEvent,
+  reloadTimestamps: number[]
+): number | null {
+  for (const reloadTs of reloadTimestamps) {
+    if (reloadTs > previousEvent.capturedAt && reloadTs <= event.capturedAt) {
+      return reloadTs;
+    }
+  }
+  return null;
+}
+
+/**
+ * Determines if a divider should be added before an event
+ */
+function shouldAddDivider(
+  previousEvent: SegmentEvent | undefined,
+  event: SegmentEvent,
+  reloadTimestamps: number[]
+): { needsDivider: boolean; isReload: boolean; timestamp: number } {
+  if (!previousEvent) {
+    return { needsDivider: false, isReload: false, timestamp: 0 };
+  }
+
+  const hasPathChange = urlsAreDifferent(previousEvent, event);
+  if (hasPathChange) {
+    return {
+      needsDivider: true,
+      isReload: false,
+      timestamp: event.capturedAt,
+    };
+  }
+
+  const reloadTimestamp = findReloadTimestamp(
+    previousEvent,
+    event,
+    reloadTimestamps
+  );
+  if (reloadTimestamp !== null) {
+    return {
+      needsDivider: true,
+      isReload: true,
+      timestamp: reloadTimestamp,
+    };
+  }
+
+  return { needsDivider: false, isReload: false, timestamp: 0 };
+}
+
+/**
+ * Creates a divider list item
+ */
+function createDividerItem(
+  event: SegmentEvent,
+  previousEvent: SegmentEvent | undefined,
+  isReload: boolean,
+  timestamp: number,
+  index: number
+): ListItem {
+  return {
+    type: 'divider',
+    event,
+    previousEvent,
+    isReload,
+    timestamp,
+    index,
+  };
+}
+
+/**
+ * Creates an event list item
+ */
+function createEventItem(event: SegmentEvent, index: number): ListItem {
+  return {
+    type: 'event',
+    event,
+    index,
+  };
+}
+
 interface UseVirtualizationParams {
   events: SegmentEvent[];
   reloadTimestamps: number[];
@@ -63,53 +147,25 @@ export function useVirtualization({
       const event = reversedEvents[i];
       const previousEvent = i > 0 ? reversedEvents[i - 1] : undefined;
 
-      // Check if we need a divider before this event
-      let needsDivider = false;
-      let isReload = false;
-      let reloadTimestamp = 0;
-      let hasPathChange = false;
-
-      // Check for path change first
-      if (previousEvent && urlsAreDifferent(previousEvent, event)) {
-        needsDivider = true;
-        hasPathChange = true;
-      }
-
-      // Check for reload between events
-      // Only mark as reload if there's NO path change (reload on same page)
-      if (previousEvent && !hasPathChange) {
-        // Check if any reload timestamp falls between these two events
-        for (const reloadTs of reloadTimestamps) {
-          if (
-            reloadTs > previousEvent.capturedAt &&
-            reloadTs <= event.capturedAt
-          ) {
-            needsDivider = true;
-            isReload = true;
-            reloadTimestamp = reloadTs;
-            break;
-          }
-        }
-      }
-
-      // Insert divider if needed
-      if (needsDivider) {
-        items.push({
-          type: 'divider',
-          event,
-          previousEvent,
-          isReload,
-          timestamp: reloadTimestamp || event.capturedAt,
-          index: items.length,
-        });
-      }
-
-      // Add the event
-      items.push({
-        type: 'event',
+      const dividerInfo = shouldAddDivider(
+        previousEvent,
         event,
-        index: items.length,
-      });
+        reloadTimestamps
+      );
+
+      if (dividerInfo.needsDivider) {
+        items.push(
+          createDividerItem(
+            event,
+            previousEvent,
+            dividerInfo.isReload,
+            dividerInfo.timestamp,
+            items.length
+          )
+        );
+      }
+
+      items.push(createEventItem(event, items.length));
     }
 
     return items;
@@ -174,19 +230,22 @@ export function useVirtualization({
     }
   }, [listItems.length, virtualizer]);
 
+  // Helper function to measure all items after DOM updates
+  const measureAllItems = useCallback(() => {
+    itemRefs.current.forEach((element) => {
+      if (element) {
+        virtualizer.measureElement(element);
+      }
+    });
+    virtualizer.measure();
+  }, [virtualizer]);
+
   // Remeasure all items (useful after expansion state changes)
   const remeasureItems = useCallback(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        itemRefs.current.forEach((element) => {
-          if (element) {
-            virtualizer.measureElement(element);
-          }
-        });
-        virtualizer.measure();
-      });
+      requestAnimationFrame(measureAllItems);
     });
-  }, [virtualizer]);
+  }, [measureAllItems]);
 
   // Check initial scroll state on mount
   useEffect(() => {
@@ -226,20 +285,12 @@ export function useVirtualization({
     // Use double requestAnimationFrame to ensure DOM has fully updated after React render
     const timeoutId = setTimeout(() => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // Measure all rendered items after expansion state changes
-          itemRefs.current.forEach((element) => {
-            if (element) {
-              virtualizer.measureElement(element);
-            }
-          });
-          virtualizer.measure();
-        });
+        requestAnimationFrame(measureAllItems);
       });
     }, 0);
 
     return () => clearTimeout(timeoutId);
-  }, [expandedEventIds.size, listItems.length, virtualizer]);
+  }, [expandedEventIds.size, listItems.length, measureAllItems]);
 
   return {
     listItems,
