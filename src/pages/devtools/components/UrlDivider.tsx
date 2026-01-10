@@ -17,7 +17,7 @@ import type { SegmentEvent } from '@src/types';
 
 import { PropertyRow } from './detail/primitives/PropertyRow';
 
-export interface UrlDividerProps {
+interface UrlDividerProps {
   event: SegmentEvent; // The event after which the divider appears
   previousEvent?: SegmentEvent; // The previous event (for comparison)
   isReload: boolean; // Whether this is a page reload
@@ -52,6 +52,183 @@ function extractHash(url: string): string | null {
   }
 }
 
+/**
+ * Generate metadata text for expandable dividers
+ */
+function getMetadataText(
+  hasQueryParams: boolean,
+  queryParams: Record<string, string>,
+  hasHash: boolean
+): string {
+  if (!hasQueryParams && !hasHash) return '';
+  const parts: string[] = [];
+  if (hasQueryParams) {
+    const count = Object.keys(queryParams).length;
+    parts.push(`${count} ${count === 1 ? 'param' : 'params'}`);
+  }
+  if (hasHash) {
+    parts.push('hash');
+  }
+  return parts.join(' • ');
+}
+
+interface HeaderProps {
+  isExpandable: boolean;
+  isExpanded: boolean;
+  currentUrl: string | null;
+  displayText: string;
+  Icon: typeof Route01Icon;
+  iconColor: string;
+  isReload: boolean;
+  metadataText: string;
+  onToggle: () => void;
+}
+
+/**
+ * Header component for the URL divider
+ */
+function Header({
+  isExpandable,
+  isExpanded,
+  currentUrl,
+  displayText,
+  Icon,
+  iconColor,
+  isReload,
+  metadataText,
+  onToggle,
+}: Readonly<HeaderProps>) {
+  const headerContent = (
+    <>
+      {/* Expand/collapse icon for expandable dividers */}
+      {isExpandable ? (
+        <HugeiconsIcon
+          icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
+          size={12}
+          className="shrink-0 text-muted-foreground"
+        />
+      ) : (
+        <span className="w-3 shrink-0" />
+      )}
+
+      <HugeiconsIcon icon={Icon} size={16} className={iconColor} />
+      <span
+        className="flex-1 truncate font-mono"
+        title={currentUrl || 'Unknown URL'}
+      >
+        {displayText}
+      </span>
+      {isReload && (
+        <span className="shrink-0 text-[10px] text-muted-foreground/70">
+          (reloaded)
+        </span>
+      )}
+      {isExpandable && metadataText && (
+        <span className="shrink-0 text-[10px] text-muted-foreground/70">
+          {metadataText}
+        </span>
+      )}
+    </>
+  );
+
+  const baseClassName =
+    'flex items-center gap-2 px-4 py-2 text-xs text-foreground/80';
+  const interactiveClassName = cn(
+    baseClassName,
+    `
+      cursor-pointer transition-colors
+      hover:bg-muted-foreground/10
+    `
+  );
+
+  if (isExpandable) {
+    return (
+      <button
+        type="button"
+        className={interactiveClassName}
+        onClick={onToggle}
+        title={currentUrl || 'Unknown URL'}
+      >
+        {headerContent}
+      </button>
+    );
+  }
+
+  return (
+    <div className={baseClassName} title={currentUrl || 'Unknown URL'}>
+      {headerContent}
+    </div>
+  );
+}
+
+interface ExpandedContentProps {
+  hasQueryParams: boolean;
+  queryParamEntries: Array<{ key: string; value: string }>;
+  hasHash: boolean;
+  hash: string | null;
+}
+
+/**
+ * Expanded content component showing query params and hash
+ */
+function ExpandedContent({
+  hasQueryParams,
+  queryParamEntries,
+  hasHash,
+  hash,
+}: Readonly<ExpandedContentProps>) {
+  return (
+    <div className="border-t border-border/20 bg-card/40 px-4 pb-2">
+      {/* Query Parameters */}
+      {hasQueryParams && (
+        <div className="pt-2">
+          <div
+            className={`
+              mb-1.5 px-2 text-[10px] font-medium tracking-wide
+              text-muted-foreground uppercase
+            `}
+          >
+            Query Parameters ({queryParamEntries.length})
+          </div>
+          <div className="ml-2 border-l border-border/50">
+            {queryParamEntries.map(({ key, value }) => (
+              <PropertyRow
+                key={key}
+                label={key}
+                value={value}
+                searchQuery=""
+                depth={0}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Hash Fragment */}
+      {hasHash && (
+        <div
+          className={cn(
+            'pt-2',
+            hasQueryParams && 'mt-2 border-t border-border/30'
+          )}
+        >
+          <div
+            className={`
+              mb-1.5 px-2 text-[10px] font-medium tracking-wide
+              text-muted-foreground uppercase
+            `}
+          >
+            Hash Fragment
+          </div>
+          <div className="ml-2 border-l border-border/50">
+            <PropertyRow label="hash" value={hash} searchQuery="" depth={0} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const UrlDivider = React.memo(function UrlDivider({
   event,
   previousEvent,
@@ -83,14 +260,11 @@ export const UrlDivider = React.memo(function UrlDivider({
   const isExpandable = hasQueryParams || hasHash;
 
   // Determine what to display
-  // Show full URL (with domain) only if domain changed, otherwise show just path + query + hash
   const displayText = useMemo(() => {
     if (!currentUrl) return 'Unknown URL';
     if (domainChanged) {
-      // Show full URL when domain changed
       return currentUrl;
     }
-    // Show just path + query + hash when domain is the same
     return extractPathFromUrl(currentUrl);
   }, [currentUrl, domainChanged]);
 
@@ -99,10 +273,8 @@ export const UrlDivider = React.memo(function UrlDivider({
   const iconColor = isReload ? 'text-amber-400' : 'text-blue-400';
 
   const toggleExpand = useCallback(() => {
-    if (isExpandable) {
-      setIsExpanded((prev) => !prev);
-    }
-  }, [isExpandable]);
+    setIsExpanded((prev) => !prev);
+  }, []);
 
   // Convert query params to PropertyEntry format
   const queryParamEntries = useMemo(() => {
@@ -112,123 +284,34 @@ export const UrlDivider = React.memo(function UrlDivider({
     }));
   }, [queryParams]);
 
+  const metadataText = useMemo(
+    () => getMetadataText(hasQueryParams, queryParams, hasHash),
+    [hasQueryParams, queryParams, hasHash]
+  );
+
   return (
     <div
       className={cn('w-full border-t border-border/50 bg-muted-foreground/20')}
     >
-      {/* Header - clickable if expandable */}
-      <div
-        className={cn(
-          'flex items-center gap-2 px-4 py-2 text-xs text-foreground/80',
-          isExpandable &&
-            `
-              cursor-pointer transition-colors
-              hover:bg-muted-foreground/10
-            `
-        )}
-        onClick={isExpandable ? toggleExpand : undefined}
-        onKeyDown={
-          isExpandable
-            ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  toggleExpand();
-                }
-              }
-            : undefined
-        }
-        role={isExpandable ? 'button' : undefined}
-        tabIndex={isExpandable ? 0 : undefined}
-        title={currentUrl || 'Unknown URL'}
-      >
-        {/* Expand/collapse icon for expandable dividers */}
-        {isExpandable ? (
-          <HugeiconsIcon
-            icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
-            size={12}
-            className="shrink-0 text-muted-foreground"
-          />
-        ) : (
-          <span className="w-3 shrink-0" />
-        )}
+      <Header
+        isExpandable={isExpandable}
+        isExpanded={isExpanded}
+        currentUrl={currentUrl}
+        displayText={displayText}
+        Icon={Icon}
+        iconColor={iconColor}
+        isReload={isReload}
+        metadataText={metadataText}
+        onToggle={toggleExpand}
+      />
 
-        <HugeiconsIcon icon={Icon} size={16} className={iconColor} />
-        <span
-          className="flex-1 truncate font-mono"
-          title={currentUrl || 'Unknown URL'}
-        >
-          {displayText}
-        </span>
-        {isReload && (
-          <span className="shrink-0 text-[10px] text-muted-foreground/70">
-            (reloaded)
-          </span>
-        )}
-        {isExpandable && (
-          <span className="shrink-0 text-[10px] text-muted-foreground/70">
-            {hasQueryParams &&
-              `${Object.keys(queryParams).length} ${Object.keys(queryParams).length === 1 ? 'param' : 'params'}`}
-            {hasQueryParams && hasHash && ' • '}
-            {hasHash && 'hash'}
-          </span>
-        )}
-      </div>
-
-      {/* Expanded content - query params and hash */}
       {isExpanded && isExpandable && (
-        <div className="border-t border-border/20 bg-card/40 px-4 pb-2">
-          {/* Query Parameters */}
-          {hasQueryParams && (
-            <div className="pt-2">
-              <div
-                className={`
-                  mb-1.5 px-2 text-[10px] font-medium tracking-wide
-                  text-muted-foreground uppercase
-                `}
-              >
-                Query Parameters ({queryParamEntries.length})
-              </div>
-              <div className="ml-2 border-l border-border/50">
-                {queryParamEntries.map(({ key, value }) => (
-                  <PropertyRow
-                    key={key}
-                    label={key}
-                    value={value}
-                    searchQuery=""
-                    depth={0}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Hash Fragment */}
-          {hasHash && (
-            <div
-              className={cn(
-                'pt-2',
-                hasQueryParams && 'mt-2 border-t border-border/30'
-              )}
-            >
-              <div
-                className={`
-                  mb-1.5 px-2 text-[10px] font-medium tracking-wide
-                  text-muted-foreground uppercase
-                `}
-              >
-                Hash Fragment
-              </div>
-              <div className="ml-2 border-l border-border/50">
-                <PropertyRow
-                  label="hash"
-                  value={hash}
-                  searchQuery=""
-                  depth={0}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        <ExpandedContent
+          hasQueryParams={hasQueryParams}
+          queryParamEntries={queryParamEntries}
+          hasHash={hasHash}
+          hash={hash}
+        />
       )}
     </div>
   );
