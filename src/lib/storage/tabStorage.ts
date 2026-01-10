@@ -4,8 +4,6 @@
  * Provides storage adapters and utilities for managing per-tab storage.
  */
 
-import Browser from 'webextension-polyfill';
-
 import { createChromeStorage, type StorageAdapter } from './chromeStorage';
 
 /**
@@ -30,21 +28,4 @@ export const createTabStorage = (tabId: number): StorageAdapter => {
       return baseStorage.removeItem(storageKey(name));
     },
   };
-};
-
-/**
- * Helper to get current tab ID
- * Returns null if not available (e.g., in background script)
- */
-export const getCurrentTabId = async (): Promise<number | null> => {
-  try {
-    const tabs = await Browser.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-    return tabs[0]?.id ?? null;
-  } catch (error) {
-    console.error('Failed to get current tab ID:', error);
-    return null;
-  }
 };

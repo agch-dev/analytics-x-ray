@@ -8,18 +8,6 @@
  * Types are imported from @src/types/segment.ts
  */
 
-// Re-export types for convenience
-export type {
-  SegmentEventType,
-  SegmentProvider,
-  SegmentContext,
-  SegmentBatchEvent,
-  SegmentBatchPayload,
-  SegmentEvent,
-} from '@src/types/segment';
-
-export { EVENT_TYPE_COLORS, EVENT_TYPE_LABELS } from '@src/types/segment';
-
 import { createContextLogger } from '@src/lib';
 import type {
   SegmentProvider,

@@ -12,7 +12,7 @@ import { useConfigStore } from '@src/stores';
  * Check if dark mode is currently active based on config store
  * Handles 'auto', 'light', and 'dark' theme settings
  */
-export function isDarkMode(): boolean {
+function isDarkMode(): boolean {
   const theme = useConfigStore.getState().theme;
 
   if (theme === 'dark') {

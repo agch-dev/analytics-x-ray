@@ -25,7 +25,7 @@ const formatBytes = (bytes: number): string => {
 /**
  * Storage size breakdown by key category
  */
-export interface StorageSizeInfo {
+interface StorageSizeInfo {
   totalBytes: number;
   totalFormatted: string;
   limitBytes: number;
@@ -45,7 +45,7 @@ export interface StorageSizeInfo {
  * Get detailed storage size information
  * Provides breakdown by key and warnings if approaching limit
  */
-export const getStorageSizeInfo = async (): Promise<StorageSizeInfo> => {
+const getStorageSizeInfo = async (): Promise<StorageSizeInfo> => {
   try {
     const allStorage = await Browser.storage.local.get(null);
 

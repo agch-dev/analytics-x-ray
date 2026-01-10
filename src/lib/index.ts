@@ -9,6 +9,11 @@ export {
   cn,
   isDevMode,
   copyToClipboard,
+  getFeedbackMailtoLink,
+  extractPathFromUrl,
+  getEventUrl,
+  urlsAreDifferent,
+  domainsAreDifferent,
   normalizeEventNameForFilter,
 } from './utils';
 

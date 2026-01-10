@@ -1,38 +1,17 @@
 /**
  * Storage Module Barrel Export
- * 
+ *
  * Central export point for all storage-related utilities.
  */
 
 // Chrome Storage Adapter
-export {
-  createChromeStorage,
-  type StorageAdapter,
-} from './chromeStorage';
+export { createChromeStorage } from './chromeStorage';
 
 // Tab Storage
-export {
-  createTabStorage,
-  getCurrentTabId,
-} from './tabStorage';
+export { createTabStorage } from './tabStorage';
 
 // Cleanup Utilities
-export {
-  cleanupTabStorage,
-  cleanupStaleTabs,
-} from './cleanup';
+export { cleanupTabStorage, cleanupStaleTabs } from './cleanup';
 
 // Monitoring Utilities
-export {
-  getStorageSizeInfo,
-  logStorageSize,
-  type StorageSizeInfo,
-} from './monitoring';
-
-// Type Guards
-export {
-  isSegmentEventArray,
-  isStoredEvents,
-  isNumberArray,
-  isStorageResult,
-} from './typeGuards';
+export { logStorageSize } from './monitoring';
