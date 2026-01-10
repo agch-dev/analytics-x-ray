@@ -39,7 +39,7 @@ export const EventRow = React.memo(function EventRow({
   return (
     <div
       className={cn(
-        'w-full border-b border-border transition-colors bg-card/80',
+        'w-full border-b border-border bg-card/80 transition-colors',
         isAnimatingCollapse && 'animate-ring-pulse'
       )}
     >

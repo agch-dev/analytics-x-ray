@@ -37,13 +37,25 @@ export function ActionButtons({
   className,
 }: ActionButtonsProps) {
   return (
-    <div className={cn('flex items-center gap-1 sm:gap-2 shrink-0', className)}>
+    <div
+      className={cn(
+        `
+      flex shrink-0 items-center gap-1
+      sm:gap-2
+    `,
+        className
+      )}
+    >
       <Button
         variant="ghost"
         size="sm"
         onClick={onToggleFilterPanel}
         className={cn(
-          'text-xs text-muted-foreground hover:text-foreground relative px-1.5 sm:px-2',
+          `
+            relative px-1.5 text-xs text-muted-foreground
+            hover:text-foreground
+            sm:px-2
+          `,
           isFilterPanelOpen && 'bg-accent'
         )}
         title="Filter"
@@ -56,7 +68,11 @@ export function ActionButtons({
         {filteredEventNamesCount > 0 && (
           <Badge
             variant="destructive"
-            className="ml-0.5 sm:ml-1 h-4 min-w-4 px-1 text-[10px] font-mono absolute -top-1 -right-1"
+            className={`
+              absolute -top-1 -right-1 ml-0.5 h-4 min-w-4 px-1 font-mono
+              text-[10px]
+              sm:ml-1
+            `}
           >
             {filteredEventNamesCount}
           </Badge>
@@ -66,7 +82,11 @@ export function ActionButtons({
         variant="ghost"
         size="sm"
         onClick={onClear}
-        className="text-xs text-muted-foreground hover:text-destructive px-1.5 sm:px-2"
+        className={`
+          px-1.5 text-xs text-muted-foreground
+          hover:text-destructive
+          sm:px-2
+        `}
         title="Clear"
         aria-label="Clear all events"
       >
@@ -78,7 +98,11 @@ export function ActionButtons({
           <Button
             variant="ghost"
             size="sm"
-            className="text-xs text-muted-foreground hover:text-foreground px-1.5 sm:px-2"
+            className={`
+              px-1.5 text-xs text-muted-foreground
+              hover:text-foreground
+              sm:px-2
+            `}
             title="More options"
             aria-label="More options menu"
             aria-haspopup="true"

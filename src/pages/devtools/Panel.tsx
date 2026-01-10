@@ -263,7 +263,7 @@ export default function Panel() {
   };
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col">
+    <div className="flex h-screen flex-col bg-background text-foreground">
       <Header
         eventCount={filteredEvents.length}
         totalEventCount={events.length}

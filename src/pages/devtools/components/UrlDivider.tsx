@@ -119,9 +119,12 @@ export const UrlDivider = React.memo(function UrlDivider({
       {/* Header - clickable if expandable */}
       <div
         className={cn(
-          'px-4 py-2 flex items-center gap-2 text-xs text-foreground/80',
+          'flex items-center gap-2 px-4 py-2 text-xs text-foreground/80',
           isExpandable &&
-            'cursor-pointer hover:bg-muted-foreground/10 transition-colors'
+            `
+              cursor-pointer transition-colors
+              hover:bg-muted-foreground/10
+            `
         )}
         onClick={isExpandable ? toggleExpand : undefined}
         title={currentUrl || 'Unknown URL'}
@@ -134,23 +137,23 @@ export const UrlDivider = React.memo(function UrlDivider({
             className="shrink-0 text-muted-foreground"
           />
         ) : (
-          <span className="shrink-0 w-3" />
+          <span className="w-3 shrink-0" />
         )}
 
         <HugeiconsIcon icon={Icon} size={16} className={iconColor} />
         <span
-          className="font-mono truncate flex-1"
+          className="flex-1 truncate font-mono"
           title={currentUrl || 'Unknown URL'}
         >
           {displayText}
         </span>
         {isReload && (
-          <span className="text-muted-foreground/70 text-[10px] shrink-0">
+          <span className="shrink-0 text-[10px] text-muted-foreground/70">
             (reloaded)
           </span>
         )}
         {isExpandable && (
-          <span className="text-muted-foreground/70 text-[10px] shrink-0">
+          <span className="shrink-0 text-[10px] text-muted-foreground/70">
             {hasQueryParams &&
               `${Object.keys(queryParams).length} ${Object.keys(queryParams).length === 1 ? 'param' : 'params'}`}
             {hasQueryParams && hasHash && ' • '}
@@ -161,14 +164,19 @@ export const UrlDivider = React.memo(function UrlDivider({
 
       {/* Expanded content - query params and hash */}
       {isExpanded && isExpandable && (
-        <div className="px-4 pb-2 border-t border-border/20 bg-card/40">
+        <div className="border-t border-border/20 bg-card/40 px-4 pb-2">
           {/* Query Parameters */}
           {hasQueryParams && (
             <div className="pt-2">
-              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5 px-2">
+              <div
+                className={`
+                mb-1.5 px-2 text-[10px] font-medium tracking-wide
+                text-muted-foreground uppercase
+              `}
+              >
                 Query Parameters ({queryParamEntries.length})
               </div>
-              <div className="border-l border-border/50 ml-2">
+              <div className="ml-2 border-l border-border/50">
                 {queryParamEntries.map(({ key, value }) => (
                   <PropertyRow
                     key={key}
@@ -190,10 +198,15 @@ export const UrlDivider = React.memo(function UrlDivider({
                 hasQueryParams && 'mt-2 border-t border-border/30'
               )}
             >
-              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5 px-2">
+              <div
+                className={`
+                mb-1.5 px-2 text-[10px] font-medium tracking-wide
+                text-muted-foreground uppercase
+              `}
+              >
                 Hash Fragment
               </div>
-              <div className="border-l border-border/50 ml-2">
+              <div className="ml-2 border-l border-border/50">
                 <PropertyRow
                   label="hash"
                   value={hash}

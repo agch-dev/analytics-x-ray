@@ -78,13 +78,16 @@ export function EventDetailSection({
   const hasPinnedContent = pinnedCount > 0 && pinnedContent;
 
   return (
-    <div className="border border-border overflow-hidden bg-card/50">
+    <div className="overflow-hidden border border-border bg-card/50">
       {/* Header */}
       <button
         onClick={toggleExpand}
         className={cn(
-          'w-full flex items-center gap-2 px-3 py-2',
-          'hover:bg-muted/50 transition-colors',
+          'flex w-full items-center gap-2 px-3 py-2',
+          `
+            transition-colors
+            hover:bg-muted/50
+          `,
           'text-left'
         )}
         aria-label={
@@ -100,20 +103,29 @@ export function EventDetailSection({
 
         {icon && <span className="shrink-0 text-muted-foreground">{icon}</span>}
 
-        <span className="text-sm font-medium text-foreground flex-1">
+        <span className="flex-1 text-sm font-medium text-foreground">
           {title}
         </span>
 
         {/* Pin indicator when collapsed */}
         {!isExpanded && pinnedCount > 0 && (
-          <span className="shrink-0 flex items-center gap-1 text-xs text-amber-500/80">
+          <span
+            className={`
+            flex shrink-0 items-center gap-1 text-xs text-amber-500/80
+          `}
+          >
             <HugeiconsIcon icon={PinIcon} size={10} className="rotate-45" />
             {pinnedCount}
           </span>
         )}
 
         {badge !== undefined && (
-          <span className="shrink-0 text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+          <span
+            className={`
+            shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs
+            text-muted-foreground
+          `}
+          >
             {badge}
           </span>
         )}
@@ -126,7 +138,10 @@ export function EventDetailSection({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 hover:bg-muted/50"
+                  className={`
+                    h-6 w-6 p-0
+                    hover:bg-muted/50
+                  `}
                   onClick={() => setIsModalOpen(true)}
                 >
                   <HugeiconsIcon
@@ -151,7 +166,10 @@ export function EventDetailSection({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 hover:bg-muted/50"
+                    className={`
+                      h-6 w-6 p-0
+                      hover:bg-muted/50
+                    `}
                   >
                     <HugeiconsIcon
                       icon={MoreVerticalIcon}
@@ -178,14 +196,14 @@ export function EventDetailSection({
 
       {/* Pinned content shown when collapsed */}
       {!isExpanded && hasPinnedContent && (
-        <div className="px-1 pb-2 border-t border-border/50 bg-neutral-400/5">
+        <div className="border-t border-border/50 bg-neutral-400/5 px-1 pb-2">
           {pinnedContent}
         </div>
       )}
 
       {/* Full content shown when expanded */}
       {isExpanded && (
-        <div className="px-1 pb-2 border-t border-border bg-background/30">
+        <div className="border-t border-border bg-background/30 px-1 pb-2">
           {children}
         </div>
       )}

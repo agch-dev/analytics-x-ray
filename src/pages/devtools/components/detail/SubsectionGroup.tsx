@@ -249,7 +249,7 @@ export function SubsectionGroup({
   // Pinned content to show when section is collapsed
   const pinnedContent =
     subsectionsWithPins.length > 0 ? (
-      <div className="pt-1 space-y-2">
+      <div className="space-y-2 pt-1">
         {subsectionsWithPins.map((subsection) => {
           const pinnedEntries = subsection.entries.filter((e) =>
             subsection.pinnedKeys.includes(e.key)
@@ -261,7 +261,7 @@ export function SubsectionGroup({
                 icon={subsection.icon}
                 pinnedCount={subsection.pinnedKeys.length}
               />
-              <div className="border-l border-amber-500/30 ml-2 mt-0.5">
+              <div className="mt-0.5 ml-2 border-l border-amber-500/30">
                 {pinnedEntries.map(({ key, value }) => (
                   <PropertyRow
                     key={key}
@@ -292,7 +292,7 @@ export function SubsectionGroup({
       hasSubsections={true}
       subsections={subsections}
     >
-      <div className="pt-1 space-y-2">
+      <div className="space-y-2 pt-1">
         {subsectionsWithPinInfo.map((subsection) => (
           <CollapsibleSubsection
             key={subsection.key}
@@ -311,7 +311,11 @@ export function SubsectionGroup({
         ))}
 
         {subsections.length === 0 && (
-          <div className="px-3 py-4 text-xs text-muted-foreground text-center italic">
+          <div
+            className={`
+            px-3 py-4 text-center text-xs text-muted-foreground italic
+          `}
+          >
             {emptyMessage}
           </div>
         )}

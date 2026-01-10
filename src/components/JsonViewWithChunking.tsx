@@ -45,7 +45,11 @@ export function JsonViewWithChunking({
             if (shouldChunkArray(val)) {
               return (
                 <div key={key} className="my-2">
-                  <div className="text-xs font-medium text-muted-foreground mb-1">
+                  <div
+                    className={`
+                    mb-1 text-xs font-medium text-muted-foreground
+                  `}
+                  >
                     {key}:
                   </div>
                   <ChunkedArrayView

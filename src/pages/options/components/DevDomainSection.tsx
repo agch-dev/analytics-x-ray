@@ -37,7 +37,7 @@ export const DevDomainSection = ({ onClearDomains }: DevDomainSectionProps) => {
       </CardHeader>
       <CardContent className="space-y-4">
         {allowedDomains.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="py-8 text-center text-muted-foreground">
             <p className="text-sm">No domains in allowlist</p>
           </div>
         ) : (
@@ -46,14 +46,17 @@ export const DevDomainSection = ({ onClearDomains }: DevDomainSectionProps) => {
               {allowedDomains.map((allowedDomain) => (
                 <div
                   key={allowedDomain.domain}
-                  className="p-3 bg-card border border-border rounded-lg flex items-center justify-between gap-3"
+                  className={`
+                    flex items-center justify-between gap-3 rounded-lg border
+                    border-border bg-card p-3
+                  `}
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-mono text-foreground break-all">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono text-sm break-all text-foreground">
                       {allowedDomain.domain}
                     </p>
                     {allowedDomain.allowSubdomains && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         Subdomains allowed
                       </p>
                     )}

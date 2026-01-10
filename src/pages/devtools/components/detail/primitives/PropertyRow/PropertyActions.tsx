@@ -31,7 +31,11 @@ export const PropertyActions = React.memo(function PropertyActions({
             e.stopPropagation();
             onToggleJsonView();
           }}
-          className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-muted rounded"
+          className={`
+            shrink-0 rounded p-0.5 opacity-0 transition-opacity
+            group-hover:opacity-100
+            hover:bg-muted
+          `}
           title={
             useJsonView ? 'Switch to structured view' : 'Switch to JSON view'
           }
@@ -43,7 +47,10 @@ export const PropertyActions = React.memo(function PropertyActions({
           <HugeiconsIcon
             icon={useJsonView ? TextIcon : CodeIcon}
             size={12}
-            className="text-muted-foreground hover:text-blue-500"
+            className={`
+              text-muted-foreground
+              hover:text-blue-500
+            `}
           />
         </button>
       )}
@@ -51,7 +58,11 @@ export const PropertyActions = React.memo(function PropertyActions({
       {/* Copy button */}
       <button
         onClick={onCopy}
-        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-muted rounded"
+        className={`
+          shrink-0 rounded p-0.5 opacity-0 transition-opacity
+          group-hover:opacity-100
+          hover:bg-muted
+        `}
         title="Copy value"
         aria-label={
           copied ? 'Value copied to clipboard' : 'Copy value to clipboard'

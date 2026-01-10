@@ -23,6 +23,7 @@ describe('HighlightedText', () => {
     });
 
     it('should apply custom className', () => {
+      // eslint-disable-next-line better-tailwindcss/no-unregistered-classes
       render(<HighlightedText text="Hello World" className="custom-class" />);
 
       const span = screen.getByText('Hello World');

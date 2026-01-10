@@ -18,7 +18,7 @@ export const ResetButton = () => {
   };
 
   return (
-    <div className="flex justify-end pt-4 border-t">
+    <div className="flex justify-end border-t pt-4">
       <Button
         variant={showResetConfirm ? 'destructive' : 'secondary'}
         onClick={handleReset}

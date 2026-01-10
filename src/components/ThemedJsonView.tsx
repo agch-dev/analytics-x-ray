@@ -98,7 +98,10 @@ export function ThemedJsonView({
                       part.highlight ? (
                         <mark
                           key={index}
-                          className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                          className={`
+                            rounded bg-yellow-500/30 px-0.5 text-foreground
+                            dark:bg-yellow-500/40
+                          `}
                         >
                           {part.text}
                         </mark>
@@ -131,7 +134,10 @@ export function ThemedJsonView({
                       part.highlight ? (
                         <mark
                           key={index}
-                          className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                          className={`
+                            rounded bg-yellow-500/30 px-0.5 text-foreground
+                            dark:bg-yellow-500/40
+                          `}
                         >
                           {part.text}
                         </mark>
@@ -167,7 +173,10 @@ export function ThemedJsonView({
                       part.highlight ? (
                         <mark
                           key={index}
-                          className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                          className={`
+                            rounded bg-yellow-500/30 px-0.5 text-foreground
+                            dark:bg-yellow-500/40
+                          `}
                         >
                           {part.text}
                         </mark>
@@ -203,7 +212,10 @@ export function ThemedJsonView({
                       part.highlight ? (
                         <mark
                           key={index}
-                          className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                          className={`
+                            rounded bg-yellow-500/30 px-0.5 text-foreground
+                            dark:bg-yellow-500/40
+                          `}
                         >
                           {part.text}
                         </mark>
@@ -239,7 +251,10 @@ export function ThemedJsonView({
                       part.highlight ? (
                         <mark
                           key={index}
-                          className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                          className={`
+                            rounded bg-yellow-500/30 px-0.5 text-foreground
+                            dark:bg-yellow-500/40
+                          `}
                         >
                           {part.text}
                         </mark>
@@ -275,7 +290,10 @@ export function ThemedJsonView({
                     part.highlight ? (
                       <mark
                         key={index}
-                        className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+                        className={`
+                          rounded bg-yellow-500/30 px-0.5 text-foreground
+                          dark:bg-yellow-500/40
+                        `}
                       >
                         {part.text}
                       </mark>

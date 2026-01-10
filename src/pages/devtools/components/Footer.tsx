@@ -16,12 +16,20 @@ export function Footer({ tabId, isListening = true }: FooterProps) {
 
   return (
     <>
-      <footer className="shrink-0 px-4 py-1.5 border-t border-border bg-card/50 flex items-center justify-between text-xs text-muted-foreground">
+      <footer
+        className={`
+        flex shrink-0 items-center justify-between border-t border-border
+        bg-card/50 px-4 py-1.5 text-xs text-muted-foreground
+      `}
+      >
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsSupportModalOpen(true)}
-          className="h-auto py-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+          className={`
+            h-auto px-2 py-1 text-xs text-muted-foreground
+            hover:text-foreground
+          `}
         >
           <HugeiconsIcon
             icon={HeartCheckIcon}
@@ -36,9 +44,10 @@ export function Footer({ tabId, isListening = true }: FooterProps) {
           <span>Tab {tabId}</span>
           <span className="flex items-center gap-1.5">
             <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                isListening ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
-              }`}
+              className={`
+                h-1.5 w-1.5 rounded-full
+                ${isListening ? 'animate-pulse bg-emerald-500' : 'bg-amber-500'}
+              `}
             />
             {isListening ? 'Listening' : 'Paused'}
           </span>

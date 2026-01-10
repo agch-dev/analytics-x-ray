@@ -27,10 +27,10 @@ function ErrorStateBase({
   retryLabel = 'Try again',
 }: ErrorStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center h-full p-4">
-      <Card className="max-w-md w-full">
+    <div className="flex h-full flex-col items-center justify-center p-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
+          <div className="mb-4 flex justify-center">
             <div className="rounded-full bg-destructive/10 p-3">
               <HugeiconsIcon
                 icon={AlertCircleIcon}
@@ -72,7 +72,12 @@ export function PanelErrorState({ onRetry }: { onRetry?: () => void }) {
   };
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+    <div
+      className={`
+      flex h-screen flex-col items-center justify-center bg-background p-4
+      text-foreground
+    `}
+    >
       <ErrorStateBase
         title="Panel Error"
         message="The DevTools panel encountered an error and couldn't load. This may be due to corrupted data or a temporary issue. Try reloading the panel, or close and reopen DevTools if the problem persists."
@@ -90,7 +95,7 @@ export function PanelErrorState({ onRetry }: { onRetry?: () => void }) {
  */
 export function EventListErrorState({ onRetry }: { onRetry?: () => void }) {
   return (
-    <div className="flex-1 flex items-center justify-center p-4">
+    <div className="flex flex-1 items-center justify-center p-4">
       <ErrorStateBase
         title="Event List Error"
         message="Failed to display events. The list may be corrupted or there was a rendering issue. Try clearing events or reloading the panel. If the problem persists, check the browser console for more details."
@@ -113,7 +118,7 @@ export function EventDetailErrorState({ onRetry }: { onRetry?: () => void }) {
         <HugeiconsIcon icon={AlertCircleIcon} size={20} />
         <div className="flex-1">
           <p className="text-sm font-medium">Failed to display event details</p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="mt-1 text-xs text-muted-foreground">
             The event data may be corrupted or in an unexpected format. Try
             switching to JSON view or collapsing and re-expanding this event. If
             the issue persists, the event may contain invalid data.

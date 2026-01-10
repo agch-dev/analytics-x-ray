@@ -58,10 +58,15 @@ export function WelcomeOnboardingModal({
 }: OnboardingModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader className="space-y-3 text-left">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg w-10 h-10 flex items-center justify-center">
+            <div
+              className={`
+              flex h-10 w-10 items-center justify-center rounded-lg
+              bg-primary/10 p-2
+            `}
+            >
               <Logo size={24} />
             </div>
             <DialogTitle className="text-2xl">
@@ -74,10 +79,14 @@ export function WelcomeOnboardingModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="pt-4 pb-2 space-y-6">
+        <div className="space-y-6 pt-4 pb-2">
           {/* Key Features Section */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+            <h3
+              className={`
+              mb-4 flex items-center gap-2 text-sm font-semibold text-foreground
+            `}
+            >
               <HugeiconsIcon
                 icon={CheckmarkCircle01Icon}
                 size={16}
@@ -89,20 +98,29 @@ export function WelcomeOnboardingModal({
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="flex gap-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors"
+                  className={`
+                    flex gap-3 rounded-lg border border-border bg-card/50 p-3
+                    transition-colors
+                    hover:bg-card
+                  `}
                 >
-                  <div className="shrink-0 p-2 bg-primary/10 rounded-lg w-10 h-10 flex items-center justify-center">
+                  <div
+                    className={`
+                    flex h-10 w-10 shrink-0 items-center justify-center
+                    rounded-lg bg-primary/10 p-2
+                  `}
+                  >
                     <HugeiconsIcon
                       icon={feature.icon}
                       size={20}
                       className="text-primary"
                     />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-foreground mb-1">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="mb-1 text-sm font-semibold text-foreground">
                       {feature.title}
                     </h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="text-xs leading-relaxed text-muted-foreground">
                       {feature.description}
                     </p>
                   </div>
@@ -112,10 +130,13 @@ export function WelcomeOnboardingModal({
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t border-border">
+        <div className="flex justify-end border-t border-border pt-4">
           <Button
             onClick={() => onOpenChange(false)}
-            className="w-full sm:w-auto"
+            className={`
+              w-full
+              sm:w-auto
+            `}
           >
             Get Started
           </Button>

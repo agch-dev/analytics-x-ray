@@ -25,7 +25,7 @@ export const PropertyValue = React.memo(function PropertyValue({
 
   return (
     <span
-      className={cn('text-xs font-mono break-all', valueColorStyle.className)}
+      className={cn('font-mono text-xs break-all', valueColorStyle.className)}
       style={
         valueColorStyle.color ? { color: valueColorStyle.color } : undefined
       }

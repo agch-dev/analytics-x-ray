@@ -88,7 +88,11 @@ export function ChunkedArrayView({
                   e.stopPropagation();
                   toggleChunk(chunkIndex);
                 }}
-                className="w-full text-left py-1 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors flex items-center gap-1 mb-1"
+                className={`
+                  mb-1 flex w-full items-center gap-1 rounded px-2 py-1
+                  text-left text-xs text-muted-foreground transition-colors
+                  hover:bg-muted/50 hover:text-foreground
+                `}
               >
                 <HugeiconsIcon
                   icon={isVisible ? ArrowDown01Icon : ArrowRight01Icon}
@@ -104,7 +108,7 @@ export function ChunkedArrayView({
             {isVisible && (
               <div
                 className={
-                  !isFirstChunk ? 'ml-2 pl-2 border-l border-border/30' : ''
+                  !isFirstChunk ? 'ml-2 border-l border-border/30 pl-2' : ''
                 }
               >
                 <JsonView
@@ -121,7 +125,7 @@ export function ChunkedArrayView({
               </div>
             )}
             {!isVisible && !isFirstChunk && (
-              <div className="pl-2 text-xs text-muted-foreground italic py-1">
+              <div className="py-1 pl-2 text-xs text-muted-foreground italic">
                 ... {chunk.items.length} items hidden ({chunk.start}–
                 {chunk.end - 1})
               </div>
@@ -132,7 +136,10 @@ export function ChunkedArrayView({
                   e.stopPropagation();
                   showAllChunks();
                 }}
-                className="mt-2 py-1 px-2 text-xs text-blue-500 hover:text-blue-400 hover:bg-blue-500/10 rounded transition-colors"
+                className={`
+                  mt-2 rounded px-2 py-1 text-xs text-blue-500 transition-colors
+                  hover:bg-blue-500/10 hover:text-blue-400
+                `}
               >
                 Show all items ({array.length} total)
               </button>

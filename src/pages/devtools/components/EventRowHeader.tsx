@@ -74,26 +74,36 @@ export const EventRowHeader = React.memo(function EventRowHeader({
   return (
     <div
       className={cn(
-        'w-full flex items-center gap-3 transition-colors',
+        'flex w-full items-center gap-3 transition-colors',
         isSticky
-          ? 'bg-background/50 backdrop-blur-sm border-b border-border shadow-md px-3 py-2 cursor-pointer hover:bg-accent/30'
-          : 'px-3 py-2 hover:bg-accent/50',
+          ? `
+            cursor-pointer border-b border-border bg-background/50 px-3 py-2
+            shadow-md backdrop-blur-sm
+            hover:bg-accent/30
+          `
+          : `
+            px-3 py-2
+            hover:bg-accent/50
+          `,
         'border-l-6',
         bucketColor || 'border-l-gray-500'
       )}
     >
       {/* Timestamp */}
-      <span className="text-xs text-muted-foreground font-mono shrink-0 w-24">
+      <span className="w-24 shrink-0 font-mono text-xs text-muted-foreground">
         {formatTime(event.timestamp)}
       </span>
 
       {/* Event name with highlighting */}
-      <span className="text-sm text-foreground truncate flex-1">
+      <span className="flex-1 truncate text-sm text-foreground">
         {eventNameParts.map((part, index) =>
           part.highlight ? (
             <mark
               key={index}
-              className="bg-yellow-500/30 dark:bg-yellow-500/40 text-foreground rounded px-0.5"
+              className={`
+                rounded bg-yellow-500/30 px-0.5 text-foreground
+                dark:bg-yellow-500/40
+              `}
             >
               {part.text}
             </mark>
@@ -105,30 +115,41 @@ export const EventRowHeader = React.memo(function EventRowHeader({
 
       {/* Provider indicator */}
       {event.provider && event.provider !== 'segment' && (
-        <span className="text-xs text-muted-foreground uppercase tracking-wider">
+        <span className="text-xs tracking-wider text-muted-foreground uppercase">
           {event.provider}
         </span>
       )}
 
       {/* View mode toggle - only show when expanded */}
       {isExpanded && onViewModeChange && viewMode && (
-        <div className="flex items-center gap-0.5 shrink-0">
+        <div className="flex shrink-0 items-center gap-0.5">
           <Button
             variant="ghost"
             size="sm"
             onClick={(e) => handleViewModeClick(e, 'structured')}
             className={cn(
-              'h-6 px-1 sm:px-2 py-0 flex items-center gap-1',
+              `
+                flex h-6 items-center gap-1 px-1 py-0
+                sm:px-2
+              `,
               viewMode === 'structured'
                 ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+                : `
+                  text-muted-foreground
+                  hover:text-foreground
+                `
             )}
             title="Structured view"
             aria-label="Switch to structured view"
             aria-pressed={viewMode === 'structured'}
           >
             <HugeiconsIcon icon={TextIcon} size={12} />
-            <span className="text-xs font-medium hidden sm:inline">
+            <span
+              className={`
+              hidden text-xs font-medium
+              sm:inline
+            `}
+            >
               Structured
             </span>
           </Button>
@@ -137,17 +158,30 @@ export const EventRowHeader = React.memo(function EventRowHeader({
             size="sm"
             onClick={(e) => handleViewModeClick(e, 'json')}
             className={cn(
-              'h-6 px-1 sm:px-2 py-0 flex items-center gap-1',
+              `
+                flex h-6 items-center gap-1 px-1 py-0
+                sm:px-2
+              `,
               viewMode === 'json'
                 ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+                : `
+                  text-muted-foreground
+                  hover:text-foreground
+                `
             )}
             title="JSON view"
             aria-label="Switch to JSON view"
             aria-pressed={viewMode === 'json'}
           >
             <HugeiconsIcon icon={CodeIcon} size={12} />
-            <span className="text-xs font-medium hidden sm:inline">JSON</span>
+            <span
+              className={`
+              hidden text-xs font-medium
+              sm:inline
+            `}
+            >
+              JSON
+            </span>
           </Button>
         </div>
       )}
@@ -158,7 +192,7 @@ export const EventRowHeader = React.memo(function EventRowHeader({
           variant="ghost"
           size="sm"
           onClick={handleMuteClick}
-          className={cn('h-6 w-6 p-0 shrink-0', isHidden && 'opacity-50')}
+          className={cn('h-6 w-6 shrink-0 p-0', isHidden && 'opacity-50')}
           title={isHidden ? 'Show this event name' : 'Hide this event name'}
           aria-label={
             isHidden ? `Show ${event.name} events` : `Hide ${event.name} events`

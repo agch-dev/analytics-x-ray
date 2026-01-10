@@ -42,18 +42,43 @@ export function Header({
   };
 
   return (
-    <header className="shrink-0 px-2 sm:px-4 py-2 sm:py-3 border-b border-border bg-card flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4">
-      <div className="flex items-center justify-between gap-2 lg:justify-start lg:shrink-0">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+    <header
+      className={`
+      flex shrink-0 flex-col gap-2 border-b border-border bg-card px-2 py-2
+      sm:px-4 sm:py-3
+      lg:flex-row lg:items-center lg:gap-4
+    `}
+    >
+      <div
+        className={`
+        flex items-center justify-between gap-2
+        lg:shrink-0 lg:justify-start
+      `}
+      >
+        <div
+          className={`
+          flex min-w-0 items-center gap-2
+          sm:gap-3
+        `}
+        >
+          <div
+            className={`
+            flex shrink-0 items-center gap-2
+            sm:gap-3
+          `}
+          >
             <Logo className="pointer-events-none" size={24} />
-            <h1 className="text-lg font-semibold text-foreground whitespace-nowrap">
+            <h1
+              className={`
+              text-lg font-semibold whitespace-nowrap text-foreground
+            `}
+            >
               Analytics X-Ray
             </h1>
           </div>
           <Badge
             variant="secondary"
-            className="text-xs font-mono shrink-0 flex items-center gap-1.5"
+            className="flex shrink-0 items-center gap-1.5 font-mono text-xs"
           >
             <span>{eventCount} events</span>
             {isAtMaxEvents && (
@@ -64,7 +89,7 @@ export function Header({
                 <HugeiconsIcon
                   icon={Clock04Icon}
                   size={14}
-                  className="text-yellow-500 animate-pulse"
+                  className="animate-pulse text-yellow-500"
                 />
               </span>
             )}
@@ -83,24 +108,35 @@ export function Header({
       </div>
 
       {/* Search input */}
-      <div className="relative flex-1 lg:max-w-md lg:mx-auto">
+      <div
+        className={`
+        relative flex-1
+        lg:mx-auto lg:max-w-md
+      `}
+      >
         <HugeiconsIcon
           icon={Search01Icon}
           size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+          className={`
+            pointer-events-none absolute top-1/2 left-3 -translate-y-1/2
+            text-muted-foreground
+          `}
         />
         <Input
           type="text"
           placeholder="Search events, attributes, or values..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9 pr-9 h-8 text-xs"
+          className="h-8 pr-9 pl-9 text-xs"
           aria-label="Search events, attributes, or values"
         />
         {searchQuery && (
           <button
             onClick={() => onSearchChange('')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className={`
+              absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground
+              hover:text-foreground
+            `}
             title="Clear search"
             aria-label="Clear search query"
           >
@@ -117,7 +153,10 @@ export function Header({
         onToggleFilterPanel={onToggleFilterPanel}
         onOpenSettings={handleOpenSettings}
         onOpenFeedback={onOpenFeedback}
-        className="hidden lg:flex"
+        className={`
+          hidden
+          lg:flex
+        `}
       />
     </header>
   );

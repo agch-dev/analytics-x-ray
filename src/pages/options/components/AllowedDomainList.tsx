@@ -33,9 +33,9 @@ export const AllowedDomainList = ({
 
   if (domains.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
+      <div className="py-8 text-center text-muted-foreground">
         <p className="text-sm">No domains in allowlist</p>
-        <p className="text-xs mt-1">
+        <p className="mt-1 text-xs">
           Add a domain above to start scanning Segment events
         </p>
       </div>
@@ -49,11 +49,11 @@ export const AllowedDomainList = ({
         {visibleDomains.map((allowedDomain) => (
           <div
             key={allowedDomain.domain}
-            className="p-3 bg-card border border-border rounded-lg space-y-3"
+            className="space-y-3 rounded-lg border border-border bg-card p-3"
           >
             <div className="flex items-center justify-between gap-3">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-mono text-foreground break-all">
+              <div className="min-w-0 flex-1">
+                <p className="font-mono text-sm break-all text-foreground">
                   {allowedDomain.domain}
                 </p>
               </div>
@@ -75,11 +75,16 @@ export const AllowedDomainList = ({
                 />
               </Button>
             </div>
-            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
+            <div
+              className={`
+              flex items-center justify-between gap-2 border-t border-border/50
+              pt-2
+            `}
+            >
               <div className="flex items-center gap-2">
                 <Label
                   htmlFor={`subdomain-${allowedDomain.domain}`}
-                  className="text-xs text-muted-foreground cursor-pointer"
+                  className="cursor-pointer text-xs text-muted-foreground"
                 >
                   Allow subdomains
                 </Label>
@@ -105,7 +110,10 @@ export const AllowedDomainList = ({
           variant="ghost"
           size="sm"
           onClick={() => setShowAll(!showAll)}
-          className="w-full text-xs text-muted-foreground hover:text-foreground"
+          className={`
+            w-full text-xs text-muted-foreground
+            hover:text-foreground
+          `}
         >
           {showAll ? (
             <>

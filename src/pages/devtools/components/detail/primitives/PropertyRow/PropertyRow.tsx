@@ -133,10 +133,10 @@ export const PropertyRow = React.memo(
       <div className="group">
         <div
           className={cn(
-            'flex items-start gap-2 py-1.5 px-2 transition-colors',
+            'flex items-start gap-2 px-2 py-1.5 transition-colors',
             'hover:bg-muted/50',
             matchesSearch && 'bg-yellow-500/10',
-            isPinned && 'bg-neutral-400/5 border-l-2 border-l-amber-500/50'
+            isPinned && 'border-l-2 border-l-amber-500/50 bg-neutral-400/5'
           )}
         >
           {/* Pin button - only show for first-level properties (left side) */}
@@ -147,10 +147,17 @@ export const PropertyRow = React.memo(
                 onTogglePin();
               }}
               className={cn(
-                'shrink-0 p-0.5 hover:bg-muted rounded transition-all',
+                `
+                  shrink-0 rounded p-0.5 transition-all
+                  hover:bg-muted
+                `,
                 isPinned
-                  ? 'opacity-100 text-amber-500'
-                  : 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-amber-500'
+                  ? 'text-amber-500 opacity-100'
+                  : `
+                    text-muted-foreground opacity-0
+                    group-hover:opacity-100
+                    hover:text-amber-500
+                  `
               )}
               title={isPinned ? 'Unpin property' : 'Pin property'}
               aria-label={
@@ -165,14 +172,17 @@ export const PropertyRow = React.memo(
               />
             </button>
           ) : (
-            <span className="shrink-0 w-5" />
+            <span className="w-5 shrink-0" />
           )}
 
           {/* Expand/collapse button for nested objects */}
           {expandable ? (
             <button
               onClick={toggleExpand}
-              className="shrink-0 mt-0.5 p-0.5 hover:bg-muted rounded"
+              className={`
+                mt-0.5 shrink-0 rounded p-0.5
+                hover:bg-muted
+              `}
               aria-label={
                 state.isExpanded ? `Collapse ${label}` : `Expand ${label}`
               }
@@ -185,16 +195,20 @@ export const PropertyRow = React.memo(
               />
             </button>
           ) : (
-            <span className="shrink-0 w-4" />
+            <span className="w-4 shrink-0" />
           )}
 
           {/* Label */}
-          <span className="shrink-0 text-xs font-medium text-muted-foreground min-w-[100px]">
+          <span
+            className={`
+            min-w-[100px] shrink-0 text-xs font-medium text-muted-foreground
+          `}
+          >
             <HighlightedText text={label} searchQuery={searchQuery} />
           </span>
 
           {/* Value and action buttons container */}
-          <div className="flex-1 flex items-start gap-1.5 min-w-0">
+          <div className="flex min-w-0 flex-1 items-start gap-1.5">
             {/* Value - rendered by PropertyValue */}
             <PropertyValue
               value={value}
@@ -218,7 +232,7 @@ export const PropertyRow = React.memo(
 
         {/* Nested properties */}
         {state.isExpanded && (
-          <div className="ml-4 pl-3 border-l border-border/50">
+          <div className="ml-4 border-l border-border/50 pl-3">
             {/* JSON view for arrays */}
             {isArrayValue && state.useJsonView ? (
               <div className="my-2">
@@ -246,7 +260,12 @@ export const PropertyRow = React.memo(
                       {chunkIndex > 0 && (
                         <button
                           onClick={() => toggleChunk(chunkIndex)}
-                          className="w-full text-left py-1 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors flex items-center gap-1"
+                          className={`
+                            flex w-full items-center gap-1 rounded px-2 py-1
+                            text-left text-xs text-muted-foreground
+                            transition-colors
+                            hover:bg-muted/50 hover:text-foreground
+                          `}
                           aria-label={
                             isVisible
                               ? `Hide items ${chunk.start} to ${chunk.end - 1}`
@@ -271,7 +290,7 @@ export const PropertyRow = React.memo(
                         <div
                           className={
                             chunkIndex > 0
-                              ? 'ml-2 pl-2 border-l border-border/30'
+                              ? 'ml-2 border-l border-border/30 pl-2'
                               : ''
                           }
                         >
@@ -293,7 +312,11 @@ export const PropertyRow = React.memo(
                       {isLastChunk && !allChunksVisible && (
                         <button
                           onClick={showAllChunks}
-                          className="mt-2 py-1 px-2 text-xs text-blue-500 hover:text-blue-400 hover:bg-blue-500/10 rounded transition-colors"
+                          className={`
+                            mt-2 rounded px-2 py-1 text-xs text-blue-500
+                            transition-colors
+                            hover:bg-blue-500/10 hover:text-blue-400
+                          `}
                           aria-label={`Show all ${value.length} items`}
                         >
                           Show all items ({value.length} total)

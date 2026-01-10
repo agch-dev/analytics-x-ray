@@ -35,21 +35,21 @@ export default function Popup() {
   };
 
   return (
-    <div className="w-[380px] min-h-[400px] bg-background text-foreground">
-      <Card className="border-0 shadow-none bg-card">
-        <CardHeader className="text-center pb-4">
-          <div className="flex flex-col items-center gap-3 mb-2">
-            <Logo className="h-16 w-16 pointer-events-none" size={64} />
+    <div className="min-h-[400px] w-[380px] bg-background text-foreground">
+      <Card className="border-0 bg-card shadow-none">
+        <CardHeader className="pb-4 text-center">
+          <div className="mb-2 flex flex-col items-center gap-3">
+            <Logo className="pointer-events-none h-16 w-16" size={64} />
             <div>
               <CardTitle className="text-2xl font-bold">
                 Analytics X-Ray
               </CardTitle>
-              <CardDescription className="text-sm mt-1">
+              <CardDescription className="mt-1 text-sm">
                 Inspect Segment analytics events in real-time
               </CardDescription>
             </div>
           </div>
-          <Badge variant="secondary" className="w-fit mx-auto">
+          <Badge variant="secondary" className="mx-auto w-fit">
             {getFormattedVersion()}
           </Badge>
         </CardHeader>
@@ -84,11 +84,15 @@ export default function Popup() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-border">
-            <h3 className="text-sm font-semibold text-foreground mb-2">
+          <div className="border-t border-border pt-4">
+            <h3 className="mb-2 text-sm font-semibold text-foreground">
               How to Use
             </h3>
-            <ol className="text-xs text-muted-foreground space-y-1.5 list-decimal list-inside">
+            <ol
+              className={`
+              list-inside list-decimal space-y-1.5 text-xs text-muted-foreground
+            `}
+            >
               <li>Open your browser&apos;s DevTools (F12)</li>
               <li>Navigate to the &quot;Analytics X-Ray&quot; panel</li>
               <li>View Segment events as they fire on the page</li>
@@ -97,7 +101,7 @@ export default function Popup() {
           </div>
 
           <div className="pt-2">
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-center text-xs text-muted-foreground">
               Intercepting Segment analytics events on all pages
             </p>
           </div>

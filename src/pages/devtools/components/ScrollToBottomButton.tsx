@@ -16,16 +16,16 @@ export function ScrollToBottomButton({
   return (
     <div
       className={cn(
-        'fixed bottom-20 right-4 z-50 transition-opacity duration-200',
+        'fixed right-4 bottom-20 z-50 transition-opacity duration-200',
         isVisible
-          ? 'opacity-100 pointer-events-auto'
-          : 'opacity-0 pointer-events-none'
+          ? 'pointer-events-auto opacity-100'
+          : 'pointer-events-none opacity-0'
       )}
     >
       <Button
         onClick={onClick}
         size="lg"
-        className="shadow-lg h-12 w-12 p-0"
+        className="h-12 w-12 p-0 shadow-lg"
         title="Scroll to latest"
         aria-label="Scroll to bottom to view latest events"
       >

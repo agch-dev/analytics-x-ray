@@ -23,7 +23,7 @@ interface SupportModalProps {
 export function SupportModal({ open, onOpenChange }: SupportModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
         <DialogHeader className="space-y-3 text-left">
           <DialogTitle className="flex items-center gap-2">
             <HugeiconsIcon
@@ -57,29 +57,36 @@ export function SupportModal({ open, onOpenChange }: SupportModalProps) {
               Buy Me a Coffee
             </a>
           </div>
-          <p className="text-xs text-muted-foreground mt-4 text-center">
+          <p className="mt-4 text-center text-xs text-muted-foreground">
             Thank you for using Analytics X-Ray! with ❤️ from Uruguay 🇺🇾
           </p>
-          <div className="mt-4 pt-4 border-t border-border">
-            <p className="text-xs text-muted-foreground text-center mb-2">
+          <div className="mt-4 border-t border-border pt-4">
+            <p className="mb-2 text-center text-xs text-muted-foreground">
               This is an open source project. You can contribute at:
             </p>
             <a
               href="https://github.com/agch-dev/analytics-x-ray"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-primary hover:underline font-mono text-center block"
+              className={`
+                block text-center font-mono text-xs text-primary
+                hover:underline
+              `}
             >
               github.com/agch-dev/analytics-x-ray
             </a>
           </div>
-          <div className="mt-4 pt-4 border-t border-border">
-            <p className="text-xs text-muted-foreground text-center mb-2">
+          <div className="mt-4 border-t border-border pt-4">
+            <p className="mb-2 text-center text-xs text-muted-foreground">
               Would love to hear your feedback!
             </p>
             <a
               href={getFeedbackMailtoLink()}
-              className="text-xs text-primary hover:underline font-mono text-center flex items-center justify-center gap-1.5"
+              className={`
+                flex items-center justify-center gap-1.5 text-center font-mono
+                text-xs text-primary
+                hover:underline
+              `}
             >
               <HugeiconsIcon icon={Mail01Icon} size={14} />
               feedback@agch.dev

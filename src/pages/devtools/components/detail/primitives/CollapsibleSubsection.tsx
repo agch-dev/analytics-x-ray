@@ -67,8 +67,14 @@ export function CollapsibleSubsection({
       <button
         onClick={onToggleExpand}
         className={cn(
-          'w-full flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground',
-          'hover:bg-muted/30 transition-colors rounded',
+          `
+            flex w-full items-center gap-2 px-2 py-1 text-xs
+            text-muted-foreground
+          `,
+          `
+            rounded transition-colors
+            hover:bg-muted/30
+          `,
           'text-left'
         )}
         aria-label={
@@ -84,7 +90,7 @@ export function CollapsibleSubsection({
           className="shrink-0 text-muted-foreground"
         />
         {icon}
-        <span className="font-medium uppercase tracking-wide text-[10px]">
+        <span className="text-[10px] font-medium tracking-wide uppercase">
           {title}
         </span>
         {/* Pin indicator */}
@@ -94,14 +100,14 @@ export function CollapsibleSubsection({
             {pinnedKeys.length}
           </span>
         )}
-        <span className="shrink-0 text-[10px] text-muted-foreground/70 ml-auto">
+        <span className="ml-auto shrink-0 text-[10px] text-muted-foreground/70">
           {entryCount}
         </span>
       </button>
 
       {/* Expanded content */}
       {isExpanded && (
-        <div className="border-l border-border ml-2 mt-0.5">
+        <div className="mt-0.5 ml-2 border-l border-border">
           {/* Pinned properties first */}
           {pinned.map(({ key, value }) => (
             <PropertyRow
@@ -116,7 +122,7 @@ export function CollapsibleSubsection({
           ))}
           {/* Separator if there are both pinned and unpinned */}
           {pinned.length > 0 && unpinned.length > 0 && (
-            <div className="my-1 mx-2 border-t border-border/50" />
+            <div className="mx-2 my-1 border-t border-border/50" />
           )}
           {/* Unpinned properties */}
           {unpinned.map(({ key, value }) => (
@@ -135,7 +141,11 @@ export function CollapsibleSubsection({
 
       {/* Show pinned properties when collapsed */}
       {!isExpanded && pinnedKeys.length > 0 && (
-        <div className="border-l border-amber-500/30 ml-2 mt-0.5 bg-neutral-400/5">
+        <div
+          className={`
+          mt-0.5 ml-2 border-l border-amber-500/30 bg-neutral-400/5
+        `}
+        >
           {pinned.map(({ key, value }) => (
             <PropertyRow
               key={key}
@@ -171,12 +181,16 @@ export function SubsectionHeader({
   pinnedCount,
 }: SubsectionHeaderProps) {
   return (
-    <div className="flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground">
+    <div
+      className={`
+      flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground
+    `}
+    >
       {icon}
-      <span className="font-medium uppercase tracking-wide text-[10px]">
+      <span className="text-[10px] font-medium tracking-wide uppercase">
         {title}
       </span>
-      <span className="flex items-center gap-1 text-amber-500/80 ml-auto">
+      <span className="ml-auto flex items-center gap-1 text-amber-500/80">
         <HugeiconsIcon icon={PinIcon} size={8} className="rotate-45" />
         {pinnedCount}
       </span>

@@ -89,15 +89,15 @@ export function FilterPanel({
   const hasHiddenEvents = hiddenEventNames.size > 0;
 
   return (
-    <div className="px-4 py-3 border-b border-border bg-card">
-      <div className="flex flex-wrap gap-2 items-center">
+    <div className="border-b border-border bg-card px-4 py-3">
+      <div className="flex flex-wrap items-center gap-2">
         {/* Show All / Hide All button */}
         {hasHiddenEvents ? (
           <Button
             variant="default"
             size="sm"
             onClick={onShowAll}
-            className="text-xs h-7"
+            className="h-7 text-xs"
             aria-label="Show all hidden event names"
           >
             Show All
@@ -107,7 +107,7 @@ export function FilterPanel({
             variant="destructive"
             size="sm"
             onClick={onHideAll}
-            className="text-xs h-7"
+            className="h-7 text-xs"
             disabled={uniqueEventNames.length === 0}
             aria-label="Hide all event names"
           >
@@ -128,9 +128,9 @@ export function FilterPanel({
               size="sm"
               onClick={() => onToggleEventName(eventName)}
               className={cn(
-                'text-xs h-7 px-3',
+                'h-7 px-3 text-xs',
                 hasColor && pillColorClasses,
-                isHidden && 'opacity-50 line-through'
+                isHidden && 'line-through opacity-50'
               )}
               aria-label={
                 isHidden

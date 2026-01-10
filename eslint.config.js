@@ -5,6 +5,7 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
+import betterTailwindcss from 'eslint-plugin-better-tailwindcss';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
@@ -46,6 +47,8 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-var-requires': 'off',
+      // Allow custom classes in test files for testing purposes
+      'better-tailwindcss/no-unregistered-classes': 'off',
     },
   },
 
@@ -80,6 +83,7 @@ export default [
       'react-hooks': reactHooks,
       import: importPlugin,
       'jsx-a11y': jsxA11y,
+      'better-tailwindcss': betterTailwindcss,
     },
     rules: {
       // TypeScript rules
@@ -165,6 +169,9 @@ export default [
       'jsx-a11y/click-events-have-key-events': 'warn',
       'jsx-a11y/no-static-element-interactions': 'warn',
       'jsx-a11y/anchor-is-valid': 'warn',
+
+      // Tailwind CSS rules
+      ...betterTailwindcss.configs.recommended.rules,
     },
     settings: {
       react: {
@@ -179,6 +186,20 @@ export default [
           extensions: ['.js', '.jsx', '.ts', '.tsx'],
         },
       },
+      'better-tailwindcss': {
+        // Tailwind CSS 4: path to the entry file of the css based tailwind config
+        entryPoint: 'src/assets/styles/tailwind.css',
+      },
+    },
+  },
+
+  // UI component files (shadcn/ui components use animation classes from tailwindcss-animate)
+  {
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      // Disable unregistered classes check for UI components as they use shadcn/ui animation classes
+      // that are valid but not recognized by the plugin
+      'better-tailwindcss/no-unregistered-classes': 'off',
     },
   },
 

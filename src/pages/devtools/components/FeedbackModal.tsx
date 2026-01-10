@@ -30,20 +30,29 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="mb-4 text-sm text-muted-foreground">
             Choose how you&apos;d like to send your feedback:
           </p>
           <div className="space-y-3">
             <a
               href={getFeedbackMailtoLink()}
-              className="flex items-center gap-2 p-3 bg-muted hover:bg-muted/80 rounded-md transition-colors"
+              className={`
+                flex items-center gap-2 rounded-md bg-muted p-3
+                transition-colors
+                hover:bg-muted/80
+              `}
             >
               <HugeiconsIcon
                 icon={Mail01Icon}
                 size={16}
                 className="text-muted-foreground"
               />
-              <span className="text-sm font-mono text-primary hover:underline">
+              <span
+                className={`
+                font-mono text-sm text-primary
+                hover:underline
+              `}
+              >
                 feedback@agch.dev
               </span>
             </a>
@@ -51,19 +60,28 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
               href="https://github.com/agch-dev/analytics-x-ray/issues/new"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-muted hover:bg-muted/80 rounded-md transition-colors"
+              className={`
+                flex items-center gap-2 rounded-md bg-muted p-3
+                transition-colors
+                hover:bg-muted/80
+              `}
             >
               <HugeiconsIcon
                 icon={GithubIcon}
                 size={16}
                 className="text-muted-foreground"
               />
-              <span className="text-sm font-mono text-primary hover:underline">
+              <span
+                className={`
+                font-mono text-sm text-primary
+                hover:underline
+              `}
+              >
                 Create GitHub Issue
               </span>
             </a>
           </div>
-          <p className="text-xs text-muted-foreground mt-4">
+          <p className="mt-4 text-xs text-muted-foreground">
             Your feedback helps us improve Analytics X-Ray. Thank you for taking
             the time to share your thoughts!
           </p>

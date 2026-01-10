@@ -73,7 +73,7 @@ export const AppearanceSection = () => {
             between views for individual events.
           </p>
         </div>
-        <div className="pt-4 mt-4 border-t border-border">
+        <div className="mt-4 border-t border-border pt-4">
           <p className="text-sm text-muted-foreground">
             <span className="font-medium">Tip:</span> You can customize the
             default open/collapsed state of sections and subsections directly

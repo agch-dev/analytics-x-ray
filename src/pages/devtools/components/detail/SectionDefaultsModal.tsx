@@ -130,7 +130,7 @@ export function SectionDefaultsModal({
                   Set default open/closed states for each subsection
                 </p>
               </div>
-              <div className="space-y-3 pl-4 border-l-2 border-border">
+              <div className="space-y-3 border-l-2 border-border pl-4">
                 {subsections.map((subsection) => (
                   <div
                     key={subsection.key}
@@ -138,7 +138,7 @@ export function SectionDefaultsModal({
                   >
                     <Label
                       htmlFor={`subsection-${subsection.key}`}
-                      className="text-sm font-normal cursor-pointer"
+                      className="cursor-pointer text-sm font-normal"
                     >
                       {subsection.title}
                     </Label>
@@ -157,10 +157,10 @@ export function SectionDefaultsModal({
           )}
 
           {/* Special defaults */}
-          <div className="space-y-4 pt-2 border-t border-border">
+          <div className="space-y-4 border-t border-border pt-2">
             {sectionKey === 'context' && (
               <div className="flex items-center justify-between">
-                <div className="space-y-0.5 flex-1 pr-4">
+                <div className="flex-1 space-y-0.5 pr-4">
                   <Label
                     htmlFor="special-context"
                     className="text-sm font-medium"
@@ -182,7 +182,7 @@ export function SectionDefaultsModal({
             )}
             {sectionKey === 'metadata' && (
               <div className="flex items-center justify-between">
-                <div className="space-y-0.5 flex-1 pr-4">
+                <div className="flex-1 space-y-0.5 pr-4">
                   <Label
                     htmlFor="special-metadata"
                     className="text-sm font-medium"
