@@ -17,9 +17,6 @@ export default mergeConfig(
           },
         } as ManifestV3Export,
         browser: 'firefox',
-        contentScripts: {
-          injectCss: true,
-        }
       })
     ],
     build: {
