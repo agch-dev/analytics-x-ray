@@ -1,12 +1,18 @@
 /**
  * Centralized Logging Utility
- * 
+ *
  * Provides consistent, colorized logging across all extension contexts
  * with different log levels and optional context tagging.
  */
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-export type LogContext = 'background' | 'panel' | 'popup' | 'devtools' | 'storage' | 'ui';
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogContext =
+  | 'background'
+  | 'panel'
+  | 'popup'
+  | 'devtools'
+  | 'storage'
+  | 'ui';
 
 interface LoggerConfig {
   enabled: boolean;
@@ -51,7 +57,7 @@ class Logger {
    */
   private shouldLog(level: LogLevel, context?: LogContext): boolean {
     if (!this.config.enabled) return false;
-    
+
     // Check log level
     if (LOG_LEVELS[level] < LOG_LEVELS[this.config.minLevel]) {
       return false;
@@ -140,7 +146,11 @@ class Logger {
   group(title: string, context?: LogContext, collapsed: boolean = false): void {
     if (!this.shouldLog('debug', context)) return;
     const method = collapsed ? console.groupCollapsed : console.group;
-    method(`%c${this.formatMessage(context)}%c ${title}`, this.getContextStyle(context), 'color: inherit');
+    method(
+      `%c${this.formatMessage(context)}%c ${title}`,
+      this.getContextStyle(context),
+      'color: inherit'
+    );
   }
 
   groupEnd(): void {
@@ -165,24 +175,31 @@ class Logger {
    */
   table(data: unknown, context?: LogContext): void {
     if (!this.shouldLog('debug', context)) return;
-    console.log(`%c${this.formatMessage(context)}`, this.getContextStyle(context));
+    console.log(
+      `%c${this.formatMessage(context)}`,
+      this.getContextStyle(context)
+    );
     console.table(data);
   }
 }
 
 // Export singleton instance
-export const logger = new Logger();
+const logger = new Logger();
 
 // Export convenience methods with context bound
 export const createContextLogger = (context: LogContext) => ({
-  debug: (message: string, ...args: unknown[]) => logger.debug(message, context, ...args),
-  info: (message: string, ...args: unknown[]) => logger.info(message, context, ...args),
-  warn: (message: string, ...args: unknown[]) => logger.warn(message, context, ...args),
-  error: (message: string, ...args: unknown[]) => logger.error(message, context, ...args),
-  group: (title: string, collapsed?: boolean) => logger.group(title, context, collapsed),
+  debug: (message: string, ...args: unknown[]) =>
+    logger.debug(message, context, ...args),
+  info: (message: string, ...args: unknown[]) =>
+    logger.info(message, context, ...args),
+  warn: (message: string, ...args: unknown[]) =>
+    logger.warn(message, context, ...args),
+  error: (message: string, ...args: unknown[]) =>
+    logger.error(message, context, ...args),
+  group: (title: string, collapsed?: boolean) =>
+    logger.group(title, context, collapsed),
   groupEnd: () => logger.groupEnd(),
   time: (label: string) => logger.time(label, context),
   timeEnd: (label: string) => logger.timeEnd(label, context),
   table: (data: unknown) => logger.table(data, context),
 });
-

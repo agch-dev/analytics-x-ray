@@ -13,12 +13,7 @@ export {
 } from './utils';
 
 // Logger
-export {
-  logger,
-  createContextLogger,
-  type LogLevel,
-  type LogContext,
-} from './logger';
+export { createContextLogger } from './logger';
 
 // Search
 export {
@@ -35,7 +30,6 @@ export { getJsonViewTheme, getValueTypeColor } from './jsonViewTheme';
 export {
   createChromeStorage,
   createTabStorage,
-  getCurrentTabId,
   cleanupTabStorage,
   cleanupStaleTabs,
   getStorageSizeInfo,
