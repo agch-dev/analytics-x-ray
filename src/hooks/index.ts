@@ -8,8 +8,6 @@ export {
   usePinnedProperties,
   sortWithPinnedFirst,
   type PinSection,
-  type ContextSubsection,
-  type MetadataSubsection,
   type PinSubsection,
 } from './usePinnedProperties';
 

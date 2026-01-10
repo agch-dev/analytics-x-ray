@@ -60,11 +60,7 @@ export {
 } from './domain';
 
 // Domain Validation
-export {
-  validateDomainInput,
-  sanitizeSearchQuery,
-  isValidSearchQuery,
-} from './domain/validation';
+export { sanitizeSearchQuery, isValidSearchQuery } from './domain/validation';
 
 // Version
 export { getFormattedVersion } from './version';

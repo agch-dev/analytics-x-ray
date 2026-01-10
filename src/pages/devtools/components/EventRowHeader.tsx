@@ -6,7 +6,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react';
 import React from 'react';
 
-import { Button } from '@src/components/ui/button';
+import { Button } from '@src/components';
 import {
   categorizeEvent,
   getBucketColor,
@@ -20,7 +20,7 @@ import type { SegmentEvent } from '@src/types';
 type ViewMode = 'json' | 'structured';
 
 // Format timestamp for display
-export const formatTime = (timestamp: string | number): string => {
+const formatTime = (timestamp: string | number): string => {
   const date = new Date(timestamp);
   return (
     date.toLocaleTimeString('en-US', {

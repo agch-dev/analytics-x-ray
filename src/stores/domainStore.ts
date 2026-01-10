@@ -20,7 +20,7 @@ export interface AllowedDomain {
   allowSubdomains: boolean;
 }
 
-export interface AutoAllowResult {
+interface AutoAllowResult {
   action: 'added' | 'updated' | 'already_allowed' | 'no_action';
   domain: string;
   allowSubdomains: boolean;

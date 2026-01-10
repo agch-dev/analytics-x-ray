@@ -135,7 +135,7 @@ function processAddEvent(
   };
 }
 
-export interface TabState {
+interface TabState {
   // Events captured for this tab
   events: SegmentEvent[];
 

@@ -34,7 +34,7 @@ export interface PinnedPropertiesProfile {
   };
 }
 
-export interface PinnedPropertiesConfig {
+interface PinnedPropertiesConfig {
   [profileKey: string]: PinnedPropertiesProfile;
 }
 
@@ -54,7 +54,7 @@ const defaultPinnedProfile: PinnedPropertiesProfile = {
   },
 };
 
-export interface SectionDefaults {
+interface SectionDefaults {
   // Section default expanded states
   sections: {
     properties: boolean;
@@ -83,7 +83,7 @@ export interface SectionDefaults {
   };
 }
 
-export interface ExtensionConfig {
+interface ExtensionConfig {
   // Event capture settings
   maxEvents: number;
 
@@ -454,9 +454,3 @@ export const selectMaxEvents = (state: ConfigStore) => state.maxEvents;
 export const selectTheme = (state: ConfigStore) => state.theme;
 export const selectPreferredEventDetailView = (state: ConfigStore) =>
   state.preferredEventDetailView;
-export const selectPinnedProperties = (state: ConfigStore) =>
-  state.pinnedProperties;
-export const selectTogglePin = (state: ConfigStore) => state.togglePin;
-export const selectIsPinned = (state: ConfigStore) => state.isPinned;
-export const selectGetPinnedProperties = (state: ConfigStore) =>
-  state.getPinnedProperties;

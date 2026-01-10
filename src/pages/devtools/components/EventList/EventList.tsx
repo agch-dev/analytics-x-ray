@@ -24,9 +24,9 @@ export interface EventListHandle {
   isAtBottom: boolean;
 }
 
-export type ViewMode = 'json' | 'structured';
+type ViewMode = 'json' | 'structured';
 
-export interface EventListProps {
+interface EventListProps {
   events: SegmentEvent[];
   reloadTimestamps: number[];
   expandedEventIds: Set<string>;
@@ -127,7 +127,6 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       listItems,
       expandedEventIds,
       virtualizer,
-      scrollContainerRef,
       onToggleExpand: handleToggleExpand,
     });
 

@@ -14,8 +14,6 @@ export type {
   SegmentEvent,
 } from './segment';
 
-export { EVENT_TYPE_COLORS, EVENT_TYPE_LABELS } from './segment';
-
 // Extension message types
 export type {
   MessageType,
@@ -42,4 +40,3 @@ export {
   isDomainChangedMessage,
   isReEvaluateTabDomainMessage,
 } from './messages';
-

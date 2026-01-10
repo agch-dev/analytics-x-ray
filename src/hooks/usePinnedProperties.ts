@@ -8,10 +8,11 @@
 import { useCallback } from 'react';
 
 import { useConfigStore } from '@src/stores';
+import type { PinnedPropertiesProfile } from '@src/stores';
 
 export type PinSection = 'properties' | 'traits' | 'context' | 'metadata';
-export type ContextSubsection = 'page' | 'library' | 'other' | 'browser';
-export type MetadataSubsection = 'identifiers' | 'captureInfo' | 'integrations';
+type ContextSubsection = 'page' | 'library' | 'other' | 'browser';
+type MetadataSubsection = 'identifiers' | 'captureInfo' | 'integrations';
 export type PinSubsection = ContextSubsection | MetadataSubsection | null;
 
 interface UsePinnedPropertiesOptions {
@@ -35,7 +36,7 @@ interface UsePinnedPropertiesReturn {
  * Helper to extract pinned properties array from profile
  */
 function getPinnedArray(
-  profile: import('@src/stores/configStore').PinnedPropertiesProfile,
+  profile: PinnedPropertiesProfile,
   section: PinSection,
   subsection: PinSubsection
 ): string[] {

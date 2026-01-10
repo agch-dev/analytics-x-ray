@@ -30,6 +30,10 @@ const config: KnipConfig = {
     'manifest.json',
     'manifest.dev.json',
     'src/components/ui/**',
+    'src/test/utils.ts',
+    'src/types/index.ts',
+    'src/types/messages.ts',
+    'src/types/segment.ts',
   ],
   ignoreDependencies: [
     // Build tools that are used but not imported

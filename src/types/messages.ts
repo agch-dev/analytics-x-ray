@@ -5,7 +5,7 @@
  * between background script, DevTools panel, popup, and content scripts.
  */
 
-import type { SegmentEvent } from '@src/lib';
+import type { SegmentEvent } from './segment';
 
 // All message types used in extension communication
 export type MessageType =
@@ -19,7 +19,7 @@ export type MessageType =
   | 'RE_EVALUATE_TAB_DOMAIN';
 
 // Base message interface
-export interface BaseMessage {
+interface BaseMessage {
   type: MessageType;
   tabId?: number;
 }

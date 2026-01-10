@@ -106,7 +106,7 @@ interface UseVirtualizationParams {
   events: SegmentEvent[];
   reloadTimestamps: number[];
   expandedEventIds: Set<string>;
-  scrollContainerRef: RefObject<HTMLDivElement>;
+  scrollContainerRef: RefObject<HTMLDivElement | null>;
   onScrollStateChange?: (isAtBottom: boolean) => void;
 }
 
