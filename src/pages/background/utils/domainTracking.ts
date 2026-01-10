@@ -24,7 +24,7 @@ const log = createContextLogger('background');
 // In-memory domain tracking (per tab)
 // Maps tabId to { domain, isAllowed }
 // Updated via onUpdated listener for fast lookups
-export interface TabDomainInfo {
+interface TabDomainInfo {
   domain: string;
   isAllowed: boolean;
 }
@@ -32,7 +32,7 @@ export interface TabDomainInfo {
 export const tabDomains = new Map<number, TabDomainInfo>();
 
 // Track last known domain per tab to detect changes
-export const lastKnownDomains = new Map<number, string>();
+const lastKnownDomains = new Map<number, string>();
 
 /**
  * Check if a domain is allowed and update tab domain map
@@ -92,19 +92,15 @@ export function updateTabDomainInfo(tabId: number, url: string): void {
  * Notify DevTools panel when domain changes
  */
 function notifyDomainChanged(tabId: number, domain: string | null): void {
-  try {
-    const message: DomainChangedMessage = {
-      type: 'DOMAIN_CHANGED',
-      tabId,
-      domain,
-    };
-    Browser.runtime.sendMessage(message).catch((error) => {
-      // No listeners - panel might not be open, that's okay
-      log.debug(`⚠️ No listeners for domain change notification:`, error);
-    });
-  } catch (error) {
-    log.debug(`⚠️ Failed to notify domain change:`, error);
-  }
+  const message: DomainChangedMessage = {
+    type: 'DOMAIN_CHANGED',
+    tabId,
+    domain,
+  };
+  Browser.runtime.sendMessage(message).catch((error) => {
+    // No listeners - panel might not be open, that's okay
+    log.debug(`⚠️ No listeners for domain change notification:`, error);
+  });
 }
 
 /**
