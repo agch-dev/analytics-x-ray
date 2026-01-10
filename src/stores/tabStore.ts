@@ -1,37 +1,38 @@
 /**
  * Per-Tab Data Store
- * 
+ *
  * Stores tab-specific analytics data and state.
  * Each tab has its own isolated storage namespace.
- * 
+ *
  * Usage:
  *   const store = useTabStore(tabId);
  *   store.addEvent(event);
  */
 
+import Browser from 'webextension-polyfill';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { createTabStorage, logStorageSize } from '@src/lib/storage';
-import type { SegmentEvent } from '@src/types';
+
 import { createContextLogger } from '@src/lib/logger';
-import Browser from 'webextension-polyfill';
+import { createTabStorage, logStorageSize } from '@src/lib/storage';
 import { useConfigStore } from '@src/stores';
+import type { SegmentEvent } from '@src/types';
 
 const log = createContextLogger('storage');
 
 export interface TabState {
   // Events captured for this tab
   events: SegmentEvent[];
-  
+
   // UI state
   selectedEventId: string | null; // Single selected event (for detail panel)
   expandedEventIds: Set<string>; // Multiple expanded events (for list view)
   hiddenEventNames: Set<string>; // Event names that are hidden/filtered
   searchQuery: string; // Search query for filtering events
-  
+
   // Tab metadata
   lastUpdated: number;
-  
+
   // Reload tracking
   reloadTimestamps: number[]; // Timestamps of page reloads for this tab
 }
@@ -63,7 +64,7 @@ const defaultTabState: TabState = {
 /**
  * Creates a tab-specific store instance
  * Each tab gets its own persisted store
- * 
+ *
  * @param tabId - The tab ID to create/store data for
  * @param maxEvents - Maximum number of events to store (default: from config or 500)
  *                    Note: This is only used as a fallback. The actual limit is read
@@ -72,11 +73,16 @@ const defaultTabState: TabState = {
 export const createTabStore = (tabId: number, maxEvents: number = 500) => {
   return create<TabStore>()(
     persist(
-      (set, get) => ({
+      (set, _get) => ({
         ...defaultTabState,
 
         addEvent: (event) => {
-          log.debug(`➕ Adding event to store (tabId: ${tabId}):`, event.name, event.type, event.id);
+          log.debug(
+            `➕ Adding event to store (tabId: ${tabId}):`,
+            event.name,
+            event.type,
+            event.id
+          );
           set((state) => {
             // DEDUPLICATION: This is the single source of truth for deduplication.
             // Events are deduplicated by checking both id AND messageId to catch
@@ -86,10 +92,12 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
               (e) => e.id === event.id || e.messageId === event.messageId
             );
             if (isDuplicate) {
-              log.debug(`  ⚠️ Event ${event.id} (messageId: ${event.messageId}) already exists, skipping`);
+              log.debug(
+                `  ⚠️ Event ${event.id} (messageId: ${event.messageId}) already exists, skipping`
+              );
               return state;
             }
-            
+
             // Read maxEvents dynamically from config store to allow instant updates
             // Fall back to the passed maxEvents if config store is not available
             let currentMaxEvents = maxEvents;
@@ -98,17 +106,21 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
               currentMaxEvents = configState.maxEvents;
             } catch (error) {
               // Config store might not be available in all contexts, use fallback
-              log.debug(`  ⚠️ Could not read maxEvents from config store, using fallback: ${maxEvents}`);
+              log.debug(
+                `  ⚠️ Could not read maxEvents from config store, using fallback: ${maxEvents}`
+              );
             }
-            
+
             const events = [event, ...state.events].slice(0, currentMaxEvents);
-            log.debug(`  ✅ Added event. Total events in store: ${events.length} (max: ${currentMaxEvents})`);
-            
+            log.debug(
+              `  ✅ Added event. Total events in store: ${events.length} (max: ${currentMaxEvents})`
+            );
+
             // Log storage size periodically (every 25 events to avoid spam)
             if (events.length % 25 === 0) {
               logStorageSize('storage');
             }
-            
+
             return {
               events,
               lastUpdated: Date.now(),
@@ -118,7 +130,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
 
         clearEvents: async () => {
           log.info(`🗑️ Clearing all events for tab ${tabId}`);
-          
+
           // Clear reload timestamps from storage
           try {
             const reloadsKey = `tab_${tabId}_reloads`;
@@ -127,7 +139,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
           } catch (error) {
             log.error(`  ⚠️ Failed to clear reload timestamps:`, error);
           }
-          
+
           set({
             events: [],
             selectedEventId: null,
@@ -182,7 +194,9 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
 
         addReloadTimestamp: (timestamp) => {
           set((state) => ({
-            reloadTimestamps: [...state.reloadTimestamps, timestamp].slice(-100), // Keep last 100
+            reloadTimestamps: [...state.reloadTimestamps, timestamp].slice(
+              -100
+            ), // Keep last 100
           }));
         },
 
@@ -203,36 +217,36 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
         // Custom deserialization for Set - convert arrays back to Sets during merge
         merge: (persistedState, currentState) => {
           const persisted = persistedState as Partial<TabState> | undefined;
-          
+
           // Load reload timestamps from storage synchronously (will be loaded async after)
           // For now, use persisted reloadTimestamps if available, otherwise empty array
           const reloadTimestamps = Array.isArray(persisted?.reloadTimestamps)
             ? persisted.reloadTimestamps
             : [];
-          
+
           if (!persisted) {
             return {
               ...currentState,
               reloadTimestamps,
             };
           }
-          
+
           return {
             ...currentState,
             ...persisted,
             // Ensure Sets are properly reconstructed from persisted arrays
             expandedEventIds: new Set(
-              Array.isArray(persisted.expandedEventIds) 
-                ? persisted.expandedEventIds 
-                : persisted.expandedEventIds instanceof Set 
-                  ? persisted.expandedEventIds 
+              Array.isArray(persisted.expandedEventIds)
+                ? persisted.expandedEventIds
+                : persisted.expandedEventIds instanceof Set
+                  ? persisted.expandedEventIds
                   : []
             ),
             hiddenEventNames: new Set(
-              Array.isArray(persisted.hiddenEventNames) 
-                ? persisted.hiddenEventNames 
-                : persisted.hiddenEventNames instanceof Set 
-                  ? persisted.hiddenEventNames 
+              Array.isArray(persisted.hiddenEventNames)
+                ? persisted.hiddenEventNames
+                : persisted.hiddenEventNames instanceof Set
+                  ? persisted.hiddenEventNames
                   : []
             ),
             // Use reload timestamps from persisted state
@@ -252,16 +266,18 @@ const tabStoreRegistry = new Map<number, ReturnType<typeof createTabStore>>();
 
 /**
  * Gets or creates a store for a specific tab
- * 
+ *
  * @param tabId - The tab ID
  * @param maxEvents - Maximum events to store (default: from config or 500)
  */
 export const getTabStore = (tabId: number, maxEvents: number = 500) => {
   if (!tabStoreRegistry.has(tabId)) {
-    log.info(`🏗️ Creating new tab store for tab ${tabId} (maxEvents: ${maxEvents})`);
+    log.info(
+      `🏗️ Creating new tab store for tab ${tabId} (maxEvents: ${maxEvents})`
+    );
     const store = createTabStore(tabId, maxEvents);
     tabStoreRegistry.set(tabId, store);
-    
+
     // Load reload timestamps from storage after store creation
     syncReloadTimestamps(tabId).catch((error) => {
       log.error(`Failed to load reload timestamps for tab ${tabId}:`, error);
@@ -294,20 +310,23 @@ export const getActiveTabIds = (): number[] => {
 export const syncReloadTimestamps = async (tabId: number): Promise<void> => {
   const store = tabStoreRegistry.get(tabId);
   if (!store) {
-    log.debug(`⚠️ No store found for tab ${tabId}, cannot sync reload timestamps`);
+    log.debug(
+      `⚠️ No store found for tab ${tabId}, cannot sync reload timestamps`
+    );
     return;
   }
-  
+
   try {
     const reloadsKey = `tab_${tabId}_reloads`;
     const result = await Browser.storage.local.get(reloadsKey);
     const reloadTimestamps = (result[reloadsKey] as number[]) || [];
-    
+
     // Update store with reload timestamps using setState
     store.setState({ reloadTimestamps });
-    log.debug(`✅ Synced ${reloadTimestamps.length} reload timestamps for tab ${tabId}`);
+    log.debug(
+      `✅ Synced ${reloadTimestamps.length} reload timestamps for tab ${tabId}`
+    );
   } catch (error) {
     log.error(`❌ Failed to sync reload timestamps for tab ${tabId}:`, error);
   }
 };
-
