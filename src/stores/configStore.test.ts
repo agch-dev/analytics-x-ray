@@ -21,6 +21,10 @@ vi.mock('@src/lib/storage', () => ({
   })),
 }));
 
+// Helper function to filter dismissed modals by ID
+const filterModalsById = (modals: string[], id: string): string[] =>
+  modals.filter((modalId) => modalId === id);
+
 describe('configStore', () => {
   beforeEach(() => {
     // Reset store to default state
@@ -430,9 +434,8 @@ describe('configStore', () => {
         useConfigStore.getState().dismissOnboardingModal('welcome-modal');
 
         const dismissed = useConfigStore.getState().dismissedOnboardingModals;
-        expect(dismissed.filter((id) => id === 'welcome-modal')).toHaveLength(
-          1
-        );
+        const welcomeModalCount = filterModalsById(dismissed, 'welcome-modal');
+        expect(welcomeModalCount).toHaveLength(1);
       });
 
       it('should handle multiple modals', () => {
