@@ -75,12 +75,10 @@ export default function Panel() {
 
   // Selectors - only subscribe to what we need
   const events = useTabStore((state) => state.events);
-  const selectedEventId = useTabStore((state) => state.selectedEventId);
   const expandedEventIds = useTabStore((state) => state.expandedEventIds);
   const hiddenEventNames = useTabStore((state) => state.hiddenEventNames);
   const searchQuery = useTabStore((state) => state.searchQuery);
   const reloadTimestamps = useTabStore((state) => state.reloadTimestamps);
-  const setSelectedEvent = useTabStore((state) => state.setSelectedEvent);
   const toggleEventExpanded = useTabStore((state) => state.toggleEventExpanded);
   const toggleEventNameVisibility = useTabStore(
     (state) => state.toggleEventNameVisibility
@@ -297,12 +295,10 @@ export default function Panel() {
           ref={eventListRef}
           events={filteredEvents}
           reloadTimestamps={reloadTimestamps}
-          selectedEventId={selectedEventId}
           expandedEventIds={expandedEventIds}
           hiddenEventNames={hiddenEventNames}
           searchMatch={searchMatch}
           viewMode={preferredViewMode}
-          onSelectEvent={setSelectedEvent}
           onToggleExpand={toggleEventExpanded}
           onToggleHide={toggleEventNameVisibility}
           onScrollStateChange={setIsAtBottom}

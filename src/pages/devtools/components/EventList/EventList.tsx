@@ -1,14 +1,23 @@
-import { useRef, forwardRef, useImperativeHandle, useState, useCallback } from 'react';
-import type { SegmentEvent } from '@src/types';
-import { normalizeEventNameForFilter } from '@src/lib/utils';
+import {
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useCallback,
+} from 'react';
+
 import type { SearchMatch } from '@src/lib/search';
+import { normalizeEventNameForFilter } from '@src/lib/utils';
+import type { SegmentEvent } from '@src/types';
+
+import { EmptyState } from '../EmptyState';
 import { EventRow } from '../EventRow';
 import { EventRowHeader } from '../EventRowHeader';
-import { EmptyState } from '../EmptyState';
 import { UrlDivider } from '../UrlDivider';
-import { useVirtualization } from './useVirtualization';
-import { useStickyHeader } from './useStickyHeader';
+
 import { ROW_GAP } from './types';
+import { useStickyHeader } from './useStickyHeader';
+import { useVirtualization } from './useVirtualization';
 
 export interface EventListHandle {
   scrollToBottom: () => void;
@@ -20,12 +29,10 @@ export type ViewMode = 'json' | 'structured';
 export interface EventListProps {
   events: SegmentEvent[];
   reloadTimestamps: number[];
-  selectedEventId: string | null;
   expandedEventIds: Set<string>;
   hiddenEventNames: Set<string>;
   searchMatch?: SearchMatch | null;
   viewMode: ViewMode;
-  onSelectEvent: (id: string) => void;
   onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
   onScrollStateChange?: (isAtBottom: boolean) => void;
@@ -33,24 +40,27 @@ export interface EventListProps {
 }
 
 export const EventList = forwardRef<EventListHandle, EventListProps>(
-  function EventList({
-    events,
-    reloadTimestamps,
-    selectedEventId,
-    expandedEventIds,
-    hiddenEventNames,
-    searchMatch,
-    viewMode,
-    onSelectEvent,
-    onToggleExpand,
-    onToggleHide,
-    onScrollStateChange,
-    onViewModeChange,
-  }, ref) {
+  function EventList(
+    {
+      events,
+      reloadTimestamps,
+      expandedEventIds,
+      hiddenEventNames,
+      searchMatch,
+      viewMode,
+      onToggleExpand,
+      onToggleHide,
+      onScrollStateChange,
+      onViewModeChange,
+    },
+    ref
+  ) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // Track which event just collapsed to trigger ring animation
-    const [collapsedEventId, setCollapsedEventId] = useState<string | null>(null);
+    const [collapsedEventId, setCollapsedEventId] = useState<string | null>(
+      null
+    );
 
     // Use virtualization hook
     const {
@@ -109,10 +119,10 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     // Use sticky header hook
     const {
       stickyEvent,
-      stickyEventIndex,
+      stickyEventIndex: _stickyEventIndex,
       handleScroll: handleStickyScroll,
       handleStickyHeaderClick,
-      clearSticky,
+      clearSticky: _clearSticky,
     } = useStickyHeader({
       listItems,
       expandedEventIds,
@@ -258,7 +268,6 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
                 >
                   <EventRow
                     event={event}
-                    isSelected={selectedEventId === event.id}
                     isExpanded={isExpanded}
                     isAnimatingCollapse={collapsedEventId === event.id}
                     isHidden={hiddenEventNames.has(

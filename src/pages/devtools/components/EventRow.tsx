@@ -12,7 +12,6 @@ type ViewMode = 'json' | 'structured';
 
 interface EventRowProps {
   event: SegmentEvent;
-  isSelected: boolean;
   isExpanded: boolean;
   isAnimatingCollapse?: boolean;
   isHidden?: boolean;
@@ -25,7 +24,6 @@ interface EventRowProps {
 
 export const EventRow = React.memo(function EventRow({
   event,
-  isSelected,
   isExpanded,
   isAnimatingCollapse = false,
   isHidden = false,
@@ -42,8 +40,6 @@ export const EventRow = React.memo(function EventRow({
     <div
       className={cn(
         'w-full border-b border-border transition-colors bg-card/80',
-        isSelected &&
-          'bg-blue-500/10 dark:bg-blue-500/10 border-l-2 border-l-blue-500',
         isAnimatingCollapse && 'animate-ring-pulse'
       )}
     >
