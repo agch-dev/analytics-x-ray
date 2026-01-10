@@ -19,6 +19,7 @@ import {
   logStorageSize,
   isNumberArray,
   formatTimestamp,
+  isStoredEvents,
 } from '@src/lib';
 import { useConfigStore } from '@src/stores';
 import type { SegmentEvent } from '@src/types';
@@ -222,6 +223,19 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             log.debug(`  ✅ Cleared reload timestamps from storage`);
           } catch (error) {
             log.error(`  ⚠️ Failed to clear reload timestamps:`, error);
+          }
+
+          // Clear events from global events key (background script storage)
+          // This ensures both storage locations are cleared atomically
+          try {
+            const result = await Browser.storage.local.get('events');
+            const rawEvents = result.events;
+            const events = isStoredEvents(rawEvents) ? rawEvents : {};
+            delete events[tabId];
+            await Browser.storage.local.set({ events });
+            log.debug(`  ✅ Cleared events from global events key`);
+          } catch (error) {
+            log.error(`  ⚠️ Failed to clear global events key:`, error);
           }
 
           const now = Date.now();
