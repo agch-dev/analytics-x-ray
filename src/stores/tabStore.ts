@@ -20,6 +20,118 @@ import type { SegmentEvent } from '@src/types';
 
 const log = createContextLogger('storage');
 
+/**
+ * Checks if an event is a duplicate by comparing id and messageId
+ * @param existingEvent - Event from the store
+ * @param newEvent - Event being added
+ * @returns true if the event is a duplicate
+ */
+function isEventDuplicate(
+  existingEvent: SegmentEvent,
+  newEvent: SegmentEvent
+): boolean {
+  return (
+    existingEvent.id === newEvent.id ||
+    existingEvent.messageId === newEvent.messageId
+  );
+}
+
+/**
+ * Converts persisted Set/array data to a Set
+ * Handles both array and Set types from persisted state
+ */
+function normalizeToSet<T>(value: T[] | Set<T> | undefined): Set<T> {
+  if (Array.isArray(value)) {
+    return new Set(value);
+  }
+  if (value instanceof Set) {
+    return value;
+  }
+  return new Set<T>();
+}
+
+/**
+ * Checks if an event already exists in the events array
+ * @param events - Array of existing events
+ * @param newEvent - Event to check for duplicates
+ * @returns true if the event is a duplicate
+ */
+function hasDuplicateEvent(
+  events: SegmentEvent[],
+  newEvent: SegmentEvent
+): boolean {
+  return events.some((e) => isEventDuplicate(e, newEvent));
+}
+
+/**
+ * Gets the current maxEvents value from config store or falls back to default
+ * @param fallbackMaxEvents - Fallback value if config store is unavailable
+ * @returns The maxEvents value to use
+ */
+function getMaxEvents(fallbackMaxEvents: number): number {
+  try {
+    const configState = useConfigStore.getState();
+    return configState.maxEvents;
+  } catch (error) {
+    // Config store might not be available in all contexts (e.g., during initialization),
+    // use fallback value. This is expected behavior, not an error condition.
+    if (error instanceof Error) {
+      log.debug(
+        `  ⚠️ Could not read maxEvents from config store (${error.message}), using fallback: ${fallbackMaxEvents}`
+      );
+    } else {
+      log.debug(
+        `  ⚠️ Could not read maxEvents from config store, using fallback: ${fallbackMaxEvents}`
+      );
+    }
+    return fallbackMaxEvents;
+  }
+}
+
+/**
+ * Processes adding a new event to the state
+ * Handles deduplication and event limit enforcement
+ * @param state - Current tab state
+ * @param event - Event to add
+ * @param maxEvents - Maximum events fallback value
+ * @returns New state with event added, or original state if duplicate
+ */
+function processAddEvent(
+  state: TabState,
+  event: SegmentEvent,
+  maxEvents: number
+): TabState {
+  // DEDUPLICATION: This is the single source of truth for deduplication.
+  // Events are deduplicated by checking both id AND messageId to catch
+  // duplicates even if one field differs. The background script does NOT
+  // perform deduplication - it just forwards events here.
+  if (hasDuplicateEvent(state.events, event)) {
+    log.debug(
+      `  ⚠️ Event ${event.id} (messageId: ${event.messageId}) already exists, skipping`
+    );
+    return state;
+  }
+
+  // Read maxEvents dynamically from config store to allow instant updates
+  const currentMaxEvents = getMaxEvents(maxEvents);
+
+  const events = [event, ...state.events].slice(0, currentMaxEvents);
+  log.debug(
+    `  ✅ Added event. Total events in store: ${events.length} (max: ${currentMaxEvents})`
+  );
+
+  // Log storage size periodically (every 25 events to avoid spam)
+  if (events.length % 25 === 0) {
+    logStorageSize('storage');
+  }
+
+  return {
+    ...state,
+    events,
+    lastUpdated: Date.now(),
+  };
+}
+
 export interface TabState {
   // Events captured for this tab
   events: SegmentEvent[];
@@ -83,49 +195,7 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             event.type,
             event.id
           );
-          set((state) => {
-            // DEDUPLICATION: This is the single source of truth for deduplication.
-            // Events are deduplicated by checking both id AND messageId to catch
-            // duplicates even if one field differs. The background script does NOT
-            // perform deduplication - it just forwards events here.
-            const isDuplicate = state.events.some(
-              (e) => e.id === event.id || e.messageId === event.messageId
-            );
-            if (isDuplicate) {
-              log.debug(
-                `  ⚠️ Event ${event.id} (messageId: ${event.messageId}) already exists, skipping`
-              );
-              return state;
-            }
-
-            // Read maxEvents dynamically from config store to allow instant updates
-            // Fall back to the passed maxEvents if config store is not available
-            let currentMaxEvents = maxEvents;
-            try {
-              const configState = useConfigStore.getState();
-              currentMaxEvents = configState.maxEvents;
-            } catch (error) {
-              // Config store might not be available in all contexts, use fallback
-              log.debug(
-                `  ⚠️ Could not read maxEvents from config store, using fallback: ${maxEvents}`
-              );
-            }
-
-            const events = [event, ...state.events].slice(0, currentMaxEvents);
-            log.debug(
-              `  ✅ Added event. Total events in store: ${events.length} (max: ${currentMaxEvents})`
-            );
-
-            // Log storage size periodically (every 25 events to avoid spam)
-            if (events.length % 25 === 0) {
-              logStorageSize('storage');
-            }
-
-            return {
-              events,
-              lastUpdated: Date.now(),
-            };
-          });
+          set((state) => processAddEvent(state, event, maxEvents));
         },
 
         clearEvents: async () => {
@@ -235,20 +305,8 @@ export const createTabStore = (tabId: number, maxEvents: number = 500) => {
             ...currentState,
             ...persisted,
             // Ensure Sets are properly reconstructed from persisted arrays
-            expandedEventIds: new Set(
-              Array.isArray(persisted.expandedEventIds)
-                ? persisted.expandedEventIds
-                : persisted.expandedEventIds instanceof Set
-                  ? persisted.expandedEventIds
-                  : []
-            ),
-            hiddenEventNames: new Set(
-              Array.isArray(persisted.hiddenEventNames)
-                ? persisted.hiddenEventNames
-                : persisted.hiddenEventNames instanceof Set
-                  ? persisted.hiddenEventNames
-                  : []
-            ),
+            expandedEventIds: normalizeToSet(persisted.expandedEventIds),
+            hiddenEventNames: normalizeToSet(persisted.hiddenEventNames),
             // Use reload timestamps from persisted state
             reloadTimestamps,
           };
