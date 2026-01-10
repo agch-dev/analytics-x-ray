@@ -1,6 +1,6 @@
 /**
  * Library Utilities Barrel Export
- * 
+ *
  * Central export point for all utility functions and helpers.
  */
 
@@ -97,14 +97,10 @@ export {
 } from './domain/validation';
 
 // Version
-export {
-  getVersion,
-  getFormattedVersion,
-} from './version';
+export { getVersion, getFormattedVersion } from './version';
 
 // Array Chunking
 export {
-  CHUNKING_THRESHOLD,
   INITIAL_CHUNK_SIZE,
   CHUNK_SIZE,
   chunkArray,
@@ -116,7 +112,6 @@ export {
   categorizeEvent,
   getBucketConfig,
   getBucketColor,
-  DEFAULT_EVENT_BUCKETS,
   type EventBucket,
   type EventBucketConfig,
 } from './eventBuckets';

@@ -1,6 +1,6 @@
 /**
  * Event Bucket Categorization System
- * 
+ *
  * Categorizes Segment events into visual buckets based on event name patterns.
  * Designed to be easily configurable in the future via user settings.
  */
@@ -35,7 +35,7 @@ export interface EventBucketConfig {
  * Default bucket configurations
  * These can later be moved to user-configurable settings
  */
-export const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
+const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
   {
     id: 'page',
     label: 'Page Events',
@@ -108,11 +108,11 @@ export const DEFAULT_EVENT_BUCKETS: EventBucketConfig[] = [
 /**
  * Categorize an event into a bucket based on its name and type
  * Returns the first matching bucket, or 'default' if no match
- * 
+ *
  * @param event - The Segment event to categorize
  * @param buckets - Optional custom bucket configurations (defaults to DEFAULT_EVENT_BUCKETS)
  * @returns The bucket ID for the event ('page', 'view', 'interaction', 'identify', 'navigation', 'conversion', 'error', or 'default')
- * 
+ *
  * @example
  * ```ts
  * categorizeEvent({ type: 'page', name: 'Home' }); // 'page'
@@ -124,14 +124,14 @@ export function categorizeEvent(
   buckets: EventBucketConfig[] = DEFAULT_EVENT_BUCKETS
 ): EventBucket {
   const eventNameLower = event.name.toLowerCase();
-  
+
   // Check buckets in order (first match wins)
   for (const bucket of buckets) {
     // Check event type match first (if specified)
     if (bucket.eventTypes && bucket.eventTypes.includes(event.type)) {
       return bucket.id;
     }
-    
+
     // Check pattern matches in event name
     for (const pattern of bucket.patterns) {
       const patternLower = pattern.toLowerCase();
@@ -140,17 +140,17 @@ export function categorizeEvent(
       }
     }
   }
-  
+
   return 'default';
 }
 
 /**
  * Get the bucket configuration for a given bucket ID
- * 
+ *
  * @param bucketId - The bucket ID to look up
  * @param buckets - Optional custom bucket configurations (defaults to DEFAULT_EVENT_BUCKETS)
  * @returns The bucket configuration, or undefined if not found
- * 
+ *
  * @example
  * ```ts
  * const config = getBucketConfig('page');
@@ -166,11 +166,11 @@ export function getBucketConfig(
 
 /**
  * Get the color class for a bucket
- * 
+ *
  * @param bucketId - The bucket ID
  * @param buckets - Optional custom bucket configurations (defaults to DEFAULT_EVENT_BUCKETS)
  * @returns The Tailwind color class for the border-left (e.g., 'border-l-emerald-500'), or empty string for default
- * 
+ *
  * @example
  * ```ts
  * getBucketColor('page'); // 'border-l-emerald-500'
@@ -184,4 +184,3 @@ export function getBucketColor(
   const config = getBucketConfig(bucketId, buckets);
   return config?.color ?? '';
 }
-

@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import Browser from 'webextension-polyfill';
 
 import { ErrorBoundary, PanelErrorState } from '@src/components';
-import { useTheme } from '@src/hooks/useTheme';
+import { useTheme } from '@src/hooks';
 import { createContextLogger } from '@src/lib/logger';
 import Panel from '@src/pages/devtools/Panel';
 import { useConfigStore, useDomainStore } from '@src/stores';

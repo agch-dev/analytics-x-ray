@@ -29,6 +29,7 @@ const config: KnipConfig = {
     // Config files that are imported but not analyzed
     'manifest.json',
     'manifest.dev.json',
+    'src/components/ui/**',
   ],
   ignoreDependencies: [
     // Build tools that are used but not imported
@@ -74,6 +75,7 @@ const config: KnipConfig = {
   typescript: {
     configFile: 'tsconfig.json',
   },
+
   // Ignore files that are referenced in manifest but not directly imported
   ignoreBinaries: ['vite', 'vitest', 'nodemon', 'prettier'],
 };

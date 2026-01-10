@@ -1,6 +1,6 @@
 /**
  * Hooks Barrel Export
- * 
+ *
  * Central export point for all custom React hooks.
  */
 
@@ -15,6 +15,4 @@ export {
 
 export { useTheme } from './useTheme';
 export { useDebounce } from './useDebounce';
-export { useHorizontalLayout } from './useHorizontalLayout';
 export { useOnboarding } from './useOnboarding';
-

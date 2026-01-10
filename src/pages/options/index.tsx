@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { useTheme } from '@src/hooks/useTheme';
+import { useTheme } from '@src/hooks';
 
 import Options from '@pages/options/Options';
 import '@assets/styles/tailwind.css';

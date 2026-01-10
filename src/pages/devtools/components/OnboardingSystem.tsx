@@ -8,7 +8,7 @@
 
 import { useEffect, useState, type ComponentType } from 'react';
 
-import { useOnboarding } from '@src/hooks/useOnboarding';
+import { useOnboarding } from '@src/hooks';
 
 export interface OnboardingModalProps {
   open: boolean;

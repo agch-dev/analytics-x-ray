@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 
 import '@pages/popup/index.css';
 import '@assets/styles/tailwind.css';
-import { useTheme } from '@src/hooks/useTheme';
+import { useTheme } from '@src/hooks';
 
 import Popup from '@pages/popup/Popup';
 

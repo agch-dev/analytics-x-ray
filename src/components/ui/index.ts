@@ -1,11 +1,12 @@
 /**
  * UI Components Barrel Export
- * 
+ *
  * Central export point for all shadcn/ui components.
  */
+// knip-ignore-
 
-export { Badge, badgeVariants, type BadgeProps } from './badge';
-export { Button, buttonVariants, type ButtonProps } from './button';
+export { Badge } from './badge';
+export { Button } from './button';
 export {
   Card,
   CardHeader,
@@ -58,4 +59,3 @@ export {
   DialogTitle,
   DialogDescription,
 } from './dialog';
-

@@ -73,6 +73,9 @@ const CardFooter = React.forwardRef<
 ));
 CardFooter.displayName = 'CardFooter';
 
+/**
+ * @public Card component exports
+ */
 export {
   Card,
   CardHeader,
