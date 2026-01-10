@@ -89,9 +89,6 @@ export function SubsectionGroup({
     ? sectionDefaults.sections[sectionKey]
     : (propDefaultExpanded ?? true);
 
-  // Start with config default, but may be overridden by special defaults
-  let defaultExpanded = configDefaultExpanded;
-
   // Get subsection defaults from config and map prefixed keys to unprefixed
   const configDefaultExpandedSubsections = useMemo(() => {
     if (!sectionKey) return [];
@@ -121,6 +118,41 @@ export function SubsectionGroup({
     return Array.from(merged);
   }, [configDefaultExpandedSubsections, propDefaultExpandedSubsections]);
 
+  // Compute final defaultExpanded value considering special defaults
+  const defaultExpanded = useMemo(() => {
+    // Start with config default
+    let expanded = configDefaultExpanded;
+
+    // Check special defaults that might override
+    if (sectionKey === 'context' && event) {
+      if (
+        event.type === 'page' &&
+        sectionDefaults.specialDefaults.contextPageAlwaysOpenForPageEvents
+      ) {
+        expanded = true;
+      }
+    }
+
+    if (sectionKey === 'metadata' && event) {
+      if (
+        (event.type === 'identify' ||
+          event.type === 'group' ||
+          event.type === 'alias') &&
+        sectionDefaults.specialDefaults
+          .metadataIdentifiersAlwaysOpenForIdentityEvents
+      ) {
+        expanded = true;
+      }
+    }
+
+    return expanded;
+  }, [
+    configDefaultExpanded,
+    sectionKey,
+    event,
+    sectionDefaults.specialDefaults,
+  ]);
+
   // Handle special defaults
   const finalDefaultExpandedSubsections = useMemo(() => {
     const final = new Set(mergedDefaultExpandedSubsections);
@@ -132,8 +164,6 @@ export function SubsectionGroup({
         sectionDefaults.specialDefaults.contextPageAlwaysOpenForPageEvents
       ) {
         final.add('page');
-        // Override section to be expanded
-        defaultExpanded = true;
       }
     }
 
@@ -147,8 +177,6 @@ export function SubsectionGroup({
           .metadataIdentifiersAlwaysOpenForIdentityEvents
       ) {
         final.add('identifiers');
-        // Override section to be expanded
-        defaultExpanded = true;
       }
     }
 
@@ -313,8 +341,8 @@ export function SubsectionGroup({
         {subsections.length === 0 && (
           <div
             className={`
-            px-3 py-4 text-center text-xs text-muted-foreground italic
-          `}
+              px-3 py-4 text-center text-xs text-muted-foreground italic
+            `}
           >
             {emptyMessage}
           </div>

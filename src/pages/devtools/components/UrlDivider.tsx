@@ -127,6 +127,18 @@ export const UrlDivider = React.memo(function UrlDivider({
             `
         )}
         onClick={isExpandable ? toggleExpand : undefined}
+        onKeyDown={
+          isExpandable
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleExpand();
+                }
+              }
+            : undefined
+        }
+        role={isExpandable ? 'button' : undefined}
+        tabIndex={isExpandable ? 0 : undefined}
         title={currentUrl || 'Unknown URL'}
       >
         {/* Expand/collapse icon for expandable dividers */}
@@ -170,9 +182,9 @@ export const UrlDivider = React.memo(function UrlDivider({
             <div className="pt-2">
               <div
                 className={`
-                mb-1.5 px-2 text-[10px] font-medium tracking-wide
-                text-muted-foreground uppercase
-              `}
+                  mb-1.5 px-2 text-[10px] font-medium tracking-wide
+                  text-muted-foreground uppercase
+                `}
               >
                 Query Parameters ({queryParamEntries.length})
               </div>
@@ -200,9 +212,9 @@ export const UrlDivider = React.memo(function UrlDivider({
             >
               <div
                 className={`
-                mb-1.5 px-2 text-[10px] font-medium tracking-wide
-                text-muted-foreground uppercase
-              `}
+                  mb-1.5 px-2 text-[10px] font-medium tracking-wide
+                  text-muted-foreground uppercase
+                `}
               >
                 Hash Fragment
               </div>

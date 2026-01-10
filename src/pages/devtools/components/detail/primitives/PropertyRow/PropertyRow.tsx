@@ -201,8 +201,8 @@ export const PropertyRow = React.memo(
           {/* Label */}
           <span
             className={`
-            min-w-[100px] shrink-0 text-xs font-medium text-muted-foreground
-          `}
+              min-w-[100px] shrink-0 text-xs font-medium text-muted-foreground
+            `}
           >
             <HighlightedText text={label} searchQuery={searchQuery} />
           </span>

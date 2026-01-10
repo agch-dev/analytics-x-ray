@@ -142,9 +142,7 @@ export function CollapsibleSubsection({
       {/* Show pinned properties when collapsed */}
       {!isExpanded && pinnedKeys.length > 0 && (
         <div
-          className={`
-          mt-0.5 ml-2 border-l border-amber-500/30 bg-neutral-400/5
-        `}
+          className={`mt-0.5 ml-2 border-l border-amber-500/30 bg-neutral-400/5`}
         >
           {pinned.map(({ key, value }) => (
             <PropertyRow
@@ -183,8 +181,8 @@ export function SubsectionHeader({
   return (
     <div
       className={`
-      flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground
-    `}
+        flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground
+      `}
     >
       {icon}
       <span className="text-[10px] font-medium tracking-wide uppercase">

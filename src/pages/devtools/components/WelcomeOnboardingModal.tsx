@@ -63,9 +63,9 @@ export function WelcomeOnboardingModal({
           <div className="flex items-center gap-3">
             <div
               className={`
-              flex h-10 w-10 items-center justify-center rounded-lg
-              bg-primary/10 p-2
-            `}
+                flex h-10 w-10 items-center justify-center rounded-lg
+                bg-primary/10 p-2
+              `}
             >
               <Logo size={24} />
             </div>
@@ -84,8 +84,9 @@ export function WelcomeOnboardingModal({
           <div>
             <h3
               className={`
-              mb-4 flex items-center gap-2 text-sm font-semibold text-foreground
-            `}
+                mb-4 flex items-center gap-2 text-sm font-semibold
+                text-foreground
+              `}
             >
               <HugeiconsIcon
                 icon={CheckmarkCircle01Icon}
@@ -106,9 +107,9 @@ export function WelcomeOnboardingModal({
                 >
                   <div
                     className={`
-                    flex h-10 w-10 shrink-0 items-center justify-center
-                    rounded-lg bg-primary/10 p-2
-                  `}
+                      flex h-10 w-10 shrink-0 items-center justify-center
+                      rounded-lg bg-primary/10 p-2
+                    `}
                   >
                     <HugeiconsIcon
                       icon={feature.icon}

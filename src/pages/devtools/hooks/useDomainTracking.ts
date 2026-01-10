@@ -14,7 +14,7 @@ import {
   normalizeDomain,
 } from '@src/lib/domain';
 import { createContextLogger } from '@src/lib/logger';
-import { useDomainStore, selectAllowedDomains } from '@src/stores';
+import { useDomainStore } from '@src/stores';
 import { isDomainChangedMessage } from '@src/types';
 
 const log = createContextLogger('panel');
@@ -42,8 +42,9 @@ export function useDomainTracking({
   const [domainAllowed, setDomainAllowed] = useState<boolean | null>(null);
   const [domainCheckComplete, setDomainCheckComplete] = useState(false);
 
-  // Get allowed domains from domain store
-  const allowedDomains = useDomainStore(selectAllowedDomains);
+  // Get auto-allow function from domain store
+  // Note: allowedDomains is accessed via useDomainStore.getState() inside callbacks
+  // to ensure we always get the latest state
   const autoAllowDomain = useDomainStore((state) => state.autoAllowDomain);
 
   // Track which domain we've already auto-allowed to avoid duplicate additions
@@ -171,7 +172,9 @@ export function useDomainTracking({
       setDomainAllowed(false);
       setDomainCheckComplete(true);
     }
-  }, [tabId, allowedDomains, autoAllowDomain]);
+    // allowedDomains is accessed via useDomainStore.getState() inside the callback,
+    // so we don't need it in the dependency array
+  }, [tabId, autoAllowDomain]);
 
   // Check domain on mount and when allowlist/denylist changes
   useEffect(() => {

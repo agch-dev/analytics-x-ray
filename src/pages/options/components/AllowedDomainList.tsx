@@ -77,9 +77,9 @@ export const AllowedDomainList = ({
             </div>
             <div
               className={`
-              flex items-center justify-between gap-2 border-t border-border/50
-              pt-2
-            `}
+                flex items-center justify-between gap-2 border-t
+                border-border/50 pt-2
+              `}
             >
               <div className="flex items-center gap-2">
                 <Label

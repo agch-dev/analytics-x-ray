@@ -87,8 +87,8 @@ export function PinnableSection({
       <EventDetailSection title={title} icon={icon} badge={0}>
         <div
           className={`
-          px-3 py-4 text-center text-xs text-muted-foreground italic
-        `}
+            px-3 py-4 text-center text-xs text-muted-foreground italic
+          `}
         >
           {emptyMessage}
         </div>

@@ -89,8 +89,8 @@ export const DomainTrackingSection = () => {
           <p className="text-sm font-medium text-foreground">Privacy Notice</p>
           <ul
             className={`
-            list-inside list-disc space-y-1 text-xs text-muted-foreground
-          `}
+              list-inside list-disc space-y-1 text-xs text-muted-foreground
+            `}
           >
             <li>All data is stored locally on your device</li>
             <li>No data is sent to external servers</li>

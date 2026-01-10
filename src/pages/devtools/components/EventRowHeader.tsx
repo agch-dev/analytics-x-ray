@@ -146,9 +146,9 @@ export const EventRowHeader = React.memo(function EventRowHeader({
             <HugeiconsIcon icon={TextIcon} size={12} />
             <span
               className={`
-              hidden text-xs font-medium
-              sm:inline
-            `}
+                hidden text-xs font-medium
+                sm:inline
+              `}
             >
               Structured
             </span>
@@ -176,9 +176,9 @@ export const EventRowHeader = React.memo(function EventRowHeader({
             <HugeiconsIcon icon={CodeIcon} size={12} />
             <span
               className={`
-              hidden text-xs font-medium
-              sm:inline
-            `}
+                hidden text-xs font-medium
+                sm:inline
+              `}
             >
               JSON
             </span>

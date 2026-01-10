@@ -215,9 +215,14 @@ export default function Panel() {
     return uniqueEventNames.filter((name) => hiddenEventNames.has(name)).length;
   }, [uniqueEventNames, hiddenEventNames]);
 
+  // Log on mount only
   useEffect(() => {
-    log.info(`🎨 Panel mounted for tab ${tabId}`);
-    log.debug(`Current event count in store: ${events.length}`);
+    const currentTabId = tabId;
+    const currentEventCount = events.length;
+    log.info(`🎨 Panel mounted for tab ${currentTabId}`);
+    log.debug(`Current event count in store: ${currentEventCount}`);
+    // Intentionally empty dependency array - this is a mount-only logging effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

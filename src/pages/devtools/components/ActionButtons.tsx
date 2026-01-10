@@ -40,9 +40,9 @@ export function ActionButtons({
     <div
       className={cn(
         `
-      flex shrink-0 items-center gap-1
-      sm:gap-2
-    `,
+          flex shrink-0 items-center gap-1
+          sm:gap-2
+        `,
         className
       )}
     >

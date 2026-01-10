@@ -46,9 +46,7 @@ export function JsonViewWithChunking({
               return (
                 <div key={key} className="my-2">
                   <div
-                    className={`
-                    mb-1 text-xs font-medium text-muted-foreground
-                  `}
+                    className={`mb-1 text-xs font-medium text-muted-foreground`}
                   >
                     {key}:
                   </div>

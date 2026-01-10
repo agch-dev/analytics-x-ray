@@ -90,8 +90,9 @@ export default function Popup() {
             </h3>
             <ol
               className={`
-              list-inside list-decimal space-y-1.5 text-xs text-muted-foreground
-            `}
+                list-inside list-decimal space-y-1.5 text-xs
+                text-muted-foreground
+              `}
             >
               <li>Open your browser&apos;s DevTools (F12)</li>
               <li>Navigate to the &quot;Analytics X-Ray&quot; panel</li>

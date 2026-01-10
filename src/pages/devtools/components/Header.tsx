@@ -44,34 +44,34 @@ export function Header({
   return (
     <header
       className={`
-      flex shrink-0 flex-col gap-2 border-b border-border bg-card px-2 py-2
-      sm:px-4 sm:py-3
-      lg:flex-row lg:items-center lg:gap-4
-    `}
+        flex shrink-0 flex-col gap-2 border-b border-border bg-card px-2 py-2
+        sm:px-4 sm:py-3
+        lg:flex-row lg:items-center lg:gap-4
+      `}
     >
       <div
         className={`
-        flex items-center justify-between gap-2
-        lg:shrink-0 lg:justify-start
-      `}
+          flex items-center justify-between gap-2
+          lg:shrink-0 lg:justify-start
+        `}
       >
         <div
           className={`
-          flex min-w-0 items-center gap-2
-          sm:gap-3
-        `}
+            flex min-w-0 items-center gap-2
+            sm:gap-3
+          `}
         >
           <div
             className={`
-            flex shrink-0 items-center gap-2
-            sm:gap-3
-          `}
+              flex shrink-0 items-center gap-2
+              sm:gap-3
+            `}
           >
             <Logo className="pointer-events-none" size={24} />
             <h1
               className={`
-              text-lg font-semibold whitespace-nowrap text-foreground
-            `}
+                text-lg font-semibold whitespace-nowrap text-foreground
+              `}
             >
               Analytics X-Ray
             </h1>
@@ -110,9 +110,9 @@ export function Header({
       {/* Search input */}
       <div
         className={`
-        relative flex-1
-        lg:mx-auto lg:max-w-md
-      `}
+          relative flex-1
+          lg:mx-auto lg:max-w-md
+        `}
       >
         <HugeiconsIcon
           icon={Search01Icon}

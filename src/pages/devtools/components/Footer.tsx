@@ -18,9 +18,9 @@ export function Footer({ tabId, isListening = true }: FooterProps) {
     <>
       <footer
         className={`
-        flex shrink-0 items-center justify-between border-t border-border
-        bg-card/50 px-4 py-1.5 text-xs text-muted-foreground
-      `}
+          flex shrink-0 items-center justify-between border-t border-border
+          bg-card/50 px-4 py-1.5 text-xs text-muted-foreground
+        `}
       >
         <Button
           variant="ghost"

@@ -49,9 +49,9 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
               />
               <span
                 className={`
-                font-mono text-sm text-primary
-                hover:underline
-              `}
+                  font-mono text-sm text-primary
+                  hover:underline
+                `}
               >
                 feedback@agch.dev
               </span>
@@ -73,9 +73,9 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
               />
               <span
                 className={`
-                font-mono text-sm text-primary
-                hover:underline
-              `}
+                  font-mono text-sm text-primary
+                  hover:underline
+                `}
               >
                 Create GitHub Issue
               </span>

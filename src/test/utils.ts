@@ -395,7 +395,7 @@ export function mockNewDate(
   const originalDate = global.Date;
 
   // Mocking Date constructor
-  global.Date = vi.fn(() => fixedDate) as any;
+  global.Date = vi.fn(() => fixedDate) as unknown as DateConstructor;
   global.Date.now = vi.fn(() => fixedDate.getTime());
   global.Date.parse = originalDate.parse;
   global.Date.UTC = originalDate.UTC;

@@ -1,9 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import type { SearchMatch } from '@src/lib/search';
 import { createSegmentEvent } from '@src/test';
+import type { SegmentEvent, ViewMode } from '@src/types';
 
 import { EventRow } from './EventRow';
 
@@ -17,7 +19,15 @@ vi.mock('./EventRowHeader', () => ({
     viewMode,
     onToggleHide,
     onViewModeChange,
-  }: any) => (
+  }: {
+    event: SegmentEvent;
+    isExpanded?: boolean;
+    isHidden?: boolean;
+    searchMatch?: SearchMatch | null;
+    viewMode?: ViewMode;
+    onToggleHide?: (eventName: string) => void;
+    onViewModeChange?: (mode: ViewMode) => void;
+  }) => (
     <div data-testid="event-row-header">
       <span data-testid="event-name">{event.name}</span>
       <span data-testid="event-expanded">{String(isExpanded)}</span>
@@ -48,7 +58,15 @@ vi.mock('./EventRowHeader', () => ({
 
 // Mock EventDetailView
 vi.mock('./detail/EventDetailView', () => ({
-  EventDetailView: ({ event, viewMode, searchQuery }: any) => (
+  EventDetailView: ({
+    event,
+    viewMode,
+    searchQuery,
+  }: {
+    event: SegmentEvent;
+    viewMode: ViewMode;
+    searchQuery?: string;
+  }) => (
     <div data-testid="event-detail-view">
       <span data-testid="detail-event-name">{event.name}</span>
       <span data-testid="detail-view-mode">{viewMode}</span>
@@ -59,7 +77,15 @@ vi.mock('./detail/EventDetailView', () => ({
 
 // Mock ErrorBoundary
 vi.mock('@src/components', () => ({
-  ErrorBoundary: ({ children, fallback: _fallback, resetKeys }: any) => (
+  ErrorBoundary: ({
+    children,
+    fallback: _fallback,
+    resetKeys,
+  }: {
+    children: ReactNode;
+    fallback: ReactNode;
+    resetKeys?: unknown[];
+  }) => (
     <div
       data-testid="error-boundary"
       data-reset-keys={JSON.stringify(resetKeys)}

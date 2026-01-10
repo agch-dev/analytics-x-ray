@@ -116,8 +116,16 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should return null for null/undefined input', () => {
-      expect(decodeRequestBody(null as any)).toBeNull();
-      expect(decodeRequestBody(undefined as any)).toBeNull();
+      expect(
+        decodeRequestBody(
+          null as unknown as Array<{ bytes?: unknown; file?: string }>
+        )
+      ).toBeNull();
+      expect(
+        decodeRequestBody(
+          undefined as unknown as Array<{ bytes?: unknown; file?: string }>
+        )
+      ).toBeNull();
     });
 
     it('should return null when no valid ArrayBuffer parts exist', () => {
@@ -296,18 +304,32 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should return false for invalid event type', () => {
-      expect(isValidBatchEvent({ type: 'invalid' as any })).toBe(false);
-      expect(isValidBatchEvent({ type: 'custom' as any })).toBe(false);
+      expect(
+        isValidBatchEvent({ type: 'invalid' } as unknown as SegmentBatchEvent)
+      ).toBe(false);
+      expect(
+        isValidBatchEvent({ type: 'custom' } as unknown as SegmentBatchEvent)
+      ).toBe(false);
     });
 
     it('should return false for missing type', () => {
-      expect(isValidBatchEvent({ messageId: 'msg-123' } as any)).toBe(false);
+      expect(
+        isValidBatchEvent({
+          messageId: 'msg-123',
+        } as unknown as SegmentBatchEvent)
+      ).toBe(false);
     });
 
     it('should return false for non-string type', () => {
-      expect(isValidBatchEvent({ type: 123 } as any)).toBe(false);
-      expect(isValidBatchEvent({ type: null } as any)).toBe(false);
-      expect(isValidBatchEvent({ type: {} } as any)).toBe(false);
+      expect(
+        isValidBatchEvent({ type: 123 } as unknown as SegmentBatchEvent)
+      ).toBe(false);
+      expect(
+        isValidBatchEvent({ type: null } as unknown as SegmentBatchEvent)
+      ).toBe(false);
+      expect(
+        isValidBatchEvent({ type: {} } as unknown as SegmentBatchEvent)
+      ).toBe(false);
     });
 
     it('should return false for null/undefined', () => {
@@ -316,9 +338,13 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should return false for non-object types', () => {
-      expect(isValidBatchEvent('string' as any)).toBe(false);
-      expect(isValidBatchEvent(123 as any)).toBe(false);
-      expect(isValidBatchEvent([] as any)).toBe(false);
+      expect(isValidBatchEvent('string' as unknown as SegmentBatchEvent)).toBe(
+        false
+      );
+      expect(isValidBatchEvent(123 as unknown as SegmentBatchEvent)).toBe(
+        false
+      );
+      expect(isValidBatchEvent([] as unknown as SegmentBatchEvent)).toBe(false);
     });
 
     it('should validate event without messageId (messageId is optional)', () => {
@@ -426,7 +452,10 @@ describe('parsing/segment.ts', () => {
     });
 
     it('should return "Unknown" for unknown event types', () => {
-      const event = { type: 'unknown' as any, messageId: 'msg-123' };
+      const event = {
+        type: 'unknown',
+        messageId: 'msg-123',
+      } as unknown as SegmentBatchEvent;
       expect(getEventName(event)).toBe('Unknown');
     });
   });
@@ -751,9 +780,9 @@ describe('parsing/segment.ts', () => {
             messageId: 'msg-1',
           },
           {
-            type: 'invalid-type' as any,
+            type: 'invalid-type',
             messageId: 'msg-2',
-          },
+          } as unknown as SegmentBatchEvent,
           {
             type: 'page',
             name: 'Valid Page',
@@ -794,8 +823,14 @@ describe('parsing/segment.ts', () => {
     it('should handle batch with all invalid events', () => {
       const payload: SegmentBatchPayload = {
         batch: [
-          { type: 'invalid' as any, messageId: 'msg-1' },
-          { type: 'custom' as any, messageId: 'msg-2' },
+          {
+            type: 'invalid',
+            messageId: 'msg-1',
+          } as unknown as SegmentBatchEvent,
+          {
+            type: 'custom',
+            messageId: 'msg-2',
+          } as unknown as SegmentBatchEvent,
         ],
         sentAt: '2024-01-01T00:00:00Z',
       };

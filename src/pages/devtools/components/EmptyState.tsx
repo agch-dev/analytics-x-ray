@@ -11,8 +11,8 @@ export function EmptyState({ searchQuery }: EmptyStateProps) {
   return (
     <div
       className={`
-      flex h-full flex-col items-center justify-center text-muted-foreground
-    `}
+        flex h-full flex-col items-center justify-center text-muted-foreground
+      `}
     >
       <div className="mb-4 opacity-20">
         <HugeiconsIcon

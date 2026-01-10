@@ -285,7 +285,11 @@ export const getTabStore = (tabId: number, maxEvents: number = 500) => {
   } else {
     log.debug(`♻️ Reusing existing tab store for tab ${tabId}`);
   }
-  return tabStoreRegistry.get(tabId)!;
+  const store = tabStoreRegistry.get(tabId);
+  if (!store) {
+    throw new Error(`Tab store not found for tab ${tabId}`);
+  }
+  return store;
 };
 
 /**

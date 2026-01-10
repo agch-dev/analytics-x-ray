@@ -111,8 +111,8 @@ export function EventDetailSection({
         {!isExpanded && pinnedCount > 0 && (
           <span
             className={`
-            flex shrink-0 items-center gap-1 text-xs text-amber-500/80
-          `}
+              flex shrink-0 items-center gap-1 text-xs text-amber-500/80
+            `}
           >
             <HugeiconsIcon icon={PinIcon} size={10} className="rotate-45" />
             {pinnedCount}
@@ -122,9 +122,9 @@ export function EventDetailSection({
         {badge !== undefined && (
           <span
             className={`
-            shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs
-            text-muted-foreground
-          `}
+              shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs
+              text-muted-foreground
+            `}
           >
             {badge}
           </span>
@@ -132,7 +132,18 @@ export function EventDetailSection({
 
         {/* Kebab menu for configuration */}
         {sectionKey && (
-          <div onClick={handleKebabClick} className="shrink-0">
+          <div
+            onClick={handleKebabClick}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            className="shrink-0"
+          >
             {hasSubsections ? (
               <>
                 <Button

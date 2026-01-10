@@ -1,10 +1,21 @@
 import { render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { ThemedJsonView } from './ThemedJsonView';
 
 // Mock the JsonView component
 vi.mock('@uiw/react-json-view', () => {
+  interface JsonViewProps {
+    children?: ReactNode;
+    value?: unknown;
+    collapsed?: boolean;
+    displayDataTypes?: boolean;
+    displayObjectSize?: boolean;
+    enableClipboard?: boolean;
+    shouldExpandNodeInitially?: boolean;
+  }
+
   const JsonViewComponent = ({
     children,
     value,
@@ -13,7 +24,7 @@ vi.mock('@uiw/react-json-view', () => {
     displayObjectSize: _displayObjectSize,
     enableClipboard,
     shouldExpandNodeInitially: _shouldExpandNodeInitially,
-  }: any) => {
+  }: JsonViewProps) => {
     let jsonValue = '';
     try {
       jsonValue = JSON.stringify(value, null, 2);
@@ -282,7 +293,7 @@ describe('ThemedJsonView', () => {
 
     it('should handle circular references gracefully', () => {
       // Note: JSON.stringify will fail on circular refs, but component should handle it
-      const value: any = { name: 'test' };
+      const value: { name: string; self?: unknown } = { name: 'test' };
       value.self = value;
 
       // Component should render without crashing

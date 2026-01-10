@@ -51,9 +51,7 @@ export function PropertyList({
   if (entries.length === 0 && emptyMessage) {
     return (
       <div
-        className={`
-        px-3 py-4 text-center text-xs text-muted-foreground italic
-      `}
+        className={`px-3 py-4 text-center text-xs text-muted-foreground italic`}
       >
         {emptyMessage}
       </div>

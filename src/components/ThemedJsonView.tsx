@@ -348,6 +348,15 @@ export function ThemedJsonView({
                   e.stopPropagation();
                   handleCopy(textToCopy, key);
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleCopy(textToCopy, key);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
                 title="Copy to clipboard"
               >
                 <HugeiconsIcon

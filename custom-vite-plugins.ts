@@ -12,7 +12,7 @@ export function stripDevIcons(isDev: boolean) {
     resolveId(source: string) {
       return source === 'virtual-module' ? source : null;
     },
-    renderStart(outputOptions: any, _inputOptions: any) {
+    renderStart(outputOptions: { dir?: string }, _inputOptions: unknown) {
       const outDir = outputOptions.dir;
       fs.rm(resolve(outDir, 'icons-dev/icon32.png'), () =>
         console.log(`Deleted icon32.png from prod build`)

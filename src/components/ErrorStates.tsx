@@ -74,9 +74,9 @@ export function PanelErrorState({ onRetry }: { onRetry?: () => void }) {
   return (
     <div
       className={`
-      flex h-screen flex-col items-center justify-center bg-background p-4
-      text-foreground
-    `}
+        flex h-screen flex-col items-center justify-center bg-background p-4
+        text-foreground
+      `}
     >
       <ErrorStateBase
         title="Panel Error"
