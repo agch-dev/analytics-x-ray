@@ -52,7 +52,7 @@ export function useEventSync({ tabId, addEvent }: EventSyncOptions) {
 
           // Add events in reverse order so they appear correctly
           // (background stores newest first, we need to add oldest first)
-          events.reverse().forEach((event) => addEvent(event));
+          events.toReversed().forEach((event) => addEvent(event));
         } else {
           log.warn('⚠️ Received invalid events from background:', events);
         }
@@ -113,7 +113,6 @@ export function useEventSync({ tabId, addEvent }: EventSyncOptions) {
         syncReloadTimestamps(tabId).catch((error) => {
           log.error('❌ Failed to sync reload timestamps:', error);
         });
-        return;
       }
     };
 
