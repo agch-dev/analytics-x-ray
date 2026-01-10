@@ -5,7 +5,6 @@
  */
 
 export { Logo } from './Logo';
-export { ChunkedArrayView } from './ChunkedArrayView';
 export { HighlightedText } from './HighlightedText';
 export { ThemedJsonView } from './ThemedJsonView';
 export { ErrorBoundary } from './ErrorBoundary';
