@@ -1,10 +1,21 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { cn } from '@src/lib/utils';
+import {
+  Route01Icon,
+  ReloadIcon,
+  ArrowRight01Icon,
+  ArrowDown01Icon,
+} from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Route01Icon, ReloadIcon, ArrowRight01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
-import { getEventDomain, getEventUrl, domainsAreDifferent, extractPathFromUrl } from '@src/lib/utils';
-import { PropertyRow } from './detail/primitives/PropertyRow';
+import React, { useState, useMemo, useCallback } from 'react';
+
+import {
+  cn,
+  getEventUrl,
+  domainsAreDifferent,
+  extractPathFromUrl,
+} from '@src/lib/utils';
 import type { SegmentEvent } from '@src/types';
+
+import { PropertyRow } from './detail/primitives/PropertyRow';
 
 export interface UrlDividerProps {
   event: SegmentEvent; // The event after which the divider appears
@@ -45,32 +56,32 @@ export const UrlDivider = React.memo(function UrlDivider({
   event,
   previousEvent,
   isReload,
-  timestamp,
+  timestamp: _timestamp,
 }: UrlDividerProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   const currentUrl = getEventUrl(event);
-  const currentDomain = getEventDomain(event);
-  const previousDomain = previousEvent ? getEventDomain(previousEvent) : null;
-  
+
   // Determine if domain changed
-  const domainChanged = previousEvent ? domainsAreDifferent(previousEvent, event) : false;
-  
+  const domainChanged = previousEvent
+    ? domainsAreDifferent(previousEvent, event)
+    : false;
+
   // Parse query params and hash from URL
   const queryParams = useMemo(() => {
     if (!currentUrl) return {};
     return parseQueryParams(currentUrl);
   }, [currentUrl]);
-  
+
   const hash = useMemo(() => {
     if (!currentUrl) return null;
     return extractHash(currentUrl);
   }, [currentUrl]);
-  
+
   const hasQueryParams = Object.keys(queryParams).length > 0;
   const hasHash = hash !== null && hash !== '';
   const isExpandable = hasQueryParams || hasHash;
-  
+
   // Determine what to display
   // Show full URL (with domain) only if domain changed, otherwise show just path + query + hash
   const displayText = useMemo(() => {
@@ -82,17 +93,17 @@ export const UrlDivider = React.memo(function UrlDivider({
     // Show just path + query + hash when domain is the same
     return extractPathFromUrl(currentUrl);
   }, [currentUrl, domainChanged]);
-  
+
   // Choose icon and color based on type
   const Icon = isReload ? ReloadIcon : Route01Icon;
   const iconColor = isReload ? 'text-amber-400' : 'text-blue-400';
-  
+
   const toggleExpand = useCallback(() => {
     if (isExpandable) {
       setIsExpanded((prev) => !prev);
     }
   }, [isExpandable]);
-  
+
   // Convert query params to PropertyEntry format
   const queryParamEntries = useMemo(() => {
     return Object.entries(queryParams).map(([key, value]) => ({
@@ -100,18 +111,17 @@ export const UrlDivider = React.memo(function UrlDivider({
       value,
     }));
   }, [queryParams]);
-  
+
   return (
     <div
-      className={cn(
-        'w-full border-t border-border/50 bg-muted-foreground/20',
-      )}
+      className={cn('w-full border-t border-border/50 bg-muted-foreground/20')}
     >
       {/* Header - clickable if expandable */}
       <div
         className={cn(
           'px-4 py-2 flex items-center gap-2 text-xs text-foreground/80',
-          isExpandable && 'cursor-pointer hover:bg-muted-foreground/10 transition-colors'
+          isExpandable &&
+            'cursor-pointer hover:bg-muted-foreground/10 transition-colors'
         )}
         onClick={isExpandable ? toggleExpand : undefined}
         title={currentUrl || 'Unknown URL'}
@@ -126,30 +136,29 @@ export const UrlDivider = React.memo(function UrlDivider({
         ) : (
           <span className="shrink-0 w-3" />
         )}
-        
-        <HugeiconsIcon
-          icon={Icon}
-          size={16}
-          className={iconColor}
-        />
-        <span 
-          className="font-mono truncate flex-1" 
+
+        <HugeiconsIcon icon={Icon} size={16} className={iconColor} />
+        <span
+          className="font-mono truncate flex-1"
           title={currentUrl || 'Unknown URL'}
         >
           {displayText}
         </span>
         {isReload && (
-          <span className="text-muted-foreground/70 text-[10px] shrink-0">(reloaded)</span>
+          <span className="text-muted-foreground/70 text-[10px] shrink-0">
+            (reloaded)
+          </span>
         )}
         {isExpandable && (
           <span className="text-muted-foreground/70 text-[10px] shrink-0">
-            {hasQueryParams && `${Object.keys(queryParams).length} ${Object.keys(queryParams).length === 1 ? 'param' : 'params'}`}
+            {hasQueryParams &&
+              `${Object.keys(queryParams).length} ${Object.keys(queryParams).length === 1 ? 'param' : 'params'}`}
             {hasQueryParams && hasHash && ' • '}
             {hasHash && 'hash'}
           </span>
         )}
       </div>
-      
+
       {/* Expanded content - query params and hash */}
       {isExpanded && isExpandable && (
         <div className="px-4 pb-2 border-t border-border/20 bg-card/40">
@@ -172,10 +181,15 @@ export const UrlDivider = React.memo(function UrlDivider({
               </div>
             </div>
           )}
-          
+
           {/* Hash Fragment */}
           {hasHash && (
-            <div className={cn('pt-2', hasQueryParams && 'mt-2 border-t border-border/30')}>
+            <div
+              className={cn(
+                'pt-2',
+                hasQueryParams && 'mt-2 border-t border-border/30'
+              )}
+            >
               <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5 px-2">
                 Hash Fragment
               </div>
@@ -194,4 +208,3 @@ export const UrlDivider = React.memo(function UrlDivider({
     </div>
   );
 });
-
