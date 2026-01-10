@@ -46,11 +46,6 @@ export function PropertyList({
     [onTogglePin]
   );
 
-  const checkIsPinned = useCallback(
-    (key: string) => pinnedProperties.includes(key),
-    [pinnedProperties]
-  );
-
   if (entries.length === 0 && emptyMessage) {
     return (
       <div className="px-3 py-4 text-xs text-muted-foreground text-center italic">

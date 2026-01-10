@@ -9,12 +9,14 @@ import {
   formatValue,
   getValueColor,
   isExpandable,
-  shouldChunkArray,
   isArray,
+} from './utils';
+import {
+  shouldChunkArray,
   chunkArray,
   INITIAL_CHUNK_SIZE,
   CHUNK_SIZE,
-} from './utils';
+} from '@src/lib/arrayChunking';
 import type { PropertyRowProps, PropertyRowState } from './types';
 
 /**
