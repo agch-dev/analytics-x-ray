@@ -7,7 +7,7 @@
 import Browser from 'webextension-polyfill';
 
 import { createContextLogger } from '@src/lib/logger';
-import { cleanupStaleTabs } from '@src/lib/storage';
+import { cleanupTabStorage, cleanupStaleTabs } from '@src/lib/storage';
 
 import { tabEvents } from './eventStorage';
 
@@ -51,16 +51,20 @@ export async function cleanupTabData(tabId: number): Promise<void> {
  * Set up periodic cleanup of stale tabs
  * Runs cleanup every hour and on service worker startup
  * Cleans up tabs that haven't been updated in 24+ hours (if they're closed)
+ * Also runs a catch-all cleanup to remove any orphaned storage keys
  */
 export function setupPeriodicCleanup(): void {
   const CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
   const STALE_TAB_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
   // Run cleanup immediately on startup
-  cleanupStaleTabs(STALE_TAB_AGE_MS)
-    .then((count) => {
-      if (count > 0) {
-        log.info(`🧹 Startup cleanup: Removed ${count} stale tab(s)`);
+  Promise.all([
+    cleanupStaleTabs(STALE_TAB_AGE_MS),
+    cleanupTabStorage(), // Catch-all cleanup for orphaned keys
+  ])
+    .then(([staleCount]) => {
+      if (staleCount > 0) {
+        log.info(`🧹 Startup cleanup: Removed ${staleCount} stale tab(s)`);
       }
     })
     .catch((error) => {
@@ -69,10 +73,13 @@ export function setupPeriodicCleanup(): void {
 
   // Set up periodic cleanup
   setInterval(() => {
-    cleanupStaleTabs(STALE_TAB_AGE_MS)
-      .then((count) => {
-        if (count > 0) {
-          log.info(`🧹 Periodic cleanup: Removed ${count} stale tab(s)`);
+    Promise.all([
+      cleanupStaleTabs(STALE_TAB_AGE_MS),
+      cleanupTabStorage(), // Catch-all cleanup for orphaned keys
+    ])
+      .then(([staleCount]) => {
+        if (staleCount > 0) {
+          log.info(`🧹 Periodic cleanup: Removed ${staleCount} stale tab(s)`);
         }
       })
       .catch((error) => {
