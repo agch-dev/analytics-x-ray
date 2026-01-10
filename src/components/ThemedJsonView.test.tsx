@@ -29,7 +29,12 @@ vi.mock('@uiw/react-json-view', () => {
     try {
       jsonValue = JSON.stringify(value, null, 2);
     } catch (e) {
-      jsonValue = '[Circular Reference]';
+      // Handle circular references and other JSON stringify errors
+      if (e instanceof TypeError) {
+        jsonValue = '[Circular Reference]';
+      } else {
+        jsonValue = '[Invalid JSON]';
+      }
     }
     return (
       <div
