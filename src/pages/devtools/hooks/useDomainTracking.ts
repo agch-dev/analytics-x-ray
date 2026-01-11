@@ -88,7 +88,12 @@ export function useDomainTracking({
   // Helper function to log auto-allow result
   const logAutoAllowResult = useCallback(
     (
-      result: { action: string; domain: string; allowSubdomains: boolean },
+      result: {
+        action: string;
+        domain: string;
+        allowSubdomains: boolean;
+        isAllowed: boolean;
+      },
       normalizedDomain: string,
       domain: string
     ) => {

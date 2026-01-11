@@ -29,6 +29,9 @@ export type {
   ExtensionMessage,
 } from './messages';
 
+// View mode type for event detail views
+export type ViewMode = 'json' | 'structured';
+
 export {
   isExtensionMessage,
   isGetEventsMessage,

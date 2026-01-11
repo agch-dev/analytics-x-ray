@@ -3,9 +3,9 @@
 <h1>Analytics X-Ray</h1>
 <h3>Inspect and verify Segment analytics events in real-time</h3>
 
-<h5>
-A Chrome/Firefox browser extension that provides developers and QA teams with real-time visibility into Segment analytics tracking implementation.
-</h5>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.x-61dafb.svg)](https://react.dev/)
 
 </div>
 
@@ -13,18 +13,21 @@ A Chrome/Firefox browser extension that provides developers and QA teams with re
 
 - [Overview](#overview)
 - [Features](#features)
-- [Getting Started](#getting-started)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+  - [Prerequisites](#prerequisites)
   - [Development](#development)
   - [Loading the Extension](#loading-the-extension)
-- [Building with GitHub Actions](#building-with-github-actions)
-- [Usage](#usage)
+  - [Reloading the Extension](#reloading-the-extension)
 - [Technical Stack](#technical-stack)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+- [Support](#support)
+- [License](#license)
 
 ## Overview <a name="overview"></a>
 
-**Analytics X-Ray** is a browser extension that intercepts and displays Segment analytics events being fired on web pages. It helps developers and QA teams:
+**Analytics X-Ray** is a browser extension that intercepts and displays Segment analytics events being fired on web pages. It helps Developer, Data, and QA teams:
 
 - **View** Segment events in real-time as they're fired
 - **Inspect** event payloads, properties, and metadata
@@ -43,18 +46,40 @@ The extension captures events at the network level using Chrome's `webRequest` A
 - Cross-browser support (Chrome and Firefox)
 - DevTools panel integration
 
-## Getting Started <a name="getting-started"></a>
+## Installation <a name="installation"></a>
+
+### Chrome Web Store
+
+1. Visit the [Chrome Web Store listing](#) (link coming soon)
+2. Click **"Add to Chrome"**
+3. Confirm the installation
+4. Open Chrome DevTools (F12 or Cmd+Option+I) and look for the "Analytics X-Ray" tab
+
+#### Firefox Add-ons
+
+Firefox installation instructions will be available once the extension is published to the Firefox Add-ons store.
+
+## Contributing <a name="contributing"></a>
+
+Contributions are welcome! We appreciate your help in making Analytics X-Ray better.
+
+### Prerequisites <a name="prerequisites"></a>
+
+If you want to build the extension from source or contribute to the project, you'll need:
+
+- **Node.js** 18.x or higher
+- **Yarn** (recommended) or **npm**
+- **Chrome** or **Firefox** browser for testing
 
 ### Development <a name="development"></a>
 
 This project supports building for both Chrome and Firefox. Running `dev` or `build` commands without specifying the browser target will build for Chrome by default.
 
-1. Clone this repository
+1. Fork the repository and clone it.
+
 2. Install dependencies:
    ```bash
    yarn install
-   # or
-   npm install
    ```
 3. Start development with hot reload:
    ```bash
@@ -66,6 +91,7 @@ This project supports building for both Chrome and Firefox. Running `dev` or `bu
 Running a `dev` command will build your extension and watch for changes in the source files. Changing the source files will automatically refresh the corresponding `dist_<chrome|firefox>` folder.
 
 To create an optimized production build:
+
 ```bash
 yarn build          # Chrome (default)
 yarn build:chrome   # Chrome explicitly
@@ -75,6 +101,7 @@ yarn build:firefox  # Firefox
 ### Loading the Extension <a name="loading-the-extension"></a>
 
 #### Chrome
+
 1. Open Chrome browser
 2. Navigate to [chrome://extensions](chrome://extensions)
 3. Enable **Developer mode** (toggle in top right)
@@ -82,40 +109,21 @@ yarn build:firefox  # Firefox
 5. Select the `dist_chrome` folder in this project
 
 #### Firefox
+
 1. Open Firefox browser
 2. Navigate to [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox)
 3. Click **Load temporary Add-on**
 4. Select any file in the `dist_firefox` folder (e.g., `manifest.json`)
 
-## Building with GitHub Actions <a name="building-with-github-actions"></a>
+### Reloading The extension
 
-This repository includes GitHub Actions workflows to automatically build and package the extension for both Chrome and Firefox.
+#### Dev build
 
-### Using the Workflow
+Eventhough the files are watched for changes and the dist folders auto re-generate. You will still need to reload the extension from the extension Popup and close and re-open the panel for the changes to take effect.
 
-1. Go to the **"Actions"** tab in your repository
-2. In the left sidebar, select **"Build Extension"** (or the appropriate workflow name)
-3. Click **"Run workflow"** and select:
-   - The branch to build from (typically `main` or `master`)
-   - The target browser (`chrome`, `firefox`, or `both`)
-4. Click **"Run workflow"** to start the build
+#### Prod Build
 
-### Build Artifacts
-
-After the workflow completes:
-
-1. Refresh the Actions page and click on the most recent workflow run
-2. Scroll down to the **"Artifacts"** section
-3. Download the build artifact:
-   - `analytics-x-ray-chrome.zip` - Chrome extension package
-   - `analytics-x-ray-firefox.zip` - Firefox extension package
-
-### Publishing
-
-The build artifacts (`analytics-x-ray-chrome.zip` and `analytics-x-ray-firefox.zip`) are ready for submission to their respective stores:
-
-- **Chrome Web Store**: Upload the `analytics-x-ray-chrome.zip` artifact to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-- **Firefox Add-ons**: Upload the `analytics-x-ray-firefox.zip` artifact to the [Firefox Add-on Developer Hub](https://addons.mozilla.org/developers/)
+If you build in prod mode the Reload button is not available in the popup and you need to reload it from the Extensions Manager.
 
 ## Usage <a name="usage"></a>
 
@@ -125,75 +133,80 @@ The build artifacts (`analytics-x-ray-chrome.zip` and `analytics-x-ray-firefox.z
 4. **View Events**: Events will appear in real-time as they're captured from the page
 
 The extension intercepts Segment API calls to:
-- `api.segment.io`
-- `api.segment.com`
-- Rudderstack endpoints
-- Other compatible analytics providers
+
+- [Segment](https://segment.com/)
+- [Rudderstack](https://www.rudderstack.com/)
+- [Dreamdata](https://dreamdata.io/) (Untested)
+- [Attribution](https://www.attributionapp.com/)
 
 ## Technical Stack <a name="technical-stack"></a>
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| React | 19.x | UI Components |
-| TypeScript | 5.x | Type-safe development |
-| Vite | 6.x | Build tool |
-| Tailwind CSS | 4.x | Styling |
-| shadcn/ui | latest | UI component library |
-| Zustand | latest | State management |
-| webextension-polyfill | 0.12.x | Cross-browser compatibility |
-| Chrome Extension | MV3 | Extension manifest |
+| Technology            | Version | Purpose                     |
+| --------------------- | ------- | --------------------------- |
+| React                 | 19.x    | UI Components               |
+| TypeScript            | 5.x     | Type-safe development       |
+| Vite                  | 6.x     | Build tool                  |
+| Tailwind CSS          | 4.x     | Styling                     |
+| shadcn/ui             | latest  | UI component library        |
+| Zustand               | latest  | State management            |
+| webextension-polyfill | 0.12.x  | Cross-browser compatibility |
+| Chrome Extension      | MV3     | Extension manifest          |
 
-## Project Structure <a name="project-structure"></a>
+## Documentation <a name="documentation"></a>
 
-```
-analytics-x-ray/
-├── public/                    # Static assets (icons, CSS)
-├── src/
-│   ├── assets/
-│   │   ├── images/           # Images and SVGs
-│   │   └── styles/            # Global styles, Tailwind config
-│   ├── components/           # Reusable React components
-│   ├── hooks/                # Custom React hooks
-│   ├── lib/                  # Utility functions and helpers
-│   ├── locales/              # i18n translation files
-│   ├── pages/                # Extension pages
-│   │   ├── background/       # Service worker (background script)
-│   │   ├── content/          # Content script (injected into pages)
-│   │   ├── devtools/         # DevTools panel UI
-│   │   ├── options/          # Extension options page
-│   │   └── popup/            # Extension popup UI
-│   ├── stores/               # Zustand state stores
-│   └── types/                # TypeScript type definitions
-├── manifest.json             # Production manifest
-├── manifest.dev.json         # Development manifest overrides
-├── vite.config.base.ts       # Shared Vite configuration
-├── vite.config.chrome.ts     # Chrome-specific build config
-└── vite.config.firefox.ts    # Firefox-specific build config
-```
+Additional documentation is available in the `docs/` directory:
 
-### Path Aliases
+- **[API.md](docs/API.md)** - API reference and interfaces
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Architecture overview and design decisions
+- **[COMPONENTS.md](docs/COMPONENTS.md)** - Component documentation
 
-The project uses path aliases for clean imports:
+### How to Contribute
 
-- `@src/*` → `src/*`
-- `@assets/*` → `src/assets/*`
-- `@locales/*` → `src/locales/*`
-- `@pages/*` → `src/pages/*`
+1. **Fork the repository** and clone it locally
+2. **Create a branch** for your feature or fix:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. **Make your changes** following our development guidelines
+4. **Write or update tests** as needed
+5. **Run the test suite** to ensure everything passes:
+   ```bash
+   yarn test:run
+   yarn lint
+   yarn type-check
+   ```
+6. **Commit your changes** with clear, descriptive messages
+7. **Push to your fork** and open a Pull Request
 
-## Contributing <a name="contributing"></a>
+## Troubleshooting <a name="troubleshooting"></a>
 
-Contributions are welcome! Please feel free to open a pull request or raise an issue.
+### Extension not loading
 
-### Development Guidelines
+- Ensure you're loading from the correct `dist_chrome` or `dist_firefox` folder
+- Check that Developer mode is enabled in Chrome
+- Try reloading the extension after making changes
 
-- Use TypeScript strict mode
-- Follow React hooks rules
-- Use webextension-polyfill for cross-browser support
-- Keep content scripts minimal
-- Handle extension context invalidation
-- Use dark theme for DevTools integration
-- Throttle high-frequency updates
-- Clean up listeners in useEffect
+### Events not appearing
+
+- Verify the website is using Segment analytics
+- Check that the extension has the necessary permissions
+- Open DevTools console to check for errors
+- Ensure you're on a page that actually fires Segment events
+
+### Build errors
+
+- Ensure you're using Node.js 18.x or higher
+- Clear `node_modules` and reinstall: `rm -rf node_modules && yarn install`
+- Check that all dependencies are installed: `yarn install`
+
+### Type errors
+
+- Run `yarn type-check` to see detailed TypeScript errors
+- Ensure your IDE is using the workspace TypeScript version
+
+## License <a name="license"></a>
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Resources
 
@@ -202,3 +215,4 @@ Contributions are welcome! Please feel free to open a pull request or raise an i
 - [React Documentation](https://react.dev/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
+- [Vite Web Extension Template](https://github.com/JohnBra/vite-web-extension)

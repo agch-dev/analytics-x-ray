@@ -14,6 +14,7 @@ export function stripDevIcons(isDev: boolean) {
     },
     renderStart(outputOptions: { dir?: string }, _inputOptions: unknown) {
       const outDir = outputOptions.dir;
+      if (!outDir) return;
       fs.rm(resolve(outDir, 'icons-dev/icon32.png'), () =>
         console.log(`Deleted icon32.png from prod build`)
       );

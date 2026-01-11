@@ -8,12 +8,12 @@ import Browser from 'webextension-polyfill';
 
 import {
   createContextLogger,
-  type SegmentEvent,
   logStorageSize,
   isStoredEvents,
   isSegmentEventArray,
 } from '@src/lib';
 import { useConfigStore } from '@src/stores';
+import type { SegmentEvent } from '@src/types';
 
 const log = createContextLogger('background');
 

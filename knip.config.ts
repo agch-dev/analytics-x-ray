@@ -75,10 +75,6 @@ const config: KnipConfig = {
     '@lib/*': ['src/lib/*'],
     '@hooks/*': ['src/hooks/*'],
   },
-  // TypeScript path mapping
-  typescript: {
-    configFile: 'tsconfig.json',
-  },
 
   // Ignore files that are referenced in manifest but not directly imported
   ignoreBinaries: ['vite', 'vitest', 'nodemon', 'prettier'],

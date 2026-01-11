@@ -6,8 +6,8 @@
 
 import Browser from 'webextension-polyfill';
 
-import { createContextLogger, type SegmentEvent } from '@src/lib';
-import type { EventsCapturedMessage } from '@src/types';
+import { createContextLogger } from '@src/lib';
+import type { EventsCapturedMessage, SegmentEvent } from '@src/types';
 
 const log = createContextLogger('background');
 

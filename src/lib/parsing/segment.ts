@@ -22,8 +22,16 @@ const log = createContextLogger('background');
 export const SEGMENT_ENDPOINTS = [
   '*://api.segment.io/*',
   '*://api.segment.com/*',
+  '*://eu1.segmentapis.com/*',
+  '*://eu2.segmentapis.com/*',
+  '*://in.eu1.segmentapis.com/*',
+  '*://in.eu2.segmentapis.com/*',
+  '*://events.eu1.segmentapis.com/*',
+  '*://events.eu2.segmentapis.com/*',
   '*://*.rudderstack.com/*',
   '*://tracking.dreamdata.cloud/*',
+  '*://cdn.dreamdata.cloud/*',
+  '*://track.attributionapp.com/*',
 ] as const;
 
 /**

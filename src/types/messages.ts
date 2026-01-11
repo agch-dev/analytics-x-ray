@@ -19,7 +19,7 @@ export type MessageType =
   | 'RE_EVALUATE_TAB_DOMAIN';
 
 // Base message interface
-interface BaseMessage {
+export interface BaseMessage {
   type: MessageType;
   tabId?: number;
 }
