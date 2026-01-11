@@ -1,7 +1,8 @@
 <div align="center">
 <img src="public/icons/icon128.png" alt="logo" width="128" height="128"/>
 <h1>Analytics X-Ray</h1>
-<h3>Inspect and verify Segment analytics events in real-time</h3>
+<h3>Inspect and verify analytics events in real-time</h3>
+<h5>Focused on Segment and other services that follow the Segment structure.</h5>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
@@ -35,6 +36,8 @@
 - **Debug** analytics tracking issues
 
 The extension captures events at the network level using Chrome's `webRequest` API, intercepting the fully-enriched payloads that Segment actually sends, including all attributes added by the Segment SDK.
+
+Open to adding support for other Analytics services.
 
 ## Features <a name="features"></a>
 
@@ -151,32 +154,6 @@ The extension intercepts Segment API calls to:
 | Zustand               | latest  | State management            |
 | webextension-polyfill | 0.12.x  | Cross-browser compatibility |
 | Chrome Extension      | MV3     | Extension manifest          |
-
-## Documentation <a name="documentation"></a>
-
-Additional documentation is available in the `docs/` directory:
-
-- **[API.md](docs/API.md)** - API reference and interfaces
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Architecture overview and design decisions
-- **[COMPONENTS.md](docs/COMPONENTS.md)** - Component documentation
-
-### How to Contribute
-
-1. **Fork the repository** and clone it locally
-2. **Create a branch** for your feature or fix:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. **Make your changes** following our development guidelines
-4. **Write or update tests** as needed
-5. **Run the test suite** to ensure everything passes:
-   ```bash
-   yarn test:run
-   yarn lint
-   yarn type-check
-   ```
-6. **Commit your changes** with clear, descriptive messages
-7. **Push to your fork** and open a Pull Request
 
 ## Troubleshooting <a name="troubleshooting"></a>
 
