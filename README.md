@@ -49,6 +49,21 @@ Open to adding support for other Analytics services.
 - Cross-browser support (Chrome and Firefox)
 - DevTools panel integration
 
+<div align="center">
+  <img src="docs/x-ray-screenshot-1.png" alt="Analytics X-Ray Screenshot 1" width="80%"/>
+  
+  <table>
+    <tr>
+      <td align="center">
+        <img src="docs/x-ray-screenshot-2.png" alt="Analytics X-Ray Screenshot 2" width="100%"/>
+      </td>
+      <td align="center">
+        <img src="docs/x-ray-screenshot-3.png" alt="Analytics X-Ray Screenshot 3" width="100%"/>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## Installation <a name="installation"></a>
 
 ### Chrome Web Store
