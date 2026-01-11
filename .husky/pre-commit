@@ -1,6 +1,10 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# Run type-check to ensure TypeScript types are correct
+echo "Running type-check..."
+yarn type-check || exit 1
+
 # Run build to ensure code builds without errors
 echo "Running build:chrome..."
 yarn build:chrome || exit 1
