@@ -46,7 +46,6 @@ Open to adding support for other Analytics services.
 - Event filtering and search
 - Detailed event inspection with collapsible sections
 - Support for all Segment event types: `track`, `page`, `screen`, `identify`, `group`, `alias`
-- Cross-browser support (Chrome and Firefox)
 - DevTools panel integration
 
 <div align="center">
@@ -73,7 +72,7 @@ Open to adding support for other Analytics services.
 3. Confirm the installation
 4. Open Chrome DevTools (F12 or Cmd+Option+I) and look for the "Analytics X-Ray" tab
 
-#### Firefox Add-ons
+#### Firefox Add-ons (WIP)
 
 Firefox installation instructions will be available once the extension is published to the Firefox Add-ons store.
 
@@ -91,7 +90,7 @@ If you want to build the extension from source or contribute to the project, you
 
 ### Development <a name="development"></a>
 
-This project supports building for both Chrome and Firefox. Running `dev` or `build` commands without specifying the browser target will build for Chrome by default.
+This project supports building for both Chrome and Firefox. Although firefox version is not part of the current priorities and there is not a working version. Running `dev` or `build` commands without specifying the browser target will build for Chrome by default.
 
 1. Fork the repository and clone it.
 
