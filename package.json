@@ -28,6 +28,9 @@
     "prepare": "husky install"
   },
   "type": "module",
+  "engines": {
+    "node": "^20.11.0 || >=21.2.0"
+  },
   "dependencies": {
     "@babel/runtime": "^7.28.4",
     "@hugeicons/core-free-icons": "^3.0.0",
