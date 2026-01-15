@@ -9,6 +9,7 @@ The extension now has comprehensive logging throughout all components. This guid
 ### Logger Architecture
 
 All logging uses a centralized logger (`src/lib/logger.ts`) that provides:
+
 - **Colorized output** - Different colors for different contexts
 - **Log levels** - debug, info, warn, error
 - **Context tagging** - Each module has its own logger context
@@ -16,15 +17,15 @@ All logging uses a centralized logger (`src/lib/logger.ts`) that provides:
 
 ### Log Contexts
 
-| Context | Color | Purpose |
-|---------|-------|---------|
-| `background` | 🔴 Red | Background service worker (event capture) |
-| `panel` | 🔵 Cyan | DevTools panel UI |
-| `devtools` | ⚪ Gray | DevTools registration |
-| `storage` | 🟡 Yellow | Zustand store operations |
-| `popup` | 🔵 Blue | Extension popup |
-| `content` | 🟢 Green | Content script |
-| `ui` | 🟣 Purple | UI components |
+| Context      | Color     | Purpose                                   |
+| ------------ | --------- | ----------------------------------------- |
+| `background` | 🔴 Red    | Background service worker (event capture) |
+| `panel`      | 🔵 Cyan   | DevTools panel UI                         |
+| `devtools`   | ⚪ Gray   | DevTools registration                     |
+| `storage`    | 🟡 Yellow | Zustand store operations                  |
+| `popup`      | 🔵 Blue   | Extension popup                           |
+| `content`    | 🟢 Green  | Content script                            |
+| `ui`         | 🟣 Purple | UI components                             |
 
 ### Key Logging Points
 
@@ -95,10 +96,11 @@ Current event count in store: X
 **Check Console Logs in This Order:**
 
 1. **Background Script Console** (Service Worker):
+
    ```
    chrome://extensions/ → Analytics X-Ray → "service worker" link
    ```
-   
+
    ✅ Should see:
    - `🚀 Background service worker loaded`
    - `📡 webRequest listener registered`
@@ -110,7 +112,7 @@ Current event count in store: X
 2. **DevTools Panel Console** (Open DevTools within DevTools):
    - Right-click in DevTools panel → Inspect
    - OR: `Cmd+Option+I` (Mac) / `Ctrl+Shift+I` (Windows) while DevTools is focused
-   
+
    ✅ Should see:
    - `🔧 DevTools script loading...`
    - `🎨 Panel mounted for tab X`
@@ -134,9 +136,10 @@ Current event count in store: X
 #### Step 2: Verify Background Storage
 
 In background console:
+
 ```javascript
 // Check what's stored
-chrome.storage.local.get('events', console.log)
+chrome.storage.local.get('events', console.log);
 
 // Should show:
 // { events: { "123": [ ...array of events... ] } }
@@ -145,6 +148,7 @@ chrome.storage.local.get('events', console.log)
 #### Step 3: Verify Panel Initialization
 
 In DevTools panel console (inspect the DevTools panel):
+
 ```javascript
 // Check if useEventSync is fetching events
 // Look for: "📥 Fetching initial events"
@@ -171,11 +175,13 @@ In DevTools panel console (inspect the DevTools panel):
 #### 1. Background captures but panel doesn't receive
 
 **Symptoms:**
+
 - Background shows `✅ Captured X event(s)`
 - Background shows `⚠️ No listeners for message`
 - Panel doesn't update
 
 **Solution:**
+
 - Panel isn't registered to listen for messages
 - Check if `useEventSync` hook is being used
 - Check if panel console shows `👂 Message listener registered`
@@ -183,10 +189,12 @@ In DevTools panel console (inspect the DevTools panel):
 #### 2. Different tab IDs
 
 **Symptoms:**
+
 - Background shows events for tab ID `123`
 - Panel shows it's listening for tab ID `456`
 
 **Solution:**
+
 - DevTools panel gets `Browser.devtools.inspectedWindow.tabId`
 - Make sure you're inspecting the correct tab
 - Check panel console: `Inspected tab ID: X`
@@ -194,11 +202,13 @@ In DevTools panel console (inspect the DevTools panel):
 #### 3. Storage mismatch
 
 **Symptoms:**
+
 - Background stores in `storage.local['events']`
 - Panel stores in `storage.local['tab-123']`
 - Events never sync
 
 **Solution:**
+
 - This is by design - two separate storage locations
 - Background uses `events` for network capture persistence
 - Panel uses `tab-X` for Zustand store persistence
@@ -209,30 +219,32 @@ In DevTools panel console (inspect the DevTools panel):
 ### Enable Only Specific Log Contexts
 
 In any console:
+
 ```javascript
 // Show only background logs
-logger.configure({ enabledContexts: ['background'] })
+logger.configure({ enabledContexts: ['background'] });
 
 // Show only panel and storage logs
-logger.configure({ enabledContexts: ['panel', 'storage'] })
+logger.configure({ enabledContexts: ['panel', 'storage'] });
 
 // Show all logs (default)
-logger.configure({ enabledContexts: 'all' })
+logger.configure({ enabledContexts: 'all' });
 ```
 
 ### Change Log Level
 
 ```javascript
 // Only show warnings and errors
-logger.configure({ minLevel: 'warn' })
+logger.configure({ minLevel: 'warn' });
 
 // Show everything (default)
-logger.configure({ minLevel: 'debug' })
+logger.configure({ minLevel: 'debug' });
 ```
 
 ### Inspect Store State
 
 In panel console (inspect DevTools):
+
 ```javascript
 // Get the tab store for current tab
 const tabId = chrome.devtools.inspectedWindow.tabId;
@@ -249,11 +261,12 @@ useStore.subscribe(console.log);
 ### Manually Trigger Event Fetch
 
 In panel console:
+
 ```javascript
 const tabId = chrome.devtools.inspectedWindow.tabId;
 const events = await chrome.runtime.sendMessage({
   type: 'GET_EVENTS',
-  tabId
+  tabId,
 });
 console.log('Events from background:', events);
 ```
@@ -261,6 +274,7 @@ console.log('Events from background:', events);
 ## Testing the Fix
 
 1. **Reload extension**:
+
    ```
    chrome://extensions/ → Reload button
    ```
@@ -338,4 +352,3 @@ console.log('Events from background:', events);
 [analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): ...
 [analytics-x-ray] [panel] 📊 Event count changed: 5
 ```
-

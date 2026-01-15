@@ -7,10 +7,10 @@ export interface SearchMatch {
 /**
  * Parse search query
  * Returns match information for highlighting
- * 
+ *
  * @param query - The search query string
  * @returns SearchMatch object or null if query is empty
- * 
+ *
  * @example
  * ```ts
  * parseSearchQuery('button'); // { query: 'button' }
@@ -83,25 +83,28 @@ function searchInObject(obj: unknown, searchValue: string): boolean {
  * Check if an event matches the search query
  * Searches recursively through all event properties (keys and values)
  * Case-insensitive matching
- * 
+ *
  * @param event - The Segment event to search
  * @param match - The search match object (from parseSearchQuery)
  * @returns true if event matches the search query
- * 
+ *
  * @example
  * ```ts
  * const match = parseSearchQuery('button');
  * eventMatchesSearch({ name: 'Button Clicked', properties: { type: 'button' } }, match); // true
  * ```
  */
-export function eventMatchesSearch(event: SegmentEvent, match: SearchMatch | null): boolean {
+export function eventMatchesSearch(
+  event: SegmentEvent,
+  match: SearchMatch | null
+): boolean {
   if (!match) {
     return true;
   }
 
   const { query } = match;
   const searchLower = query.toLowerCase();
-  
+
   // Check event name
   if (event.name.toLowerCase().includes(searchLower)) {
     return true;
@@ -115,18 +118,21 @@ export function eventMatchesSearch(event: SegmentEvent, match: SearchMatch | nul
  * Highlight matching text in a string
  * Returns an array of parts: [{ text: string, highlight: boolean }]
  * Case-insensitive matching
- * 
+ *
  * @param text - The text to highlight
  * @param searchQuery - The search query to match
  * @returns Array of text parts with highlight flags
- * 
+ *
  * @example
  * ```ts
  * highlightText('Hello World', 'World');
  * // Returns: [{ text: 'Hello ', highlight: false }, { text: 'World', highlight: true }]
  * ```
  */
-export function highlightText(text: string, searchQuery: string): Array<{ text: string; highlight: boolean }> {
+export function highlightText(
+  text: string,
+  searchQuery: string
+): Array<{ text: string; highlight: boolean }> {
   if (!searchQuery.trim()) {
     return [{ text, highlight: false }];
   }
@@ -144,9 +150,9 @@ export function highlightText(text: string, searchQuery: string): Array<{ text: 
     }
 
     // Add highlighted match
-    parts.push({ 
-      text: text.substring(index, index + searchQuery.length), 
-      highlight: true 
+    parts.push({
+      text: text.substring(index, index + searchQuery.length),
+      highlight: true,
     });
 
     lastIndex = index + searchQuery.length;
@@ -160,4 +166,3 @@ export function highlightText(text: string, searchQuery: string): Array<{ text: 
 
   return parts.length > 0 ? parts : [{ text, highlight: false }];
 }
-
