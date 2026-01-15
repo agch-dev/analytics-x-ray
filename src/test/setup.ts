@@ -3,15 +3,16 @@ import { afterEach, beforeAll, afterAll, vi } from 'vitest';
 
 // Cleanup after each test (only for React component tests)
 // For pure unit tests, this is not needed
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { cleanup } = require('@testing-library/react');
-  afterEach(() => {
-    cleanup();
-  });
-} catch {
-  // @testing-library/react not available or not needed for pure unit tests
-}
+(async () => {
+  try {
+    const { cleanup } = await import('@testing-library/react');
+    afterEach(() => {
+      cleanup();
+    });
+  } catch {
+    // @testing-library/react not available or not needed for pure unit tests
+  }
+})();
 
 // Mock webextension-polyfill
 vi.mock('webextension-polyfill', () => {
