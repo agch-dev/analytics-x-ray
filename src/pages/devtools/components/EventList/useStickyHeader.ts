@@ -1,5 +1,5 @@
 import type { Virtualizer } from '@tanstack/react-virtual';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 import type { SegmentEvent } from '@src/types';
 
@@ -39,6 +39,12 @@ export function useStickyHeader({
   const [stickyEventIndex, setStickyEventIndex] = useState<number | null>(null);
   // Track current sticky event ID to avoid unnecessary state updates
   const currentStickyIdRef = useRef<string | null>(null);
+  // Store virtualizer in ref to avoid including in dependency arrays
+  // (complies with react-hooks/incompatible-library rule)
+  const virtualizerRef = useRef(virtualizer);
+  useEffect(() => {
+    virtualizerRef.current = virtualizer;
+  }, [virtualizer]);
 
   /**
    * Handle scroll to detect if user has scrolled up and manage sticky header
@@ -47,7 +53,7 @@ export function useStickyHeader({
   const handleScroll = useCallback(
     (scrollTop: number) => {
       // Check for expanded events whose headers have scrolled out of view
-      const virtualItems = virtualizer.getVirtualItems();
+      const virtualItems = virtualizerRef.current.getVirtualItems();
       let foundStickyEvent: SegmentEvent | null = null;
       let foundStickyIndex: number | null = null;
 
@@ -91,7 +97,7 @@ export function useStickyHeader({
         setStickyEventIndex(foundStickyIndex);
       }
     },
-    [listItems, expandedEventIds, virtualizer]
+    [listItems, expandedEventIds]
   );
 
   /**
@@ -120,13 +126,13 @@ export function useStickyHeader({
       // Scroll to make the collapsed event visible (after collapse animation)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          virtualizer.scrollToIndex(indexToScrollTo, {
+          virtualizerRef.current.scrollToIndex(indexToScrollTo, {
             align: 'start',
           });
         });
       });
     }
-  }, [stickyEvent, stickyEventIndex, onToggleExpand, virtualizer, clearSticky]);
+  }, [stickyEvent, stickyEventIndex, onToggleExpand, clearSticky]);
 
   return {
     stickyEvent,

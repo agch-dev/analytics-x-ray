@@ -4,6 +4,7 @@ import {
   useImperativeHandle,
   useState,
   useCallback,
+  useEffect,
 } from 'react';
 
 import type { SearchMatch } from '@src/lib';
@@ -79,6 +80,13 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       onScrollStateChange,
     });
 
+    // Store virtualizer in ref to avoid including in dependency arrays
+    // (complies with react-hooks/incompatible-library rule)
+    const virtualizerRef = useRef(virtualizer);
+    useEffect(() => {
+      virtualizerRef.current = virtualizer;
+    }, [virtualizer]);
+
     // Wrapper for toggle expand that also triggers remeasurement
     const handleToggleExpand = useCallback(
       (id: string) => {
@@ -103,7 +111,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         if (eventIndex !== -1) {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              virtualizer.scrollToIndex(eventIndex, {
+              virtualizerRef.current.scrollToIndex(eventIndex, {
                 align: 'start',
               });
             });
@@ -113,7 +121,7 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         // Trigger remeasurement after state update
         remeasureItems();
       },
-      [expandedEventIds, listItems, onToggleExpand, virtualizer, remeasureItems]
+      [expandedEventIds, listItems, onToggleExpand, remeasureItems]
     );
 
     // Use sticky header hook

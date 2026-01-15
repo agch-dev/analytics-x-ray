@@ -193,6 +193,7 @@ export function useVirtualization({
   );
 
   // Set up virtualizer with dynamic measurement
+  // Store in ref to avoid including in dependency arrays (complies with react-hooks/incompatible-library)
   const virtualizer = useVirtualizer({
     count: listItems.length,
     getScrollElement: () => scrollContainerRef.current,
@@ -205,6 +206,11 @@ export function useVirtualization({
       );
     },
   });
+  const virtualizerRef = useRef(virtualizer);
+  // Update ref when virtualizer changes (must be in effect, not during render)
+  useEffect(() => {
+    virtualizerRef.current = virtualizer;
+  }, [virtualizer]);
 
   // Handle scroll to detect if user has scrolled up and track scroll state
   const handleScroll = useCallback(() => {
@@ -232,7 +238,7 @@ export function useVirtualization({
 
       // Use requestAnimationFrame to ensure DOM is ready, then scroll
       requestAnimationFrame(() => {
-        virtualizer.scrollToIndex(listItems.length - 1, {
+        virtualizerRef.current.scrollToIndex(listItems.length - 1, {
           align: 'end',
           behavior: 'smooth',
         });
@@ -244,17 +250,17 @@ export function useVirtualization({
         }, 100);
       });
     }
-  }, [listItems.length, virtualizer]);
+  }, [listItems.length]);
 
   // Helper function to measure all items after DOM updates
   const measureAllItems = useCallback(() => {
     itemRefs.current.forEach((element) => {
       if (element) {
-        virtualizer.measureElement(element);
+        virtualizerRef.current.measureElement(element);
       }
     });
-    virtualizer.measure();
-  }, [virtualizer]);
+    virtualizerRef.current.measure();
+  }, []);
 
   // Remeasure all items (useful after expansion state changes)
   const remeasureItems = useCallback(() => {
@@ -290,7 +296,7 @@ export function useVirtualization({
     // Scroll to bottom with retry to ensure we actually reach the bottom
     // The virtualizer may not have measured new items immediately
     const scrollToEnd = () => {
-      virtualizer.scrollToIndex(listItems.length - 1, {
+      virtualizerRef.current.scrollToIndex(listItems.length - 1, {
         align: 'end',
         behavior: 'auto',
       });
@@ -325,7 +331,7 @@ export function useVirtualization({
       clearTimeout(retryTimeoutId);
       isProgrammaticScrollRef.current = false;
     };
-  }, [listItems.length, virtualizer, scrollContainerRef]);
+  }, [listItems.length, scrollContainerRef]);
 
   // Recalculate virtualizer when expansion state changes
   useEffect(() => {
