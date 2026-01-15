@@ -1,11 +1,11 @@
 {
-  "name": "vite-web-extension",
+  "name": "analytics-x-ray",
   "version": "0.1.0",
-  "description": "A simple chrome & firefox extension template with Vite, React, TypeScript and Tailwind CSS.",
+  "description": "Analytics X-Ray is a tool that helps you analyze your analytics data.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JohnBra/vite-web-extension.git"
+    "url": "https://github.com/agch-dev/analytics-x-ray"
   },
   "scripts": {
     "build": "vite build --config vite.config.chrome.ts",
