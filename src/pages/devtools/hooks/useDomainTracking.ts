@@ -215,7 +215,11 @@ export function useDomainTracking({
 
   // Check domain on mount and when allowlist/denylist changes
   useEffect(() => {
-    checkDomain();
+    // Defer the call to avoid synchronous setState in effect
+    const timeoutId = setTimeout(() => {
+      checkDomain();
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [checkDomain]);
 
   // Listen for domain change messages from background script
