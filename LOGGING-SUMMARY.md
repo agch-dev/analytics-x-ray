@@ -5,6 +5,7 @@
 ### 1. Created Centralized Logger (`src/lib/logger.ts`)
 
 A powerful, colorized logging system with:
+
 - **Multiple log levels**: debug, info, warn, error
 - **Context tagging**: background, panel, devtools, storage, etc.
 - **Colorized output**: Different colors for different contexts
@@ -15,6 +16,7 @@ A powerful, colorized logging system with:
 ### 2. Added Logging to Background Script (`src/pages/background/index.ts`)
 
 **Key logs added:**
+
 - ✅ Service worker lifecycle (load, init)
 - ✅ webRequest listener registration with endpoints
 - ✅ Request interception (detailed flow with collapsible groups)
@@ -32,6 +34,7 @@ A powerful, colorized logging system with:
 **This was the missing piece!** The panel wasn't syncing with background script.
 
 The hook:
+
 - Fetches initial events from background on mount
 - Listens for `EVENTS_CAPTURED` messages
 - Filters events by tab ID
@@ -113,6 +116,7 @@ yarn build:chrome
 4. Console will open showing background logs
 
 **You should see:**
+
 ```
 [analytics-x-ray] [background] 🚀 Background service worker loaded
 [analytics-x-ray] [background] 🔧 Initializing background script...
@@ -125,10 +129,12 @@ yarn build:chrome
 ### Step 4: Navigate to a Site with Segment
 
 Good test sites:
+
 - segment.com
 - Any site using Segment analytics (check Network tab for api.segment.io requests)
 
 **Background console should show:**
+
 ```
 [analytics-x-ray] [background] 🎯 Request intercepted (tabId: 123)
   URL: https://api.segment.io/v1/t
@@ -150,10 +156,11 @@ Good test sites:
 
 1. With the Analytics X-Ray panel open
 2. Right-click anywhere in the panel
-3. Click "Inspect" 
+3. Click "Inspect"
 4. OR: Press `Cmd+Option+I` (Mac) / `Ctrl+Shift+I` (Windows) while panel is focused
 
 **Panel console should show:**
+
 ```
 [analytics-x-ray] [devtools] 🔧 DevTools script loading...
 [analytics-x-ray] [devtools] Inspected tab ID: 123
@@ -186,11 +193,13 @@ While watching BOTH consoles (background + panel):
 3. Interact with the site
 
 **Background should show:**
+
 - `🎯 Request intercepted`
 - `✅ Captured X event(s)`
 - `📤 Sending message`
 
 **Panel should show:**
+
 - `📬 Received EVENTS_CAPTURED message`
 - `✅ Adding X new event(s) to store`
 - `📊 Event count changed`
@@ -200,6 +209,7 @@ While watching BOTH consoles (background + panel):
 If events don't show:
 
 ### ✅ Check 1: Background is Capturing
+
 - [ ] Open background console
 - [ ] Navigate to test page
 - [ ] See `🎯 Request intercepted` logs?
@@ -208,23 +218,27 @@ If events don't show:
 If NO → Check manifest permissions and webRequest setup
 
 ### ✅ Check 2: Background is Storing
+
 - [ ] Background shows `💾 Stored X event(s)` ?
 - [ ] Background shows `💾 Persisted X event(s)` ?
 
 Run in background console:
+
 ```javascript
-chrome.storage.local.get('events', console.log)
+chrome.storage.local.get('events', console.log);
 ```
 
 Should show events object.
 
 ### ✅ Check 3: Background is Sending Messages
+
 - [ ] Background shows `📤 Sending EVENTS_CAPTURED message` ?
 - [ ] Shows `✅ Message delivered` or `⚠️ No listeners` ?
 
 If "No listeners" → Panel isn't open or didn't register listener
 
 ### ✅ Check 4: Panel is Listening
+
 - [ ] Open panel console (inspect the panel)
 - [ ] See `👂 Message listener registered` ?
 - [ ] See `📬 Received EVENTS_CAPTURED message` ?
@@ -232,18 +246,21 @@ If "No listeners" → Panel isn't open or didn't register listener
 If NO → `useEventSync` hook may not be running
 
 ### ✅ Check 5: Panel is Fetching Initial Events
+
 - [ ] Panel shows `📥 Fetching initial events` ?
 - [ ] Shows `✅ Received X initial events` ?
 
 If NO → Background message handler may not be responding
 
 ### ✅ Check 6: Tab IDs Match
+
 - [ ] Background: `tabId: XXX` in logs
 - [ ] Panel: `Inspected tab ID: XXX` matches?
 
 If NO → Inspecting wrong tab or tab ID mismatch
 
 ### ✅ Check 7: Events Added to Store
+
 - [ ] Storage shows `➕ Adding event to store` ?
 - [ ] Shows `Total events in store: X` ?
 - [ ] Panel shows `📊 Event count changed` ?
@@ -257,6 +274,7 @@ If NO → Store may not be connected to UI
 **Cause:** Panel isn't open or message listener not registered
 
 **Fix:**
+
 1. Make sure DevTools panel is open
 2. Check panel console for `👂 Message listener registered`
 3. If missing, `useEventSync` hook may not be running
@@ -266,6 +284,7 @@ If NO → Store may not be connected to UI
 **Cause:** DevTools inspecting different tab than where events are captured
 
 **Fix:**
+
 1. Check background log: `tabId: XXX`
 2. Check panel log: `Inspected tab ID: XXX`
 3. Make sure you're inspecting the correct tab
@@ -275,6 +294,7 @@ If NO → Store may not be connected to UI
 **Cause:** Message passing broken
 
 **Fix:**
+
 1. Check both consoles side-by-side
 2. Verify message is sent (background)
 3. Verify message is received (panel)
@@ -300,4 +320,3 @@ If NO → Store may not be connected to UI
 6. **Use the debugging guide** to troubleshoot
 
 The logging will tell you exactly where the issue is! 🎯
-

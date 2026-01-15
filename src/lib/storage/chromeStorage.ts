@@ -1,6 +1,6 @@
 /**
  * Chrome Storage Adapter for Zustand Persistence
- * 
+ *
  * Provides a storage adapter compatible with Zustand's persist middleware
  * that uses Chrome/Firefox storage.local API via webextension-polyfill.
  */

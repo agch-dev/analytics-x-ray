@@ -18,7 +18,10 @@ export function formatValue(value: unknown): string {
  * Get the display color for a value type
  * Returns an object with color and className for styling
  */
-export function getValueColor(value: unknown): { color?: string; className: string } {
+export function getValueColor(value: unknown): {
+  color?: string;
+  className: string;
+} {
   const color = getValueTypeColor(value);
 
   // For null/undefined, use italic styling
@@ -48,7 +51,8 @@ export function getValueColor(value: unknown): { color?: string; className: stri
  */
 export function isExpandable(value: unknown): boolean {
   if (Array.isArray(value)) return value.length > 0;
-  if (typeof value === 'object' && value !== null) return Object.keys(value).length > 0;
+  if (typeof value === 'object' && value !== null)
+    return Object.keys(value).length > 0;
   return false;
 }
 

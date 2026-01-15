@@ -121,4 +121,3 @@ export const EVENT_TYPE_LABELS: Record<SegmentEventType, string> = {
   group: 'Group',
   alias: 'Alias',
 };
-
