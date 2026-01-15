@@ -39,6 +39,64 @@ function createSubsection(
   return { key, title, icon, entries };
 }
 
+// Helper functions to build specific subsections
+function buildPageSubsection(page: unknown): SubsectionDefinition | null {
+  if (!isValidObjectSection(page)) return null;
+  return createSubsection(
+    'page',
+    'Page',
+    <HugeiconsIcon icon={BrowserIcon} size={12} />,
+    Object.entries(page).map(([key, value]) => ({ key, value }))
+  );
+}
+
+function buildLibrarySubsection(library: unknown): SubsectionDefinition | null {
+  if (!isValidObjectSection(library)) return null;
+  return createSubsection(
+    'library',
+    'Library',
+    <HugeiconsIcon icon={Bookmark01Icon} size={12} />,
+    Object.entries(library).map(([key, value]) => ({ key, value }))
+  );
+}
+
+function buildBrowserSubsection(
+  userAgent: unknown,
+  userAgentData: unknown
+): SubsectionDefinition | null {
+  if (!userAgent && !userAgentData) return null;
+  const uaData: Record<string, unknown> = {};
+  if (userAgent) uaData.userAgent = userAgent;
+  if (userAgentData) uaData.userAgentData = userAgentData;
+  return createSubsection(
+    'browser',
+    'Browser',
+    <HugeiconsIcon icon={Globe02Icon} size={12} />,
+    Object.entries(uaData).map(([key, value]) => ({ key, value }))
+  );
+}
+
+function buildOtherSubsection(context: unknown): SubsectionDefinition | null {
+  const otherContext: Record<string, unknown> = {};
+  const knownKeys = ['page', 'library', 'userAgent', 'userAgentData'];
+
+  if (context && typeof context === 'object' && !Array.isArray(context)) {
+    for (const [key, value] of Object.entries(context)) {
+      if (!knownKeys.includes(key) && value !== undefined && value !== null) {
+        otherContext[key] = value;
+      }
+    }
+  }
+
+  if (Object.keys(otherContext).length === 0) return null;
+  return createSubsection(
+    'other',
+    'Other',
+    <HugeiconsIcon icon={Settings01Icon} size={12} />,
+    Object.entries(otherContext).map(([key, value]) => ({ key, value }))
+  );
+}
+
 export function ContextSection({
   event,
   searchQuery = '',
@@ -46,92 +104,27 @@ export function ContextSection({
   const context = useMemo(() => event.context || {}, [event.context]);
   const sectionDefaults = useConfigStore((state) => state.sectionDefaults);
 
-  // Helper to build page subsection
-  const buildPageSubsection = useMemo(() => {
-    if (context?.page && isValidObjectSection(context.page)) {
-      return createSubsection(
-        'page',
-        'Page',
-        <HugeiconsIcon icon={BrowserIcon} size={12} />,
-        Object.entries(context.page).map(([key, value]) => ({ key, value }))
-      );
-    }
-    return null;
-  }, [context?.page]);
-
-  // Helper to build library subsection
-  const buildLibrarySubsection = useMemo(() => {
-    if (context?.library && isValidObjectSection(context.library)) {
-      return createSubsection(
-        'library',
-        'Library',
-        <HugeiconsIcon icon={Bookmark01Icon} size={12} />,
-        Object.entries(context.library).map(([key, value]) => ({
-          key,
-          value,
-        }))
-      );
-    }
-    return null;
-  }, [context?.library]);
-
-  // Helper to build other context subsection
-  const buildOtherSubsection = useMemo(() => {
-    const otherContext: Record<string, unknown> = {};
-    const knownKeys = ['page', 'library', 'userAgent', 'userAgentData'];
-
-    if (context && typeof context === 'object' && !Array.isArray(context)) {
-      for (const [key, value] of Object.entries(context)) {
-        if (!knownKeys.includes(key) && value !== undefined && value !== null) {
-          otherContext[key] = value;
-        }
-      }
-    }
-
-    if (Object.keys(otherContext).length > 0) {
-      return createSubsection(
-        'other',
-        'Other',
-        <HugeiconsIcon icon={Settings01Icon} size={12} />,
-        Object.entries(otherContext).map(([key, value]) => ({ key, value }))
-      );
-    }
-    return null;
-  }, [context]);
-
-  // Helper to build browser subsection
-  const buildBrowserSubsection = useMemo(() => {
-    if (context?.userAgent || context?.userAgentData) {
-      const uaData: Record<string, unknown> = {};
-      if (context.userAgent) uaData.userAgent = context.userAgent;
-      if (context.userAgentData) uaData.userAgentData = context.userAgentData;
-
-      return createSubsection(
-        'browser',
-        'Browser',
-        <HugeiconsIcon icon={Globe02Icon} size={12} />,
-        Object.entries(uaData).map(([key, value]) => ({ key, value }))
-      );
-    }
-    return null;
-  }, [context?.userAgent, context?.userAgentData]);
-
   // Organize context into subsections
   const subsections = useMemo<SubsectionDefinition[]>(() => {
     const sections: SubsectionDefinition[] = [];
 
-    if (buildPageSubsection) sections.push(buildPageSubsection);
-    if (buildLibrarySubsection) sections.push(buildLibrarySubsection);
-    if (buildOtherSubsection) sections.push(buildOtherSubsection);
-    if (buildBrowserSubsection) sections.push(buildBrowserSubsection);
+    const pageSubsection = buildPageSubsection(context?.page);
+    if (pageSubsection) sections.push(pageSubsection);
+
+    const librarySubsection = buildLibrarySubsection(context?.library);
+    if (librarySubsection) sections.push(librarySubsection);
+
+    const browserSubsection = buildBrowserSubsection(
+      context?.userAgent,
+      context?.userAgentData
+    );
+    if (browserSubsection) sections.push(browserSubsection);
+
+    const otherSubsection = buildOtherSubsection(context);
+    if (otherSubsection) sections.push(otherSubsection);
 
     return sections;
-  }, [
-    buildPageSubsection,
-    buildLibrarySubsection,
-    buildOtherSubsection,
-    buildBrowserSubsection,
-  ]);
+  }, [context]);
 
   // Get default expanded subsections from config (map prefixed keys to unprefixed)
   const defaultExpandedSubsections = useMemo(() => {
