@@ -23,6 +23,15 @@ jobs:
       - name: Install dependencies
         run: yarn
 
+      - name: Type check
+        run: yarn type-check
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Check formatting
+        run: yarn format:check
+
       - name: Build Chrome
         run: yarn build:chrome
 
