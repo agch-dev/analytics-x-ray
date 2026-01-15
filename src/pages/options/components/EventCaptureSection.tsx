@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import {
   Card,
@@ -16,12 +16,6 @@ export const EventCaptureSection = () => {
   const setMaxEvents = useConfigStore((state) => state.setMaxEvents);
   const [maxEventsInput, setMaxEventsInput] = useState(maxEvents.toString());
   const [maxEventsError, setMaxEventsError] = useState('');
-
-  // Sync input with store value when it changes externally (e.g., reset)
-  useEffect(() => {
-    setMaxEventsInput(maxEvents.toString());
-    setMaxEventsError('');
-  }, [maxEvents]);
 
   const handleMaxEventsBlur = () => {
     const value = parseInt(maxEventsInput, 10);
