@@ -102,7 +102,8 @@ export default function Popup() {
 
           <div className="pt-2">
             <p className="text-center text-xs text-muted-foreground">
-              Intercepting Segment analytics events on all pages
+              Tip: If you don&apos;t see events, check if you have an ad blocker
+              enabled.
             </p>
           </div>
         </CardContent>

@@ -67,7 +67,7 @@ Open to adding support for other Analytics services.
 
 ### Chrome Web Store
 
-1. Visit the [Chrome Web Store listing](#) (link coming soon)
+1. Visit the [Chrome Web Store listing](https://chromewebstore.google.com/detail/nabnhcbhcecfohhaodnpoipanaaapkpi)
 2. Click **"Add to Chrome"**
 3. Confirm the installation
 4. Open Chrome DevTools (F12 or Cmd+Option+I) and look for the "Analytics X-Ray" tab
