@@ -33,11 +33,25 @@ export const PropertyRow = React.memo(
     onTogglePin,
     showPinButton = false,
   }: Readonly<PropertyRowProps>) {
-    const [state, setState] = useState<PropertyRowState>({
-      isExpanded: false,
-      copied: false,
-      useJsonView: false,
-      visibleChunks: new Set([0]), // First chunk visible by default
+    const [state, setState] = useState<PropertyRowState>(() => {
+      // Only expand top-level properties (depth === 0) by default
+      if (depth !== 0 || !isExpandable(value)) {
+        return {
+          isExpanded: false,
+          copied: false,
+          useJsonView: false,
+          visibleChunks: new Set([0]),
+        };
+      }
+      // For arrays, only expand if length < 50
+      // For objects, always expand (no length check)
+      const shouldExpand = Array.isArray(value) ? value.length < 50 : true;
+      return {
+        isExpanded: shouldExpand,
+        copied: false,
+        useJsonView: false,
+        visibleChunks: new Set([0]), // First chunk visible by default
+      };
     });
 
     // Helper for partial updates
