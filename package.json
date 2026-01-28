@@ -32,7 +32,7 @@
     "node": "^20.11.0 || >=21.2.0"
   },
   "dependencies": {
-    "@babel/runtime": "^7.28.4",
+    "@babel/runtime": "^7.28.6",
     "@hugeicons/core-free-icons": "^3.1.1",
     "@hugeicons/react": "^1.1.4",
     "@radix-ui/react-dialog": "^1.1.15",
