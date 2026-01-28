@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Analytics X-Ray",
-  "description": "Analytics X-Ray is a tool that helps you analyze your analytics data.",
+  "description": "Analytics X-Ray is a tool that helps you analyze and debug Segment events being fired on web pages.",
   "options_ui": {
     "page": "src/pages/options/index.html",
     "open_in_tab": true
