@@ -84,7 +84,7 @@
     "knip": "^5.80.2",
     "lint-staged": "^15.2.11",
     "nodemon": "^3.1.11",
-    "prettier": "^3.4.2",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.16",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
