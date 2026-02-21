@@ -670,10 +670,10 @@
   resolved "https://registry.yarnpkg.com/@hugeicons/core-free-icons/-/core-free-icons-3.1.1.tgz#883339ccc23802a33962eb10c8e82f563b73e165"
   integrity sha512-UpS2lUQFi5sKyJSWwM6rO+BnPLvVz1gsyCpPHeZyVuZqi89YH8ksliza4cwaODqKOZyeXmG8juo1ty4QtQofkg==
 
-"@hugeicons/react@^1.1.4":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@hugeicons/react/-/react-1.1.4.tgz#1662f11ebb42c7e16fa7e16e04615db666813a06"
-  integrity sha512-gsc3eZyd2fGqRUThW9+lfjxxsOkz6KNVmRXRgJjP32GL0OnnLJnl3hytKt47CBbiQj2xE2kCw+rnP3UQCThcKw==
+"@hugeicons/react@^1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@hugeicons/react/-/react-1.1.5.tgz#6a3aa1a0e972fb366e7e076e2b68d3a9e79a95e8"
+  integrity sha512-JX/iDz3oO7hWdVqbjwFwRrAjHk8h2vI+mBkNzp4JcXG3t4idoupfjon73nLOA7cr27m0M8hrRC1Q2h6nEBGKVA==
 
 "@humanfs/core@^0.19.1":
   version "0.19.1"
