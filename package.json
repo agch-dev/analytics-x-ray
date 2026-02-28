@@ -88,7 +88,7 @@
     "tailwindcss": "^4.1.16",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "vite": "^6.3.5",
+    "vite": "^7.3.1",
     "vite-tsconfig-paths": "^6.0.4",
     "vitest": "^2.1.8"
   },
