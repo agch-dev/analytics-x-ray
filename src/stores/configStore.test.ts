@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import { DEFAULT_EXPORT_SECTIONS } from '@src/lib/exportFormatter';
+
 import { useConfigStore } from './configStore';
 
 // Mock the logger
@@ -75,6 +77,7 @@ describe('configStore', () => {
           metadataIdentifiersAlwaysOpenForIdentityEvents: true,
         },
       },
+      exportSections: DEFAULT_EXPORT_SECTIONS,
     });
   });
 
@@ -143,11 +146,27 @@ describe('configStore', () => {
     });
   });
 
+  describe('setExportSections', () => {
+    it('should update exportSections', () => {
+      const newSections = {
+        ...DEFAULT_EXPORT_SECTIONS,
+        properties: false,
+        metadata: false,
+      };
+      useConfigStore.getState().setExportSections(newSections);
+      expect(useConfigStore.getState().exportSections).toEqual(newSections);
+    });
+  });
+
   describe('reset', () => {
     it('should reset user-visible settings to defaults', () => {
       useConfigStore.getState().setMaxEvents(2000);
       useConfigStore.getState().setTheme('dark');
       useConfigStore.getState().setPreferredEventDetailView('json');
+      useConfigStore.getState().setExportSections({
+        ...DEFAULT_EXPORT_SECTIONS,
+        properties: false,
+      });
 
       useConfigStore.getState().reset();
 
@@ -155,6 +174,9 @@ describe('configStore', () => {
       expect(useConfigStore.getState().theme).toBe('auto');
       expect(useConfigStore.getState().preferredEventDetailView).toBe(
         'structured'
+      );
+      expect(useConfigStore.getState().exportSections).toEqual(
+        DEFAULT_EXPORT_SECTIONS
       );
     });
 

@@ -288,6 +288,7 @@ export const useConfigStore = create<ConfigStore>()(
           maxEvents: defaultConfig.maxEvents,
           theme: defaultConfig.theme,
           preferredEventDetailView: defaultConfig.preferredEventDetailView,
+          exportSections: defaultConfig.exportSections,
           // Preserve pinnedProperties - they're internal state not shown in Options
           pinnedProperties: state.pinnedProperties,
         })),
