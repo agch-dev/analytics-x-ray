@@ -2,8 +2,8 @@ import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeAll, afterAll, vi } from 'vitest';
 
-// Cleanup after each test (only for React component tests)
-// For pure unit tests, this is not needed
+// Cleanup after each test as part of the shared test setup
+// This runs for all tests in this suite
 afterEach(() => {
   cleanup();
 });
