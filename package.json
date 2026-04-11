@@ -1,6 +1,6 @@
 {
   "name": "analytics-x-ray",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Analytics X-Ray is a tool that helps you analyze and debug Segment events being fired on web pages.",
   "license": "MIT",
   "repository": {
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.28.6",
-    "@hugeicons/core-free-icons": "^3.1.1",
+    "@hugeicons/core-free-icons": "^3.3.0",
     "@hugeicons/react": "^1.1.5",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
