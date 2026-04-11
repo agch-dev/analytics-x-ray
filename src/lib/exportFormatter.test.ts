@@ -30,7 +30,7 @@ describe('exportFormatter.ts', () => {
       event: 'Event 1',
       type: 'track',
       properties: { prop1: 'val1', prop2: 123 },
-    } as any,
+    } as never,
   });
 
   const mockEvent2 = createSegmentEvent({
@@ -54,7 +54,7 @@ describe('exportFormatter.ts', () => {
       name: 'Page 2',
       type: 'page',
       properties: { title: 'Second Page' },
-    } as any,
+    } as never,
   });
 
   describe('formatEventsAsJson', () => {
