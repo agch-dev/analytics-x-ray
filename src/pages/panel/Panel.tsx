@@ -23,6 +23,7 @@ import {
   EventList,
   Footer,
   FilterPanel,
+  ExportToolbar,
   ScrollToBottomButton,
   FeedbackModal,
   OnboardingSystem,
@@ -34,6 +35,37 @@ import { useEventSync } from './hooks/useEventSync';
 
 const log = createContextLogger('panel');
 
+/** Toggle an ID in a Set (add if missing, remove if present) */
+function toggleId(set: Set<string>, id: string): void {
+  if (set.has(id)) {
+    set.delete(id);
+  } else {
+    set.add(id);
+  }
+}
+
+/** Select all events between lastId and currentId (inclusive) */
+function applyRangeSelection(
+  set: Set<string>,
+  events: { id: string }[],
+  lastId: string,
+  currentId: string
+): void {
+  const lastIndex = events.findIndex((e) => e.id === lastId);
+  const currentIndex = events.findIndex((e) => e.id === currentId);
+
+  if (lastIndex === -1 || currentIndex === -1) {
+    toggleId(set, currentId);
+    return;
+  }
+
+  const start = Math.min(lastIndex, currentIndex);
+  const end = Math.max(lastIndex, currentIndex);
+  for (let i = start; i <= end; i++) {
+    set.add(events[i].id);
+  }
+}
+
 // Get the inspected tab ID from DevTools API
 const tabId = Browser.devtools.inspectedWindow.tabId;
 
@@ -43,6 +75,10 @@ export default function Panel() {
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isExportMode, setIsExportMode] = useState(false);
+  const [selectedExportIds, setSelectedExportIds] = useState<Set<string>>(
+    new Set()
+  );
+  const lastSelectedIdRef = useRef<string | null>(null);
 
   // Domain tracking via hook
   const { domainAllowed } = useDomainTracking({ tabId });
@@ -269,6 +305,69 @@ export default function Panel() {
     toggleEventNameVisibility(eventName);
   };
 
+  // Export mode handlers
+  const handleToggleExportMode = useCallback(() => {
+    setIsExportMode((prev) => {
+      if (prev) {
+        // Exiting export mode — clear selection
+        setSelectedExportIds(new Set());
+        lastSelectedIdRef.current = null;
+      }
+      return !prev;
+    });
+  }, []);
+
+  const handleCancelExport = useCallback(() => {
+    setIsExportMode(false);
+    setSelectedExportIds(new Set());
+    lastSelectedIdRef.current = null;
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    setSelectedExportIds(new Set(filteredEvents.map((e) => e.id)));
+  }, [filteredEvents]);
+
+  const handleDeselectAll = useCallback(() => {
+    setSelectedExportIds(new Set());
+    lastSelectedIdRef.current = null;
+  }, []);
+
+  const handleToggleSelect = useCallback(
+    (eventId: string, shiftKey: boolean) => {
+      setSelectedExportIds((prev) => {
+        const next = new Set(prev);
+
+        if (shiftKey && lastSelectedIdRef.current) {
+          applyRangeSelection(
+            next,
+            filteredEvents,
+            lastSelectedIdRef.current,
+            eventId
+          );
+        } else {
+          toggleId(next, eventId);
+        }
+
+        lastSelectedIdRef.current = eventId;
+        return next;
+      });
+    },
+    [filteredEvents]
+  );
+
+  // Count of selected events that are currently visible (for toolbar display and export)
+  const visibleSelectedCount = useMemo(() => {
+    if (selectedExportIds.size === 0) return 0;
+    return filteredEvents.filter((e) => selectedExportIds.has(e.id)).length;
+  }, [filteredEvents, selectedExportIds]);
+
+  const handleExportSelected = useCallback(() => {
+    const selectedEvents = filteredEvents.filter((e) =>
+      selectedExportIds.has(e.id)
+    );
+    log.info(`📤 Exporting ${selectedEvents.length} events`);
+  }, [filteredEvents, selectedExportIds]);
+
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
       <Header
@@ -282,9 +381,20 @@ export default function Panel() {
         onClear={handleClearEvents}
         onToggleFilterPanel={handleToggleFilterPanel}
         onOpenFeedback={() => setIsFeedbackModalOpen(true)}
-        onExport={() => setIsExportMode((prev) => !prev)}
+        onExport={handleToggleExportMode}
         isExportMode={isExportMode}
       />
+
+      {isExportMode && (
+        <ExportToolbar
+          selectedCount={visibleSelectedCount}
+          totalCount={filteredEvents.length}
+          onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
+          onExport={handleExportSelected}
+          onCancel={handleCancelExport}
+        />
+      )}
 
       {isFilterPanelOpen && (
         <FilterPanel
@@ -308,10 +418,13 @@ export default function Panel() {
           hiddenEventNames={hiddenEventNames}
           searchMatch={searchMatch}
           viewMode={preferredViewMode}
+          isExportMode={isExportMode}
+          selectedExportIds={selectedExportIds}
           onToggleExpand={toggleEventExpanded}
           onToggleHide={toggleEventNameVisibility}
           onScrollStateChange={setIsAtBottom}
           onViewModeChange={handleViewModeChange}
+          onToggleSelect={handleToggleSelect}
         />
       </ErrorBoundary>
 

@@ -34,10 +34,13 @@ interface EventListProps {
   hiddenEventNames: Set<string>;
   searchMatch?: SearchMatch | null;
   viewMode: ViewMode;
+  isExportMode?: boolean;
+  selectedExportIds?: Set<string>;
   onToggleExpand: (id: string) => void;
   onToggleHide?: (eventName: string) => void;
   onScrollStateChange?: (isAtBottom: boolean) => void;
   onViewModeChange: (mode: ViewMode) => void;
+  onToggleSelect?: (eventId: string, shiftKey: boolean) => void;
 }
 
 export const EventList = forwardRef<EventListHandle, EventListProps>(
@@ -49,10 +52,13 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       hiddenEventNames,
       searchMatch,
       viewMode,
+      isExportMode = false,
+      selectedExportIds,
       onToggleExpand,
       onToggleHide,
       onScrollStateChange,
       onViewModeChange,
+      onToggleSelect,
     },
     ref
   ) {
@@ -188,10 +194,13 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
               isHidden={hiddenEventNames.has(
                 normalizeEventNameForFilter(stickyEvent.name, stickyEvent.type)
               )}
+              isExportMode={isExportMode}
+              isSelected={selectedExportIds?.has(stickyEvent.id) ?? false}
               searchMatch={searchMatch}
               viewMode={viewMode}
               onToggleHide={onToggleHide}
               onViewModeChange={onViewModeChange}
+              onToggleSelect={onToggleSelect}
             />
           </div>
         )}
@@ -280,11 +289,14 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
                     isHidden={hiddenEventNames.has(
                       normalizeEventNameForFilter(event.name, event.type)
                     )}
+                    isExportMode={isExportMode}
+                    isSelected={selectedExportIds?.has(event.id) ?? false}
                     searchMatch={searchMatch}
                     viewMode={viewMode}
                     onToggleExpand={handleToggleExpand}
                     onToggleHide={onToggleHide}
                     onViewModeChange={onViewModeChange}
+                    onToggleSelect={onToggleSelect}
                   />
                 </div>
               );
