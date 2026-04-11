@@ -39,5 +39,5 @@ jobs:
       - name: Upload Chrome extension artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: analytics-x-ray-chrome
+          name: segment-analytics-x-ray-chrome
           path: dist_chrome

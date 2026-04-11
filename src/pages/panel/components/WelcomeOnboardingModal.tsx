@@ -70,7 +70,7 @@ export function WelcomeOnboardingModal({
               <Logo size={24} />
             </div>
             <DialogTitle className="text-2xl">
-              Welcome to Analytics X-Ray
+              Welcome to Segment Analytics X-Ray
             </DialogTitle>
           </div>
           <DialogDescription className="text-base">
@@ -93,7 +93,7 @@ export function WelcomeOnboardingModal({
                 size={16}
                 className="text-primary"
               />
-              What Makes Analytics X-Ray Stand Out
+              What Makes Segment Analytics X-Ray Stand Out
             </h3>
             <div className="grid gap-4">
               {features.map((feature, index) => (

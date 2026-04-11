@@ -73,7 +73,7 @@ export function Header({
                 text-lg font-semibold whitespace-nowrap text-foreground
               `}
             >
-              Analytics X-Ray
+              Segment Analytics X-Ray
             </h1>
           </div>
           <Badge

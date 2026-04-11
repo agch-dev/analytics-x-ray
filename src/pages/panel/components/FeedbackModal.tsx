@@ -60,7 +60,7 @@ export function FeedbackModal({
               </span>
             </a>
             <a
-              href="https://github.com/agch-dev/analytics-x-ray/issues/new"
+              href="https://github.com/agch-dev/segment-analytics-x-ray/issues/new"
               target="_blank"
               rel="noopener noreferrer"
               className={`
@@ -85,8 +85,8 @@ export function FeedbackModal({
             </a>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
-            Your feedback helps us improve Analytics X-Ray. Thank you for taking
-            the time to share your thoughts!
+            Your feedback helps us improve Segment Analytics X-Ray. Thank you
+            for taking the time to share your thoughts!
           </p>
         </div>
       </DialogContent>

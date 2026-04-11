@@ -1,6 +1,6 @@
 <div align="center">
 <img src="public/icons/icon128.png" alt="logo" width="128" height="128"/>
-<h1>Analytics X-Ray</h1>
+<h1>Segment Analytics X-Ray</h1>
 <h3>Inspect and verify analytics events in real-time</h3>
 <h5>Focused on Segment and other services that follow the Segment structure.</h5>
 
@@ -28,7 +28,7 @@
 
 ## Overview <a name="overview"></a>
 
-**Analytics X-Ray** is a browser extension that intercepts and displays Segment analytics events being fired on web pages. It helps Developer, Data, and QA teams:
+**Segment Analytics X-Ray** is a browser extension that intercepts and displays Segment analytics events being fired on web pages. It helps Developer, Data, and QA teams:
 
 - **View** Segment events in real-time as they're fired
 - **Inspect** event payloads, properties, and metadata
@@ -49,15 +49,15 @@ Open to adding support for other Analytics services.
 - DevTools panel integration
 
 <div align="center">
-  <img src="docs/x-ray-screenshot-1.png" alt="Analytics X-Ray Screenshot 1" width="80%"/>
+  <img src="docs/x-ray-screenshot-1.png" alt="Segment Analytics X-Ray Screenshot 1" width="80%"/>
   
   <table>
     <tr>
       <td align="center">
-        <img src="docs/x-ray-screenshot-2.png" alt="Analytics X-Ray Screenshot 2" width="100%"/>
+        <img src="docs/x-ray-screenshot-2.png" alt="Segment Analytics X-Ray Screenshot 2" width="100%"/>
       </td>
       <td align="center">
-        <img src="docs/x-ray-screenshot-3.png" alt="Analytics X-Ray Screenshot 3" width="100%"/>
+        <img src="docs/x-ray-screenshot-3.png" alt="Segment Analytics X-Ray Screenshot 3" width="100%"/>
       </td>
     </tr>
   </table>
@@ -70,7 +70,7 @@ Open to adding support for other Analytics services.
 1. Visit the [Chrome Web Store listing](https://chromewebstore.google.com/detail/analytics-x-ray/nabnhcbhcecfohhaodnpoipanaaapkpi)
 2. Click **"Add to Chrome"**
 3. Confirm the installation
-4. Open Chrome DevTools (F12 or Cmd+Option+I) and look for the "Analytics X-Ray" tab
+4. Open Chrome DevTools (F12 or Cmd+Option+I) and look for the "Segment Analytics X-Ray" tab
 
 #### Firefox Add-ons (WIP)
 
@@ -78,7 +78,7 @@ Firefox installation instructions will be available once the extension is publis
 
 ## Contributing <a name="contributing"></a>
 
-Contributions are welcome! We appreciate your help in making Analytics X-Ray better.
+Contributions are welcome! We appreciate your help in making Segment Analytics X-Ray better.
 
 ### Prerequisites <a name="prerequisites"></a>
 
@@ -145,7 +145,7 @@ If you build in prod mode the Reload button is not available in the popup and yo
 ## Usage <a name="usage"></a>
 
 1. **Open DevTools**: After loading the extension, open Chrome DevTools (F12 or Cmd+Option+I)
-2. **Find the Panel**: Look for the "Analytics X-Ray" tab in DevTools
+2. **Find the Panel**: Look for the "Segment Analytics X-Ray" tab in DevTools
 3. **Navigate to a Site**: Visit any website that uses Segment analytics (e.g., segment.com)
 4. **View Events**: Events will appear in real-time as they're captured from the page
 

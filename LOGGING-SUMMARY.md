@@ -105,25 +105,25 @@ yarn build:chrome
 ### Step 2: Reload Extension in Chrome
 
 1. Go to `chrome://extensions/`
-2. Find "Analytics X-Ray"
+2. Find "Segment Analytics X-Ray"
 3. Click reload button
 
 ### Step 3: Open Background Console
 
 1. In `chrome://extensions/`
-2. Find "Analytics X-Ray"
+2. Find "Segment Analytics X-Ray"
 3. Click "service worker" link (blue text)
 4. Console will open showing background logs
 
 **You should see:**
 
 ```
-[analytics-x-ray] [background] 🚀 Background service worker loaded
-[analytics-x-ray] [background] 🔧 Initializing background script...
-[analytics-x-ray] [background] 🔄 Restoring events from storage...
-[analytics-x-ray] [background] ✅ Restored X total events across Y tab(s)
-[analytics-x-ray] [background] 📡 webRequest listener registered for endpoints: Array(4) [ ... ]
-[analytics-x-ray] [background] ✅ Background script initialization complete
+[segment-analytics-x-ray] [background] 🚀 Background service worker loaded
+[segment-analytics-x-ray] [background] 🔧 Initializing background script...
+[segment-analytics-x-ray] [background] 🔄 Restoring events from storage...
+[segment-analytics-x-ray] [background] ✅ Restored X total events across Y tab(s)
+[segment-analytics-x-ray] [background] 📡 webRequest listener registered for endpoints: Array(4) [ ... ]
+[segment-analytics-x-ray] [background] ✅ Background script initialization complete
 ```
 
 ### Step 4: Navigate to a Site with Segment
@@ -136,25 +136,25 @@ Good test sites:
 **Background console should show:**
 
 ```
-[analytics-x-ray] [background] 🎯 Request intercepted (tabId: 123)
+[segment-analytics-x-ray] [background] 🎯 Request intercepted (tabId: 123)
   URL: https://api.segment.io/v1/t
   Body decoded (1234 chars)
   Provider: segment
-[analytics-x-ray] [background] ✅ Captured 2 event(s) from segment: (2) ["Page View", "Click"]
-[analytics-x-ray] [background] 💾 Stored 2 event(s) in memory (total: 2 for tab 123)
-[analytics-x-ray] [background] 💾 Persisted 2 event(s) to storage.local['events'][123]
-[analytics-x-ray] [background] 📤 Sending EVENTS_CAPTURED message (tabId: 123, 2 event(s))
+[segment-analytics-x-ray] [background] ✅ Captured 2 event(s) from segment: (2) ["Page View", "Click"]
+[segment-analytics-x-ray] [background] 💾 Stored 2 event(s) in memory (total: 2 for tab 123)
+[segment-analytics-x-ray] [background] 💾 Persisted 2 event(s) to storage.local['events'][123]
+[segment-analytics-x-ray] [background] 📤 Sending EVENTS_CAPTURED message (tabId: 123, 2 event(s))
 ```
 
 ### Step 5: Open DevTools Panel
 
 1. Open Chrome DevTools (F12 or Cmd+Option+I)
-2. Click "Analytics X-Ray" tab
+2. Click "Segment Analytics X-Ray" tab
 3. Panel should show events
 
 ### Step 6: Open Panel Console (DevTools within DevTools!)
 
-1. With the Analytics X-Ray panel open
+1. With the Segment Analytics X-Ray panel open
 2. Right-click anywhere in the panel
 3. Click "Inspect"
 4. OR: Press `Cmd+Option+I` (Mac) / `Ctrl+Shift+I` (Windows) while panel is focused
@@ -162,26 +162,26 @@ Good test sites:
 **Panel console should show:**
 
 ```
-[analytics-x-ray] [devtools] 🔧 DevTools script loading...
-[analytics-x-ray] [devtools] Inspected tab ID: 123
-[analytics-x-ray] [devtools] ✅ DevTools panel created successfully
-[analytics-x-ray] [devtools] ✅ React app rendered
+[segment-analytics-x-ray] [devtools] 🔧 DevTools script loading...
+[segment-analytics-x-ray] [devtools] Inspected tab ID: 123
+[segment-analytics-x-ray] [devtools] ✅ DevTools panel created successfully
+[segment-analytics-x-ray] [devtools] ✅ React app rendered
 
-[analytics-x-ray] [storage] 🏗️ Creating new tab store for tab 123 (maxEvents: 500)
-[analytics-x-ray] [panel] 🎨 Panel mounted for tab 123
-[analytics-x-ray] [panel] Current event count in store: 0
+[segment-analytics-x-ray] [storage] 🏗️ Creating new tab store for tab 123 (maxEvents: 500)
+[segment-analytics-x-ray] [panel] 🎨 Panel mounted for tab 123
+[segment-analytics-x-ray] [panel] Current event count in store: 0
 
-[analytics-x-ray] [panel] 🔄 Setting up event sync for tab 123
-[analytics-x-ray] [panel] 📥 Fetching initial events for tab 123...
-[analytics-x-ray] [panel] 👂 Message listener registered
-[analytics-x-ray] [panel] ✅ Received 2 initial events from background
+[segment-analytics-x-ray] [panel] 🔄 Setting up event sync for tab 123
+[segment-analytics-x-ray] [panel] 📥 Fetching initial events for tab 123...
+[segment-analytics-x-ray] [panel] 👂 Message listener registered
+[segment-analytics-x-ray] [panel] ✅ Received 2 initial events from background
 [Table showing events]
 
-[analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): Page View track
-[analytics-x-ray] [storage]   Total events in store: 1
-[analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): Click track
-[analytics-x-ray] [storage]   Total events in store: 2
-[analytics-x-ray] [panel] 📊 Event count changed: 2
+[segment-analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): Page View track
+[segment-analytics-x-ray] [storage]   Total events in store: 1
+[segment-analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): Click track
+[segment-analytics-x-ray] [storage]   Total events in store: 2
+[segment-analytics-x-ray] [panel] 📊 Event count changed: 2
 ```
 
 ### Step 7: Trigger New Events

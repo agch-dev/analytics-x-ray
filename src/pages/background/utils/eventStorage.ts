@@ -129,7 +129,7 @@ export async function clearEventsForTab(tabId: number): Promise<void> {
     await Browser.storage.local.remove(reloadsKey);
     log.debug(`🗑️ Cleared reload timestamps for tab ${tabId}`);
   } catch (error) {
-    console.error('[analytics-x-ray] Failed to clear events:', error);
+    console.error('[segment-analytics-x-ray] Failed to clear events:', error);
   }
 }
 
