@@ -447,7 +447,7 @@ export default function Panel() {
       />
 
       <OnboardingSystem
-        modalId="welcome"
+        modalId="welcome-v2"
         ModalComponent={WelcomeOnboardingModal}
         delay={500}
       />
