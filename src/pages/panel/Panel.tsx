@@ -24,6 +24,7 @@ import {
   Footer,
   FilterPanel,
   ExportToolbar,
+  ExportModal,
   ScrollToBottomButton,
   FeedbackModal,
   OnboardingSystem,
@@ -75,6 +76,7 @@ export default function Panel() {
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isExportMode, setIsExportMode] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [selectedExportIds, setSelectedExportIds] = useState<Set<string>>(
     new Set()
   );
@@ -361,12 +363,16 @@ export default function Panel() {
     return filteredEvents.filter((e) => selectedExportIds.has(e.id)).length;
   }, [filteredEvents, selectedExportIds]);
 
+  // Selected events for the export modal
+  const selectedEvents = useMemo(
+    () => filteredEvents.filter((e) => selectedExportIds.has(e.id)).reverse(),
+    [filteredEvents, selectedExportIds]
+  );
+
   const handleExportSelected = useCallback(() => {
-    const selectedEvents = filteredEvents.filter((e) =>
-      selectedExportIds.has(e.id)
-    );
     log.info(`📤 Exporting ${selectedEvents.length} events`);
-  }, [filteredEvents, selectedExportIds]);
+    setIsExportModalOpen(true);
+  }, [selectedEvents.length]);
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
@@ -444,6 +450,13 @@ export default function Panel() {
         modalId="welcome"
         ModalComponent={WelcomeOnboardingModal}
         delay={500}
+      />
+
+      <ExportModal
+        open={isExportModalOpen}
+        onOpenChange={setIsExportModalOpen}
+        events={selectedEvents}
+        reloadTimestamps={reloadTimestamps}
       />
     </div>
   );

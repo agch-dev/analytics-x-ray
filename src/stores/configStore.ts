@@ -8,6 +8,10 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import {
+  DEFAULT_EXPORT_SECTIONS,
+  type ExportSections,
+} from '@src/lib/exportFormatter';
 import { createChromeStorage } from '@src/lib/storage';
 
 /**
@@ -99,6 +103,9 @@ interface ExtensionConfig {
 
   // Section defaults configuration
   sectionDefaults: SectionDefaults;
+
+  // Export sections toggle preferences
+  exportSections: ExportSections;
 }
 
 interface ConfigStore extends ExtensionConfig {
@@ -108,6 +115,7 @@ interface ConfigStore extends ExtensionConfig {
   setPreferredEventDetailView: (
     view: ExtensionConfig['preferredEventDetailView']
   ) => void;
+  setExportSections: (sections: ExportSections) => void;
   reset: () => void;
 
   // Pin actions
@@ -186,6 +194,7 @@ const defaultConfig: ExtensionConfig = {
   },
   dismissedOnboardingModals: [],
   sectionDefaults: defaultSectionDefaults,
+  exportSections: DEFAULT_EXPORT_SECTIONS,
 };
 
 /**
@@ -272,6 +281,7 @@ export const useConfigStore = create<ConfigStore>()(
       setTheme: (theme) => set({ theme }),
       setPreferredEventDetailView: (view) =>
         set({ preferredEventDetailView: view }),
+      setExportSections: (sections) => set({ exportSections: sections }),
       // Reset only user-visible settings, preserve pinned properties (internal state)
       reset: () =>
         set((state) => ({
@@ -389,7 +399,7 @@ export const useConfigStore = create<ConfigStore>()(
     {
       name: 'analytics-xray-config',
       storage: createJSONStorage(() => createChromeStorage()),
-      version: 7,
+      version: 8,
       migrate: (persistedState, version) => {
         const state = persistedState as ExtensionConfig;
         if (version < 2) {
@@ -443,6 +453,13 @@ export const useConfigStore = create<ConfigStore>()(
             sectionDefaults: defaultSectionDefaults,
           };
         }
+        if (version < 8) {
+          // Migration from v7 to v8: add exportSections
+          return {
+            ...state,
+            exportSections: DEFAULT_EXPORT_SECTIONS,
+          };
+        }
         return state;
       },
     }
@@ -454,3 +471,5 @@ export const selectMaxEvents = (state: ConfigStore) => state.maxEvents;
 export const selectTheme = (state: ConfigStore) => state.theme;
 export const selectPreferredEventDetailView = (state: ConfigStore) =>
   state.preferredEventDetailView;
+export const selectExportSections = (state: ConfigStore) =>
+  state.exportSections;
