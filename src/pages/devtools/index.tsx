@@ -10,7 +10,7 @@ log.info(`Inspected tab ID: ${Browser.devtools.inspectedWindow.tabId}`);
 // Create the devtools panel pointing to the panel HTML page
 // This approach avoids circular dependencies and browser compatibility issues
 Browser.devtools.panels.create(
-  'Analytics X-Ray',
+  'Segment Analytics X-Ray',
   'icons/icon32.png',
   'src/pages/panel/index.html'
 );

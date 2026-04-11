@@ -73,7 +73,15 @@ export function Header({
                 text-lg font-semibold whitespace-nowrap text-foreground
               `}
             >
-              Analytics X-Ray
+              <span className="sm:hidden">X-Ray</span>
+              <span
+                className={`
+                hidden
+                sm:inline
+              `}
+              >
+                Segment Analytics X-Ray
+              </span>
             </h1>
           </div>
           <Badge

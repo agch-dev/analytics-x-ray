@@ -41,7 +41,7 @@ export default function Popup() {
             <Logo className="pointer-events-none h-16 w-16" size={64} />
             <div>
               <CardTitle className="text-2xl font-bold">
-                Analytics X-Ray
+                Segment Analytics X-Ray
               </CardTitle>
               <CardDescription className="mt-1 text-sm">
                 Inspect Segment analytics events in real-time
@@ -94,7 +94,7 @@ export default function Popup() {
               `}
             >
               <li>Open your browser&apos;s DevTools (F12)</li>
-              <li>Navigate to the &quot;Analytics X-Ray&quot; panel</li>
+              <li>Navigate to the &quot;Segment Analytics X-Ray&quot; panel</li>
               <li>View Segment events as they fire on the page</li>
               <li>Inspect event payloads and properties</li>
             </ol>

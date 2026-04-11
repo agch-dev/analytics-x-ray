@@ -34,11 +34,11 @@ export function SupportModal({
               size={20}
               className="text-primary"
             />
-            Support Analytics X-Ray
+            Support Segment Analytics X-Ray
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1.5">
-            If you find Analytics X-Ray useful, please consider supporting its
-            development.
+            If you find Segment Analytics X-Ray useful, please consider
+            supporting its development.
             <br />
             <br />
             Your support helps keep this project alive and allows for continued
@@ -61,14 +61,14 @@ export function SupportModal({
             </a>
           </div>
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            Thank you for using Analytics X-Ray! with ❤️ from Uruguay 🇺🇾
+            Thank you for using Segment Analytics X-Ray! with ❤️ from Uruguay 🇺🇾
           </p>
           <div className="mt-4 border-t border-border pt-4">
             <p className="mb-2 text-center text-xs text-muted-foreground">
               This is an open source project. You can contribute at:
             </p>
             <a
-              href="https://github.com/agch-dev/analytics-x-ray"
+              href="https://github.com/agch-dev/segment-analytics-x-ray"
               target="_blank"
               rel="noopener noreferrer"
               className={`
@@ -76,7 +76,7 @@ export function SupportModal({
                 hover:underline
               `}
             >
-              github.com/agch-dev/analytics-x-ray
+              github.com/agch-dev/segment-analytics-x-ray
             </a>
           </div>
           <div className="mt-4 border-t border-border pt-4">

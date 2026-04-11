@@ -98,7 +98,7 @@ Current event count in store: X
 1. **Background Script Console** (Service Worker):
 
    ```
-   chrome://extensions/ → Analytics X-Ray → "service worker" link
+   chrome://extensions/ → Segment Analytics X-Ray → "service worker" link
    ```
 
    ✅ Should see:
@@ -281,7 +281,7 @@ console.log('Events from background:', events);
 
 2. **Open DevTools panel**:
    - Navigate to a test page
-   - Open DevTools → Analytics X-Ray tab
+   - Open DevTools → Segment Analytics X-Ray tab
 
 3. **Check both consoles**:
    - Background console: `chrome://extensions/` → service worker
@@ -308,47 +308,47 @@ console.log('Events from background:', events);
 ### Successful Event Capture
 
 ```
-[analytics-x-ray] [background] 🎯 Request intercepted (tabId: 123)
-[analytics-x-ray] [background]   URL: https://api.segment.io/v1/t
-[analytics-x-ray] [background]   Body decoded (1234 chars)
-[analytics-x-ray] [background]   Provider: segment
-[analytics-x-ray] [background] ✅ Captured 2 event(s) from segment: (2) ['Page View', 'Button Clicked']
-[analytics-x-ray] [background] 💾 Stored 2 event(s) in memory (total: 2 for tab 123)
-[analytics-x-ray] [background] 💾 Persisted 2 event(s) to storage.local['events'][123]
-[analytics-x-ray] [background] 📤 Sending EVENTS_CAPTURED message (tabId: 123, 2 event(s))
-[analytics-x-ray] [background] ✅ Message delivered successfully
+[segment-analytics-x-ray] [background] 🎯 Request intercepted (tabId: 123)
+[segment-analytics-x-ray] [background]   URL: https://api.segment.io/v1/t
+[segment-analytics-x-ray] [background]   Body decoded (1234 chars)
+[segment-analytics-x-ray] [background]   Provider: segment
+[segment-analytics-x-ray] [background] ✅ Captured 2 event(s) from segment: (2) ['Page View', 'Button Clicked']
+[segment-analytics-x-ray] [background] 💾 Stored 2 event(s) in memory (total: 2 for tab 123)
+[segment-analytics-x-ray] [background] 💾 Persisted 2 event(s) to storage.local['events'][123]
+[segment-analytics-x-ray] [background] 📤 Sending EVENTS_CAPTURED message (tabId: 123, 2 event(s))
+[segment-analytics-x-ray] [background] ✅ Message delivered successfully
 
-[analytics-x-ray] [panel] 📬 Received EVENTS_CAPTURED message (tabId: 123, events: 2)
-[analytics-x-ray] [panel] ✅ Adding 2 new event(s) to store: (2) ['Page View', 'Button Clicked']
-[analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): Page View track
-[analytics-x-ray] [storage]   Total events in store: 1
-[analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): Button Clicked track
-[analytics-x-ray] [storage]   Total events in store: 2
-[analytics-x-ray] [panel] 📊 Event count changed: 2
+[segment-analytics-x-ray] [panel] 📬 Received EVENTS_CAPTURED message (tabId: 123, events: 2)
+[segment-analytics-x-ray] [panel] ✅ Adding 2 new event(s) to store: (2) ['Page View', 'Button Clicked']
+[segment-analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): Page View track
+[segment-analytics-x-ray] [storage]   Total events in store: 1
+[segment-analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): Button Clicked track
+[segment-analytics-x-ray] [storage]   Total events in store: 2
+[segment-analytics-x-ray] [panel] 📊 Event count changed: 2
 ```
 
 ### Panel Opens With Existing Events
 
 ```
-[analytics-x-ray] [devtools] 🔧 DevTools script loading...
-[analytics-x-ray] [devtools] Inspected tab ID: 123
-[analytics-x-ray] [devtools] ✅ DevTools panel created successfully
-[analytics-x-ray] [devtools] ✅ React app rendered
+[segment-analytics-x-ray] [devtools] 🔧 DevTools script loading...
+[segment-analytics-x-ray] [devtools] Inspected tab ID: 123
+[segment-analytics-x-ray] [devtools] ✅ DevTools panel created successfully
+[segment-analytics-x-ray] [devtools] ✅ React app rendered
 
-[analytics-x-ray] [storage] 🏗️ Creating new tab store for tab 123 (maxEvents: 500)
-[analytics-x-ray] [panel] 🎨 Panel mounted for tab 123
-[analytics-x-ray] [panel] Current event count in store: 0
+[segment-analytics-x-ray] [storage] 🏗️ Creating new tab store for tab 123 (maxEvents: 500)
+[segment-analytics-x-ray] [panel] 🎨 Panel mounted for tab 123
+[segment-analytics-x-ray] [panel] Current event count in store: 0
 
-[analytics-x-ray] [panel] 🔄 Setting up event sync for tab 123
-[analytics-x-ray] [panel] 📥 Fetching initial events for tab 123...
-[analytics-x-ray] [panel] 👂 Message listener registered
+[segment-analytics-x-ray] [panel] 🔄 Setting up event sync for tab 123
+[segment-analytics-x-ray] [panel] 📥 Fetching initial events for tab 123...
+[segment-analytics-x-ray] [panel] 👂 Message listener registered
 
-[analytics-x-ray] [background] 📬 Received message: GET_EVENTS Object { tabId: 123, sender: undefined }
-[analytics-x-ray] [background] 📤 Responding with events for tab 123
-[analytics-x-ray] [background] ✅ Sent 5 events for tab 123
+[segment-analytics-x-ray] [background] 📬 Received message: GET_EVENTS Object { tabId: 123, sender: undefined }
+[segment-analytics-x-ray] [background] 📤 Responding with events for tab 123
+[segment-analytics-x-ray] [background] ✅ Sent 5 events for tab 123
 
-[analytics-x-ray] [panel] ✅ Received 5 initial events from background
-[analytics-x-ray] [panel] [Table with events]
-[analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): ...
-[analytics-x-ray] [panel] 📊 Event count changed: 5
+[segment-analytics-x-ray] [panel] ✅ Received 5 initial events from background
+[segment-analytics-x-ray] [panel] [Table with events]
+[segment-analytics-x-ray] [storage] ➕ Adding event to store (tabId: 123): ...
+[segment-analytics-x-ray] [panel] 📊 Event count changed: 5
 ```

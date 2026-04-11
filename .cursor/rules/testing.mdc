@@ -1,5 +1,5 @@
 ---
-description: Testing patterns and requirements for analytics-x-ray test suite
+description: Testing patterns and requirements for segment-analytics-x-ray test suite
 globs: **/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
 alwaysApply: false
 ---

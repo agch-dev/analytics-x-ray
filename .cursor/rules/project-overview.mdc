@@ -1,13 +1,13 @@
 ---
-description: Core project information and structure for analytics-x-ray Chrome extension
+description: Core project information and structure for segment-analytics-x-ray Chrome extension
 globs: 
 alwaysApply: true
 ---
 
-# analytics-x-ray Project Overview
+# segment-analytics-x-ray Project Overview
 
 ## Purpose
-**analytics-x-ray** is a Chrome/Firefox browser extension for viewing, inspecting, and verifying Segment analytics events being fired on web pages. It provides developers and QA teams with real-time visibility into analytics tracking implementation.
+**segment-analytics-x-ray** is a Chrome/Firefox browser extension for viewing, inspecting, and verifying Segment analytics events being fired on web pages. It provides developers and QA teams with real-time visibility into analytics tracking implementation.
 
 ### Key Features
 - Intercept and display Segment analytics events in real-time
@@ -31,7 +31,7 @@ alwaysApply: true
 ## Project Structure
 
 ```
-analytics-x-ray/
+segment-analytics-x-ray/
 ├── public/                    # Static assets (icons, CSS)
 ├── src/
 │   ├── assets/

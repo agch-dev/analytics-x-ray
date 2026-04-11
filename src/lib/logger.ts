@@ -43,7 +43,7 @@ class Logger {
     enabledContexts: 'all',
   };
 
-  private prefix = '[analytics-x-ray]';
+  private prefix = '[segment-analytics-x-ray]';
 
   /**
    * Configure the logger

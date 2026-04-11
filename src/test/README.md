@@ -1,6 +1,6 @@
 # Test Utilities
 
-This directory contains shared testing utilities for the analytics-x-ray test suite.
+This directory contains shared testing utilities for the segment-analytics-x-ray test suite.
 
 ## Usage
 

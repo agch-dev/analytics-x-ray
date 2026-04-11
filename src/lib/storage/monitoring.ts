@@ -114,7 +114,7 @@ export const logStorageSize = async (
     return info;
   }
 
-  const prefix = '[analytics-x-ray]';
+  const prefix = '[segment-analytics-x-ray]';
   const contextTag = `[${context}]`;
 
   // Determine log level based on usage

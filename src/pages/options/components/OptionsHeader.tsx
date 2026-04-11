@@ -6,7 +6,7 @@ export const OptionsHeader = () => (
       <Logo className="pointer-events-none h-12 w-12" size={48} />
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Analytics X-Ray Settings
+          Segment Analytics X-Ray Settings
         </h1>
         <p className="text-muted-foreground">
           Configure how the extension captures and displays Segment analytics
