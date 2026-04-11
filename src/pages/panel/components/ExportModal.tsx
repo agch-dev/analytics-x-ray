@@ -1,6 +1,6 @@
 import { Copy01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@src/components/ui/button';
 import {
@@ -102,6 +102,14 @@ export function ExportModal({
   const [copied, setCopied] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Reset copied state after timeout
+  useEffect(() => {
+    if (copied) {
+      const timer = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copied]);
+
   // Persisted export sections from config store
   const sections = useConfigStore(selectExportSections);
   const setExportSections = useConfigStore((s) => s.setExportSections);
@@ -150,7 +158,6 @@ export function ExportModal({
     const success = copyInsideDialog(output, contentRef.current);
     if (success) {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
   }, [mode, events, reloadTimestamps, sections]);
 

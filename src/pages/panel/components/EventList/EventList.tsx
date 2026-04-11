@@ -68,6 +68,18 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
     const [collapsedEventId, setCollapsedEventId] = useState<string | null>(
       null
     );
+    const collapseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+      null
+    );
+
+    // Clear timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (collapseTimeoutRef.current) {
+          clearTimeout(collapseTimeoutRef.current);
+        }
+      };
+    }, []);
 
     // Use virtualization hook
     const {
@@ -109,8 +121,12 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
         if (wasExpanded) {
           setCollapsedEventId(id);
 
-          setTimeout(() => {
+          if (collapseTimeoutRef.current) {
+            clearTimeout(collapseTimeoutRef.current);
+          }
+          collapseTimeoutRef.current = setTimeout(() => {
             setCollapsedEventId(null);
+            collapseTimeoutRef.current = null;
           }, 600); // Match animation duration
         }
 

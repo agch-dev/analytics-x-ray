@@ -17,6 +17,18 @@ const log = createContextLogger('ui');
 export default function Options() {
   // Track the last local update timestamp to skip rehydration from our own changes
   const lastLocalUpdateRef = useRef<number>(0);
+  const clearLocalUpdateTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (clearLocalUpdateTimeoutRef.current) {
+        clearTimeout(clearLocalUpdateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Listen for storage changes to sync config updates from other extension contexts
   useEffect(() => {
@@ -78,11 +90,15 @@ export default function Options() {
 
     // Also set a timeout to reset the flag after the storage write completes
     // This ensures we don't block legitimate updates from other contexts
-    setTimeout(() => {
+    if (clearLocalUpdateTimeoutRef.current) {
+      clearTimeout(clearLocalUpdateTimeoutRef.current);
+    }
+    clearLocalUpdateTimeoutRef.current = setTimeout(() => {
       // Only reset if no new local update happened
       if (lastLocalUpdateRef.current === timestamp) {
         lastLocalUpdateRef.current = 0;
       }
+      clearLocalUpdateTimeoutRef.current = null;
     }, 1000);
   };
 
