@@ -42,6 +42,7 @@ export default function Panel() {
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isExportMode, setIsExportMode] = useState(false);
 
   // Domain tracking via hook
   const { domainAllowed } = useDomainTracking({ tabId });
@@ -281,6 +282,8 @@ export default function Panel() {
         onClear={handleClearEvents}
         onToggleFilterPanel={handleToggleFilterPanel}
         onOpenFeedback={() => setIsFeedbackModalOpen(true)}
+        onExport={() => setIsExportMode((prev) => !prev)}
+        isExportMode={isExportMode}
       />
 
       {isFilterPanelOpen && (

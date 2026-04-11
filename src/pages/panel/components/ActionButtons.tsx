@@ -1,5 +1,6 @@
 import {
   Delete02Icon,
+  FileExportIcon,
   MoreVerticalIcon,
   Settings02Icon,
   FilterIcon,
@@ -24,6 +25,8 @@ interface ActionButtonsProps {
   onToggleFilterPanel: () => void;
   onOpenSettings: () => void;
   onOpenFeedback: () => void;
+  onExport: () => void;
+  isExportMode: boolean;
   className?: string;
 }
 
@@ -34,6 +37,8 @@ export function ActionButtons({
   onToggleFilterPanel,
   onOpenSettings,
   onOpenFeedback,
+  onExport,
+  isExportMode,
   className,
 }: Readonly<ActionButtonsProps>) {
   return (
@@ -77,6 +82,23 @@ export function ActionButtons({
             {filteredEventNamesCount}
           </Badge>
         )}
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onExport}
+        className={cn(
+          `
+            px-1.5 text-xs text-muted-foreground
+            hover:text-foreground
+            sm:px-2
+          `,
+          isExportMode && 'border border-primary bg-accent'
+        )}
+        title="Export timeline"
+        aria-label="Export timeline"
+      >
+        <HugeiconsIcon icon={FileExportIcon} size={14} />
       </Button>
       <Button
         variant="ghost"
