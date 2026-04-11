@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Analytics X-Ray",
+  "name": "Analytics X-Ray (Segment Debugger)",
   "description": "Analytics X-Ray is a tool that helps you analyze and debug Segment events being fired on web pages.",
   "options_ui": {
     "page": "src/pages/options/index.html",
