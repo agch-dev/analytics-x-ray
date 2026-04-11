@@ -97,6 +97,7 @@ export function ActionButtons({
         )}
         title="Export timeline"
         aria-label="Export timeline"
+        aria-pressed={isExportMode}
       >
         <HugeiconsIcon icon={FileExportIcon} size={14} />
       </Button>

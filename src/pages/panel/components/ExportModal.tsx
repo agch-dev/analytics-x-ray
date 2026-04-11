@@ -175,9 +175,14 @@ export function ExportModal({
         </DialogHeader>
 
         {/* Mode selector */}
-        <div className="flex gap-1 rounded-md border border-border p-1">
+        <div
+          role="group"
+          aria-label="Export mode"
+          className="flex gap-1 rounded-md border border-border p-1"
+        >
           <button
             type="button"
+            aria-pressed={mode === 'smart'}
             className={cn(
               'flex-1 rounded px-3 py-1.5 text-xs font-medium transition-colors',
               mode === 'smart'
@@ -193,6 +198,7 @@ export function ExportModal({
           </button>
           <button
             type="button"
+            aria-pressed={mode === 'raw'}
             className={cn(
               'flex-1 rounded px-3 py-1.5 text-xs font-medium transition-colors',
               mode === 'raw'
