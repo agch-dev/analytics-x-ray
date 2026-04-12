@@ -101,6 +101,9 @@ interface ExtensionConfig {
   // Onboarding settings
   dismissedOnboardingModals: string[]; // List of onboarding modal IDs that have been dismissed
 
+  // Feature acknowledgement (for "new" badges)
+  acknowledgedFeatures: string[]; // Features the user has interacted with
+
   // Section defaults configuration
   sectionDefaults: SectionDefaults;
 
@@ -141,6 +144,10 @@ interface ConfigStore extends ExtensionConfig {
   dismissOnboardingModal: (modalId: string) => void;
   isOnboardingModalDismissed: (modalId: string) => boolean;
   resetOnboardingModals: () => void;
+
+  // Feature acknowledgement actions
+  acknowledgeFeature: (featureId: string) => void;
+  isFeatureAcknowledged: (featureId: string) => boolean;
 
   // Section defaults actions
   setSectionDefaultExpanded: (
@@ -193,6 +200,7 @@ const defaultConfig: ExtensionConfig = {
     default: defaultPinnedProfile,
   },
   dismissedOnboardingModals: [],
+  acknowledgedFeatures: [],
   sectionDefaults: defaultSectionDefaults,
   exportSections: DEFAULT_EXPORT_SECTIONS,
 };
@@ -353,6 +361,22 @@ export const useConfigStore = create<ConfigStore>()(
         set({ dismissedOnboardingModals: [] });
       },
 
+      // Feature acknowledgement actions
+      acknowledgeFeature: (featureId) => {
+        set((state) => {
+          if (!state.acknowledgedFeatures.includes(featureId)) {
+            return {
+              acknowledgedFeatures: [...state.acknowledgedFeatures, featureId],
+            };
+          }
+          return state;
+        });
+      },
+      isFeatureAcknowledged: (featureId) => {
+        const state = get();
+        return state.acknowledgedFeatures.includes(featureId);
+      },
+
       // Section defaults actions
       setSectionDefaultExpanded: (sectionKey, expanded) => {
         set((state) => ({
@@ -400,7 +424,7 @@ export const useConfigStore = create<ConfigStore>()(
     {
       name: 'analytics-xray-config',
       storage: createJSONStorage(() => createChromeStorage()),
-      version: 8,
+      version: 9,
       migrate: (persistedState, version) => {
         const state = persistedState as ExtensionConfig;
         if (version < 2) {
@@ -459,6 +483,13 @@ export const useConfigStore = create<ConfigStore>()(
           return {
             ...state,
             exportSections: DEFAULT_EXPORT_SECTIONS,
+          };
+        }
+        if (version < 9) {
+          // Migration from v8 to v9: add acknowledgedFeatures
+          return {
+            ...state,
+            acknowledgedFeatures: defaultConfig.acknowledgedFeatures,
           };
         }
         return state;

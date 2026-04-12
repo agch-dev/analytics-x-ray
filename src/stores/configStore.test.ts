@@ -52,6 +52,7 @@ describe('configStore', () => {
         },
       },
       dismissedOnboardingModals: [],
+      acknowledgedFeatures: [],
       sectionDefaults: {
         sections: {
           properties: true,
@@ -505,6 +506,51 @@ describe('configStore', () => {
           useConfigStore.getState().isOnboardingModalDismissed('modal2')
         ).toBe(false);
       });
+    });
+  });
+
+  describe('feature acknowledgement - acknowledgeFeature', () => {
+    it('should add feature ID to acknowledged list', () => {
+      useConfigStore.getState().acknowledgeFeature('export');
+      expect(useConfigStore.getState().acknowledgedFeatures).toContain(
+        'export'
+      );
+    });
+
+    it('should not add duplicate feature IDs', () => {
+      useConfigStore.getState().acknowledgeFeature('export');
+      useConfigStore.getState().acknowledgeFeature('export');
+
+      expect(
+        useConfigStore
+          .getState()
+          .acknowledgedFeatures.filter((id: string) => id === 'export')
+      ).toHaveLength(1);
+    });
+
+    it('should handle multiple features', () => {
+      useConfigStore.getState().acknowledgeFeature('export');
+      useConfigStore.getState().acknowledgeFeature('feature-2');
+
+      const acknowledged = useConfigStore.getState().acknowledgedFeatures;
+      expect(acknowledged).toContain('export');
+      expect(acknowledged).toContain('feature-2');
+      expect(acknowledged).toHaveLength(2);
+    });
+  });
+
+  describe('isFeatureAcknowledged', () => {
+    it('should return false for unacknowledged features', () => {
+      expect(useConfigStore.getState().isFeatureAcknowledged('export')).toBe(
+        false
+      );
+    });
+
+    it('should return true for acknowledged features', () => {
+      useConfigStore.getState().acknowledgeFeature('export');
+      expect(useConfigStore.getState().isFeatureAcknowledged('export')).toBe(
+        true
+      );
     });
   });
 

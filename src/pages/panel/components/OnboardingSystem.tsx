@@ -9,6 +9,7 @@
 import { useEffect, useState, type ComponentType } from 'react';
 
 import { useOnboarding } from '@src/hooks';
+import { useConfigStore } from '@src/stores';
 
 export interface OnboardingModalProps {
   open: boolean;
@@ -38,6 +39,13 @@ interface OnboardingSystemProps {
    * Useful for testing or re-showing important onboarding
    */
   forceShow?: boolean;
+
+  /**
+   * Feature IDs to auto-acknowledge when this modal is dismissed.
+   * Prevents "new" badges from showing for features the user just
+   * learned about through the onboarding modal.
+   */
+  featuresToAcknowledge?: string[];
 }
 
 /**
@@ -53,8 +61,10 @@ export function OnboardingSystem({
   ModalComponent,
   delay = 0,
   forceShow = false,
+  featuresToAcknowledge,
 }: Readonly<OnboardingSystemProps>) {
   const { isDismissed, dismiss } = useOnboarding(modalId);
+  const acknowledgeFeature = useConfigStore((s) => s.acknowledgeFeature);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -71,17 +81,27 @@ export function OnboardingSystem({
     return () => clearTimeout(timer);
   }, [isDismissed, forceShow, delay]);
 
+  const acknowledgeFeatures = () => {
+    if (featuresToAcknowledge) {
+      for (const featureId of featuresToAcknowledge) {
+        acknowledgeFeature(featureId);
+      }
+    }
+  };
+
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
 
-    // If closing, dismiss the modal
+    // If closing, dismiss the modal and acknowledge features
     if (!open) {
       dismiss();
+      acknowledgeFeatures();
     }
   };
 
   const handleDismiss = () => {
     dismiss();
+    acknowledgeFeatures();
     setIsOpen(false);
   };
 

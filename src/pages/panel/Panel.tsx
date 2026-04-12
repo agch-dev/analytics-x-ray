@@ -450,6 +450,7 @@ export default function Panel() {
         modalId="welcome-v2"
         ModalComponent={WelcomeOnboardingModal}
         delay={500}
+        featuresToAcknowledge={['export']}
       />
 
       <ExportModal
