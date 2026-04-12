@@ -88,10 +88,21 @@ describe('exportFormatter.ts', () => {
       );
 
       expect(result).toContain('# Analytics Events Export');
-      expect(result).toContain('> 1 events from **example.com**');
+      expect(result).toContain('> 1 event from **example.com**');
       expect(result).toContain(
         'between 2024-01-01T10:00:00.000Z and 2024-01-01T10:00:00.000Z'
       );
+    });
+
+    it('should use plural "events" for multiple events in the header', () => {
+      const events = [mockEvent1, mockEvent2];
+      const result = formatEventsAsMarkdown(
+        events,
+        [],
+        DEFAULT_EXPORT_SECTIONS
+      );
+
+      expect(result).toContain('> 2 events from **example.com**');
     });
 
     it('should format a single event correctly', () => {

@@ -206,13 +206,9 @@ function formatMetadata(
   function formatCaptureInfoMetadata() {
     if (sections.metadataCaptureInfo) {
       lines.push('- **Capture Info**:');
-      if (event.url) lines.push(`  - captureUrl: ${event.url}`);
-      if (event.provider) lines.push(`  - provider: ${event.provider}`);
-      if (event.capturedAt) {
-        lines.push(
-          `  - capturedAt: ${new Date(event.capturedAt).toISOString()}`
-        );
-      }
+      lines.push(`  - captureUrl: ${event.url}`);
+      lines.push(`  - provider: ${event.provider}`);
+      lines.push(`  - capturedAt: ${new Date(event.capturedAt).toISOString()}`);
     }
   }
 
@@ -298,8 +294,9 @@ export function formatEventsAsMarkdown(
   // Header with LLM context
   lines.push('# Analytics Events Export');
   lines.push('');
+  const eventLabel = events.length === 1 ? 'event' : 'events';
   lines.push(
-    `> ${events.length} events from **${domain}** captured between ${firstTs} and ${lastTs}.`
+    `> ${events.length} ${eventLabel} from **${domain}** captured between ${firstTs} and ${lastTs}.`
   );
   lines.push(
     '> This export contains analytics tracking events captured from a web application\u2019s Segment/RudderStack SDK.'
