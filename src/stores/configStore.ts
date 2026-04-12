@@ -8,6 +8,10 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import {
+  DEFAULT_EXPORT_SECTIONS,
+  type ExportSections,
+} from '@src/lib/exportFormatter';
 import { createChromeStorage } from '@src/lib/storage';
 
 /**
@@ -97,8 +101,14 @@ interface ExtensionConfig {
   // Onboarding settings
   dismissedOnboardingModals: string[]; // List of onboarding modal IDs that have been dismissed
 
+  // Feature acknowledgement (for "new" badges)
+  acknowledgedFeatures: string[]; // Features the user has interacted with
+
   // Section defaults configuration
   sectionDefaults: SectionDefaults;
+
+  // Export sections toggle preferences
+  exportSections: ExportSections;
 }
 
 interface ConfigStore extends ExtensionConfig {
@@ -108,6 +118,7 @@ interface ConfigStore extends ExtensionConfig {
   setPreferredEventDetailView: (
     view: ExtensionConfig['preferredEventDetailView']
   ) => void;
+  setExportSections: (sections: ExportSections) => void;
   reset: () => void;
 
   // Pin actions
@@ -133,6 +144,10 @@ interface ConfigStore extends ExtensionConfig {
   dismissOnboardingModal: (modalId: string) => void;
   isOnboardingModalDismissed: (modalId: string) => boolean;
   resetOnboardingModals: () => void;
+
+  // Feature acknowledgement actions
+  acknowledgeFeature: (featureId: string) => void;
+  isFeatureAcknowledged: (featureId: string) => boolean;
 
   // Section defaults actions
   setSectionDefaultExpanded: (
@@ -185,7 +200,9 @@ const defaultConfig: ExtensionConfig = {
     default: defaultPinnedProfile,
   },
   dismissedOnboardingModals: [],
+  acknowledgedFeatures: [],
   sectionDefaults: defaultSectionDefaults,
+  exportSections: DEFAULT_EXPORT_SECTIONS,
 };
 
 /**
@@ -272,12 +289,14 @@ export const useConfigStore = create<ConfigStore>()(
       setTheme: (theme) => set({ theme }),
       setPreferredEventDetailView: (view) =>
         set({ preferredEventDetailView: view }),
+      setExportSections: (sections) => set({ exportSections: sections }),
       // Reset only user-visible settings, preserve pinned properties (internal state)
       reset: () =>
         set((state) => ({
           maxEvents: defaultConfig.maxEvents,
           theme: defaultConfig.theme,
           preferredEventDetailView: defaultConfig.preferredEventDetailView,
+          exportSections: defaultConfig.exportSections,
           // Preserve pinnedProperties - they're internal state not shown in Options
           pinnedProperties: state.pinnedProperties,
         })),
@@ -342,6 +361,22 @@ export const useConfigStore = create<ConfigStore>()(
         set({ dismissedOnboardingModals: [] });
       },
 
+      // Feature acknowledgement actions
+      acknowledgeFeature: (featureId) => {
+        set((state) => {
+          if (!state.acknowledgedFeatures.includes(featureId)) {
+            return {
+              acknowledgedFeatures: [...state.acknowledgedFeatures, featureId],
+            };
+          }
+          return state;
+        });
+      },
+      isFeatureAcknowledged: (featureId) => {
+        const state = get();
+        return state.acknowledgedFeatures.includes(featureId);
+      },
+
       // Section defaults actions
       setSectionDefaultExpanded: (sectionKey, expanded) => {
         set((state) => ({
@@ -389,7 +424,7 @@ export const useConfigStore = create<ConfigStore>()(
     {
       name: 'analytics-xray-config',
       storage: createJSONStorage(() => createChromeStorage()),
-      version: 7,
+      version: 9,
       migrate: (persistedState, version) => {
         const state = persistedState as ExtensionConfig;
         if (version < 2) {
@@ -443,6 +478,20 @@ export const useConfigStore = create<ConfigStore>()(
             sectionDefaults: defaultSectionDefaults,
           };
         }
+        if (version < 8) {
+          // Migration from v7 to v8: add exportSections
+          return {
+            ...state,
+            exportSections: DEFAULT_EXPORT_SECTIONS,
+          };
+        }
+        if (version < 9) {
+          // Migration from v8 to v9: add acknowledgedFeatures
+          return {
+            ...state,
+            acknowledgedFeatures: defaultConfig.acknowledgedFeatures,
+          };
+        }
         return state;
       },
     }
@@ -454,3 +503,5 @@ export const selectMaxEvents = (state: ConfigStore) => state.maxEvents;
 export const selectTheme = (state: ConfigStore) => state.theme;
 export const selectPreferredEventDetailView = (state: ConfigStore) =>
   state.preferredEventDetailView;
+export const selectExportSections = (state: ConfigStore) =>
+  state.exportSections;

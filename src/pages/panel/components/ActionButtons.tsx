@@ -1,5 +1,6 @@
 import {
   Delete02Icon,
+  FileExportIcon,
   MoreVerticalIcon,
   Settings02Icon,
   FilterIcon,
@@ -15,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@src/components';
+import { useNewFeatureBadge } from '@src/hooks';
 import { cn } from '@src/lib';
 
 interface ActionButtonsProps {
@@ -24,6 +26,8 @@ interface ActionButtonsProps {
   onToggleFilterPanel: () => void;
   onOpenSettings: () => void;
   onOpenFeedback: () => void;
+  onExport: () => void;
+  isExportMode: boolean;
   className?: string;
 }
 
@@ -34,8 +38,18 @@ export function ActionButtons({
   onToggleFilterPanel,
   onOpenSettings,
   onOpenFeedback,
+  onExport,
+  isExportMode,
   className,
 }: Readonly<ActionButtonsProps>) {
+  const { showBadge: showExportBadge, acknowledge: acknowledgeExport } =
+    useNewFeatureBadge('export');
+
+  const handleExport = () => {
+    acknowledgeExport();
+    onExport();
+  };
+
   return (
     <div
       className={cn(
@@ -75,6 +89,32 @@ export function ActionButtons({
             `}
           >
             {filteredEventNamesCount}
+          </Badge>
+        )}
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleExport}
+        className={cn(
+          `
+            relative px-1.5 text-xs text-muted-foreground
+            hover:text-foreground
+            sm:px-2
+          `,
+          isExportMode && 'border border-primary bg-accent'
+        )}
+        title="Export timeline"
+        aria-label="Export timeline"
+        aria-pressed={isExportMode}
+      >
+        <HugeiconsIcon icon={FileExportIcon} size={14} />
+        {showExportBadge && (
+          <Badge
+            variant="default"
+            className={`absolute -top-1 -right-1 h-4 px-1 text-[10px]`}
+          >
+            new
           </Badge>
         )}
       </Button>

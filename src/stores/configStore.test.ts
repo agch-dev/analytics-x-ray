@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import { DEFAULT_EXPORT_SECTIONS } from '@src/lib/exportFormatter';
+
 import { useConfigStore } from './configStore';
 
 // Mock the logger
@@ -50,6 +52,7 @@ describe('configStore', () => {
         },
       },
       dismissedOnboardingModals: [],
+      acknowledgedFeatures: [],
       sectionDefaults: {
         sections: {
           properties: true,
@@ -75,6 +78,7 @@ describe('configStore', () => {
           metadataIdentifiersAlwaysOpenForIdentityEvents: true,
         },
       },
+      exportSections: DEFAULT_EXPORT_SECTIONS,
     });
   });
 
@@ -143,11 +147,27 @@ describe('configStore', () => {
     });
   });
 
+  describe('setExportSections', () => {
+    it('should update exportSections', () => {
+      const newSections = {
+        ...DEFAULT_EXPORT_SECTIONS,
+        properties: false,
+        metadata: false,
+      };
+      useConfigStore.getState().setExportSections(newSections);
+      expect(useConfigStore.getState().exportSections).toEqual(newSections);
+    });
+  });
+
   describe('reset', () => {
     it('should reset user-visible settings to defaults', () => {
       useConfigStore.getState().setMaxEvents(2000);
       useConfigStore.getState().setTheme('dark');
       useConfigStore.getState().setPreferredEventDetailView('json');
+      useConfigStore.getState().setExportSections({
+        ...DEFAULT_EXPORT_SECTIONS,
+        properties: false,
+      });
 
       useConfigStore.getState().reset();
 
@@ -155,6 +175,9 @@ describe('configStore', () => {
       expect(useConfigStore.getState().theme).toBe('auto');
       expect(useConfigStore.getState().preferredEventDetailView).toBe(
         'structured'
+      );
+      expect(useConfigStore.getState().exportSections).toEqual(
+        DEFAULT_EXPORT_SECTIONS
       );
     });
 
@@ -483,6 +506,51 @@ describe('configStore', () => {
           useConfigStore.getState().isOnboardingModalDismissed('modal2')
         ).toBe(false);
       });
+    });
+  });
+
+  describe('feature acknowledgement - acknowledgeFeature', () => {
+    it('should add feature ID to acknowledged list', () => {
+      useConfigStore.getState().acknowledgeFeature('export');
+      expect(useConfigStore.getState().acknowledgedFeatures).toContain(
+        'export'
+      );
+    });
+
+    it('should not add duplicate feature IDs', () => {
+      useConfigStore.getState().acknowledgeFeature('export');
+      useConfigStore.getState().acknowledgeFeature('export');
+
+      expect(
+        useConfigStore
+          .getState()
+          .acknowledgedFeatures.filter((id: string) => id === 'export')
+      ).toHaveLength(1);
+    });
+
+    it('should handle multiple features', () => {
+      useConfigStore.getState().acknowledgeFeature('export');
+      useConfigStore.getState().acknowledgeFeature('feature-2');
+
+      const acknowledged = useConfigStore.getState().acknowledgedFeatures;
+      expect(acknowledged).toContain('export');
+      expect(acknowledged).toContain('feature-2');
+      expect(acknowledged).toHaveLength(2);
+    });
+  });
+
+  describe('isFeatureAcknowledged', () => {
+    it('should return false for unacknowledged features', () => {
+      expect(useConfigStore.getState().isFeatureAcknowledged('export')).toBe(
+        false
+      );
+    });
+
+    it('should return true for acknowledged features', () => {
+      useConfigStore.getState().acknowledgeFeature('export');
+      expect(useConfigStore.getState().isFeatureAcknowledged('export')).toBe(
+        true
+      );
     });
   });
 

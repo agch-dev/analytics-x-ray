@@ -14,3 +14,4 @@ export {
 export { useTheme } from './useTheme';
 export { useDebounce } from './useDebounce';
 export { useOnboarding } from './useOnboarding';
+export { useNewFeatureBadge } from './useNewFeatureBadge';

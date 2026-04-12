@@ -39,10 +39,13 @@ interface EventRowHeaderProps {
   isExpanded?: boolean;
   isSticky?: boolean;
   isHidden?: boolean;
+  isExportMode?: boolean;
+  isSelected?: boolean;
   searchMatch?: SearchMatch | null;
   viewMode?: ViewMode;
   onToggleHide?: (eventName: string) => void;
   onViewModeChange?: (mode: ViewMode) => void;
+  onToggleSelect?: (eventId: string, shiftKey: boolean) => void;
 }
 
 export const EventRowHeader = React.memo(function EventRowHeader({
@@ -50,15 +53,28 @@ export const EventRowHeader = React.memo(function EventRowHeader({
   isExpanded = false,
   isSticky = false,
   isHidden = false,
+  isExportMode = false,
+  isSelected = false,
   searchMatch,
   viewMode,
   onToggleHide,
   onViewModeChange,
+  onToggleSelect,
 }: EventRowHeaderProps) {
   const handleMuteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     const normalizedName = normalizeEventNameForFilter(event.name, event.type);
     onToggleHide?.(normalizedName);
+  };
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // Clear any text selection caused by shift+click
+    if (e.shiftKey) {
+      window.getSelection()?.removeAllRanges();
+    }
+    onToggleSelect?.(event.id, e.shiftKey);
   };
 
   const handleViewModeClick = (e: React.MouseEvent, mode: ViewMode) => {
@@ -93,6 +109,60 @@ export const EventRowHeader = React.memo(function EventRowHeader({
         bucketColor || 'border-l-gray-500'
       )}
     >
+      {/* Export mode checkbox */}
+      {isExportMode && (
+        <div
+          onClick={handleCheckboxClick}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleSelect?.(event.id, e.shiftKey);
+            }
+          }}
+          role="checkbox"
+          tabIndex={0}
+          aria-checked={isSelected}
+          aria-label={
+            isSelected
+              ? `Deselect ${event.name} event`
+              : `Select ${event.name} event`
+          }
+          className="flex shrink-0 items-center justify-center select-none"
+        >
+          <div
+            className={cn(
+              `
+                flex h-4 w-4 items-center justify-center rounded border
+                transition-colors
+              `,
+              isSelected
+                ? 'border-primary bg-primary'
+                : `
+                  border-muted-foreground/40 bg-background
+                  hover:border-primary/60
+                `
+            )}
+          >
+            {isSelected && (
+              <svg
+                viewBox="0 0 12 12"
+                fill="none"
+                className="h-3 w-3 text-primary-foreground"
+              >
+                <path
+                  d="M10 3L4.5 8.5L2 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Timestamp */}
       <span className="w-24 shrink-0 font-mono text-xs text-muted-foreground">
         {formatTime(event.timestamp)}

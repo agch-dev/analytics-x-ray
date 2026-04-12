@@ -79,3 +79,11 @@ export {
 
 // Event Buckets
 export { categorizeEvent, getBucketColor } from './eventBuckets';
+
+// Export Formatter
+export {
+  formatEventsAsMarkdown,
+  formatEventsAsJson,
+  DEFAULT_EXPORT_SECTIONS,
+  type ExportSections,
+} from './exportFormatter';

@@ -3,6 +3,7 @@ import {
   Search01Icon,
   PinIcon,
   Clock04Icon,
+  FileExportIcon,
   CheckmarkCircle01Icon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -49,6 +50,12 @@ const features: Feature[] = [
     title: 'Timeline View Improvements',
     description:
       'Navigate through your analytics timeline with clear visual separators for page reloads and navigation events. So you can easily see what happened when.',
+  },
+  {
+    icon: FileExportIcon,
+    title: 'Timeline Export',
+    description:
+      'Select events from the timeline and export them as Smart Export — a Markdown format optimized for pairing with your tracking plan and using an LLM to validate your analytics implementation.',
   },
 ];
 

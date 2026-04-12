@@ -21,6 +21,8 @@ interface HeaderProps {
   onClear: () => void;
   onToggleFilterPanel: () => void;
   onOpenFeedback: () => void;
+  onExport: () => void;
+  isExportMode: boolean;
 }
 
 export function Header({
@@ -34,6 +36,8 @@ export function Header({
   onClear,
   onToggleFilterPanel,
   onOpenFeedback,
+  onExport,
+  isExportMode,
 }: Readonly<HeaderProps>) {
   // Check if we're at the max events limit (showing truncation indicator)
   const isAtMaxEvents = totalEventCount >= maxEvents;
@@ -76,9 +80,9 @@ export function Header({
               <span className="sm:hidden">X-Ray</span>
               <span
                 className={`
-                hidden
-                sm:inline
-              `}
+                  hidden
+                  sm:inline
+                `}
               >
                 Segment Analytics X-Ray
               </span>
@@ -111,6 +115,8 @@ export function Header({
           onToggleFilterPanel={onToggleFilterPanel}
           onOpenSettings={handleOpenSettings}
           onOpenFeedback={onOpenFeedback}
+          onExport={onExport}
+          isExportMode={isExportMode}
           className="lg:hidden"
         />
       </div>
@@ -161,6 +167,8 @@ export function Header({
         onToggleFilterPanel={onToggleFilterPanel}
         onOpenSettings={handleOpenSettings}
         onOpenFeedback={onOpenFeedback}
+        onExport={onExport}
+        isExportMode={isExportMode}
         className={`
           hidden
           lg:flex

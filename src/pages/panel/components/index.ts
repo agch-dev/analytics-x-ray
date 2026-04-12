@@ -8,6 +8,8 @@ export { Header } from './Header';
 export { EventList, type EventListHandle } from './EventList';
 export { Footer } from './Footer';
 export { FilterPanel } from './FilterPanel';
+export { ExportToolbar } from './ExportToolbar';
+export { ExportModal } from './ExportModal';
 export { ScrollToBottomButton } from './ScrollToBottomButton';
 export { FeedbackModal } from './FeedbackModal';
 export { OnboardingSystem } from './OnboardingSystem';

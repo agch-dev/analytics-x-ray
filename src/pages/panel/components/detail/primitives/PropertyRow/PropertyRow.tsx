@@ -1,4 +1,10 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, {
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+} from 'react';
 
 import { HighlightedText } from '@src/components';
 import {
@@ -54,6 +60,17 @@ export const PropertyRow = React.memo(
       };
     });
 
+    const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Clear timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (copyTimeoutRef.current) {
+          clearTimeout(copyTimeoutRef.current);
+        }
+      };
+    }, []);
+
     // Helper for partial updates
     const updateState = useCallback((partial: Partial<PropertyRowState>) => {
       setState((prev) => ({ ...prev, ...partial }));
@@ -72,7 +89,13 @@ export const PropertyRow = React.memo(
       const success = copyToClipboard(textToCopy);
       if (success) {
         updateState({ copied: true });
-        setTimeout(() => updateState({ copied: false }), 1500);
+        if (copyTimeoutRef.current) {
+          clearTimeout(copyTimeoutRef.current);
+        }
+        copyTimeoutRef.current = setTimeout(() => {
+          updateState({ copied: false });
+          copyTimeoutRef.current = null;
+        }, 1500);
       }
     }, [value, updateState]);
 

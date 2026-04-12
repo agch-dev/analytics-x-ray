@@ -1,7 +1,7 @@
 import { Copy01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import JsonView from '@uiw/react-json-view';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 import { getJsonViewTheme, highlightText, copyToClipboard } from '@src/lib';
 
@@ -36,13 +36,29 @@ export function ThemedJsonView({
   shouldExpandNodeInitially,
 }: Readonly<ThemedJsonViewProps>) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Custom copy handler
   const handleCopy = useCallback((text: string, key: string) => {
     const success = copyToClipboard(text);
     if (success) {
       setCopiedKey(key);
-      setTimeout(() => setCopiedKey(null), 1500);
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopiedKey(null);
+        copyTimeoutRef.current = null;
+      }, 1500);
     }
   }, []);
 

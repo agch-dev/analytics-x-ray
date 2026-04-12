@@ -1,6 +1,6 @@
 {
   "name": "segment-analytics-x-ray",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Segment Analytics X-Ray is a tool that helps you analyze and debug Segment events being fired on web pages.",
   "license": "MIT",
   "repository": {

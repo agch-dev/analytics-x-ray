@@ -21,14 +21,21 @@ vi.mock('@src/lib/logger', () => ({
 }));
 
 // Mock the storage module
-vi.mock('@src/lib/storage', () => ({
-  createTabStorage: vi.fn((_tabId: number) => ({
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-  })),
-  logStorageSize: vi.fn(),
-}));
+vi.mock('@src/lib/storage', async () => {
+  const actual =
+    await vi.importActual<typeof import('@src/lib/storage')>(
+      '@src/lib/storage'
+    );
+  return {
+    ...actual,
+    createTabStorage: vi.fn((_tabId: number) => ({
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    })),
+    logStorageSize: vi.fn(),
+  };
+});
 
 // Create mock storage that can be accessed in tests (hoisted)
 const { mockStorage, mockConfigStore } = vi.hoisted(() => {
@@ -534,12 +541,17 @@ describe('tabStore', () => {
   describe('syncReloadTimestamps', () => {
     it('should sync reload timestamps from storage', async () => {
       const testTabId = 999;
-      const testStore = getTabStore(testTabId);
       const timestamps = [1000, 2000, 3000];
       const reloadsKey = `tab_${testTabId}_reloads`;
 
+      // Mock storage BEFORE calling getTabStore because getTabStore
+      // triggers an unawaited syncReloadTimestamps call in the background
       mockStorage.local.get.mockResolvedValue({ [reloadsKey]: timestamps });
 
+      const testStore = getTabStore(testTabId);
+
+      // Wait for the background task triggered by getTabStore to finish
+      // or call it again manually just to be sure
       await syncReloadTimestamps(testTabId);
 
       expect(testStore.getState().reloadTimestamps).toEqual(timestamps);
@@ -559,9 +571,9 @@ describe('tabStore', () => {
 
     it('should handle storage errors gracefully', async () => {
       const testTabId = 999;
-      getTabStore(testTabId);
-
       mockStorage.local.get.mockRejectedValue(new Error('Storage error'));
+
+      getTabStore(testTabId);
 
       await expect(syncReloadTimestamps(testTabId)).resolves.not.toThrow();
 
@@ -571,10 +583,11 @@ describe('tabStore', () => {
 
     it('should handle empty reload timestamps', async () => {
       const testTabId = 999;
-      const testStore = getTabStore(testTabId);
       const reloadsKey = `tab_${testTabId}_reloads`;
 
       mockStorage.local.get.mockResolvedValue({ [reloadsKey]: [] });
+
+      const testStore = getTabStore(testTabId);
 
       await syncReloadTimestamps(testTabId);
 
