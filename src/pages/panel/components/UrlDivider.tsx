@@ -113,7 +113,7 @@ function Header({
 
       <HugeiconsIcon icon={Icon} size={16} className={iconColor} />
       <span
-        className="flex-1 truncate font-mono"
+        className="min-w-0 flex-1 truncate font-mono"
         title={currentUrl || 'Unknown URL'}
       >
         {displayText}
@@ -132,7 +132,7 @@ function Header({
   );
 
   const baseClassName =
-    'flex items-center gap-2 px-4 py-2 text-xs text-foreground/80';
+    'flex w-full min-w-0 items-center gap-2 px-4 py-2 text-left text-xs text-foreground/80';
   const interactiveClassName = cn(
     baseClassName,
     `

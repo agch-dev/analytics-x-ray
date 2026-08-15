@@ -186,7 +186,9 @@ export const EventList = forwardRef<EventListHandle, EventListProps>(
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="relative mt-2 flex-1 overflow-y-auto px-4 pb-2"
+        className={`
+          relative mt-2 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-2
+        `}
       >
         {/* Sticky header overlay - clickable to collapse and scroll to event */}
         {stickyEvent && (
